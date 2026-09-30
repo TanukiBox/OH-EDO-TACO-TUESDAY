@@ -3,7 +3,7 @@
  *   ・タコスの味 = 皮とのせた食材の「辛・酸・旨・香・食感」の合計
  *   ・客の好み（want）にどれだけ近いか → 好みの点（0〜1）
  *   ・注文どおりか → 注文の点（0〜1）
- *   ・2つを合わせた点数で、星1〜3と代金が決まる。熟練度で値段と星の上限が上がる
+ *   ・待ち時間・焼き加減・盛り付け・好みの4項目で、星1〜5と代金・心付けが決まる。熟練度で値段と星の上限が上がる
  * 数字はすべて config.js（RATING・CUSTOMERS・MASTERY）。
  */
 (function (global) {
@@ -114,32 +114,71 @@
     return { pref: Math.max(0, Math.min(1, p)), bonus: bonus, taste: T, forbidden: forbidden, hint: hint };
   }
 
+  function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+
+  /** 木札の順番どおりにのせたか（0〜1）。順番が入れかわったペアの少なさ */
+  function sequenceScore(expected, seq) {
+    var common = seq.filter(function (id, i) { return expected.indexOf(id) >= 0 && seq.indexOf(id) === i; });
+    if (common.length < 2) return 1;
+    var ok = 0, all = 0;
+    for (var i = 0; i < common.length; i++) {
+      for (var j = i + 1; j < common.length; j++) {
+        all++;
+        if (expected.indexOf(common[i]) < expected.indexOf(common[j])) ok++;
+      }
+    }
+    return all ? ok / all : 1;
+  }
+
   /**
-   * 評価する。
-   * guest  = { type, typeId, want: [..], order: 'tempura' | null(おまかせ), variant }
-   * served = { skin, items }
-   * waited = 座ってから出すまでの秒数
+   * 評価する（星5段階）。
+   * guest   = { type, typeId, want, order: 'tempura' | null(おまかせ), variant, patienceMax }
+   * served  = { skin, items }
+   * waited  = 客が来てから出すまでの秒数
+   * plating = { seq: のせた順の食材, layers: [{ id, use, amount, even, q }] }（なければ満点あつかい）
+   * 4項目：待ち時間・焼き加減・盛り付け（順番・量・均等さ）・好み。重みと星の区切りは config.js の SCORE
    */
-  OT.evaluate = function (guest, served, waited, chapter) {
-    var R = cfg().RATING;
+  OT.evaluate = function (guest, served, waited, chapter, plating) {
+    var R = cfg().RATING, SC = cfg().SCORE;
     var got = identify(served, chapter);
     var p = preference(guest, served, waited);
-    var score, cap = 3;
+    var cap = 5, correct = 1, seqScore = 1;
     if (guest.order) {
       var r = cfg().TACOS[guest.order];
       var need = needOf(guest.order, guest.variant);
       var missing = need.filter(function (n) { return served.items.indexOf(n) < 0; }).length;
       if (!skinOk(r.skin, served.skin)) missing += 1;
       var extras = served.items.filter(function (n) { return need.indexOf(n) < 0; }).length;
-      var orderScore = Math.max(0, 1 - R.missingPenalty * missing - R.extraPenalty * extras);
-      score = R.orderWeight * orderScore + (1 - R.orderWeight) * p.pref + p.bonus;
+      correct = Math.max(0, 1 - R.missingPenalty * missing - R.extraPenalty * extras);
       if (missing >= 2) cap = R.wrongOrderMaxStars;
-    } else {
-      score = p.pref + p.bonus;   // おまかせ：好みだけで決まる
+      if (plating && plating.seq) seqScore = sequenceScore(need, plating.seq);
     }
     if (p.forbidden) cap = 1;
-    if (guest.fav && got && got.id === guest.fav) score += cfg().REGULARS.favBonus;   // 常連の好物
-    score = Math.max(0, Math.min(1, score));
+
+    // 盛り付け：量と均等さ（撒く・回しかけるものだけ）
+    var amounts = [], evens = [], cooks = [];
+    ((plating && plating.layers) || []).forEach(function (L) {
+      if (L.use === 'sprinkle' || L.use === 'drizzle') { amounts.push(L.amount); evens.push(L.even); }
+      if (L.q !== undefined && L.q !== null) cooks.push(L.q);
+    });
+    function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : 1; }
+    var PW = SC.plate;
+    var plateRaw = guest.order
+      ? (PW.order * seqScore + PW.amount * avg(amounts) + PW.even * avg(evens)) / (PW.order + PW.amount + PW.even)
+      : (PW.amount * avg(amounts) + PW.even * avg(evens)) / (PW.amount + PW.even);
+    var parts = {
+      wait: 1,
+      cook: clamp01(avg(cooks)),
+      plate: clamp01(plateRaw * correct),
+      pref: clamp01(p.pref + p.bonus)
+    };
+    // 待ち時間：待てる時間の waitGrace までは満点、それを過ぎると waitFloor まで下がる
+    var pm = guest.patienceMax || (guest.type && guest.type.patience) || 60;
+    var ratio = waited / pm;
+    if (ratio > SC.waitGrace) parts.wait = Math.max(SC.waitFloor, 1 - (ratio - SC.waitGrace) / (1 - SC.waitGrace) * (1 - SC.waitFloor));
+    var W = guest.order ? SC.weights : SC.omakaseWeights;
+    var score = (W.wait * parts.wait + W.cook * parts.cook + W.plate * parts.plate + W.pref * parts.pref) / (W.wait + W.cook + W.plate + W.pref);
+    score = clamp01(score);
 
     // 値段と、タコスごとの星の上限（熟練度）
     var base, lv = 0, key = got ? got.id : null;
@@ -150,19 +189,21 @@
       var rec = cfg().TACOS[key];
       lv = level(key);
       base = rec.price * cfg().MASTERY.priceMul[lv - 1];
-      cap = Math.min(cap, rec.maxStars || 3, key === 'sutaco' ? 3 : cfg().MASTERY.maxStars[lv - 1]);
+      cap = Math.min(cap, rec.maxStars || 5, key === 'sutaco' ? 5 : cfg().MASTERY.maxStars[lv - 1]);
     } else {
       base = R.omakaseBase;
       served.items.forEach(function (id) { base += (ing(id) || {}).value || 0; });
     }
-    var stars = score >= R.star3 ? 3 : score >= R.star2 ? 2 : 1;
-    stars = Math.min(stars, cap);
+    var pct = score * 100, stars = 1;
+    SC.stars.forEach(function (cut, i) { if (pct >= cut) stars = i + 2; });
+    stars = Math.max(1, Math.min(stars, cap));
     var pay = key === 'sutaco' ? 1 : Math.max(1, Math.round(base * R.starPay[stars] * guest.type.pay));
+    var tip = key === 'sutaco' ? 0 : Math.round(base * R.tipRate[stars] * guest.type.pay);
     return {
       recipe: key,              // 出したタコス（メニュー外なら null = おまかせ、'su:食材' = 素タコス）
       variant: got && got.variant,
       level: lv,
-      score: score, pref: p.pref, stars: stars, pay: pay,
+      score: score, parts: parts, pref: p.pref, stars: stars, pay: pay, tip: tip,
       rep: cfg().REP.perStar[stars],
       forbidden: p.forbidden, hint: p.hint
     };

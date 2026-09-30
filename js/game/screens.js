@@ -272,6 +272,7 @@
       var starsTxt = r.served ? r.avg.toFixed(1) + ' ' + '★'.repeat(Math.round(r.avg)) : '—';
       var rows = [
         [OT.t('res.sales'), OT.t('ui.money', { n: r.sales }), 'big'],
+        [OT.t('res.tips'), '🏺 ' + OT.t('ui.money', { n: r.tips || 0 })],
         [OT.t('res.served'), OT.t('res.servedVal', { n: r.served, a: r.angry })],
         [OT.t('res.stars'), starsTxt],
         [OT.t('res.satisfaction'), r.satisfaction + '%'],

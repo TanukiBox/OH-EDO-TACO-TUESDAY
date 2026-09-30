@@ -231,8 +231,8 @@ class Person:
         fur, dark, belly = mat("#8c5228", 0.9), mat("#2e1a12", 0.9), mat("#f0e6d2", 0.9)
         R = self.root
         self.hips = empty("hips", (0, 0, 0.55), R)
-        self.chest = empty("chest", (0, 0, 0.14), self.hips)
-        self.headp = empty("head", (0, 0, 0.08), self.chest)
+        self.chest = empty("chest", (0, 0, 0.06), self.hips)
+        self.headp = empty("head", (0, 0, 0.02), self.chest)   # 頭を体に少し沈めて、すき間ができないように
         self.arm = {s: empty("arm%d" % s, (0.24 * s, -0.02, 0.0), self.chest) for s in (-1, 1)}
         self.leg = {s: empty("leg%d" % s, (0.13 * s, 0, -0.42), self.hips) for s in (-1, 1)}
         obj("body", sphere(0.36, 1.0, 0.9, 1.0, loc=(0, 0, -0.12)), fur, self.hips)

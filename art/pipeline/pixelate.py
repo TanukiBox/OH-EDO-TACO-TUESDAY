@@ -68,15 +68,30 @@ def to_image(index, opaque):
     return Image.fromarray(out, "RGBA")
 
 
-def pixelate(src_path, size, with_outline=True):
+def pixelate(src_path, size, with_outline=True, recolor=None):
     """高解像度レンダー1枚 → 完成ドット絵（RGBA の Image）。
-    with_outline=False は輪郭なし（タコスの上に散らす具のかけらなど、ほかの絵に重ねるもの）。"""
+    with_outline=False は輪郭なし（タコスの上に散らす具のかけらなど、ほかの絵に重ねるもの）。
+    recolor は色の変え方（'raw' 生焼け / 'burnt' 焦げ）。減色の前に色を変える。"""
     src = Image.open(src_path).convert("RGBA")
+    if recolor:
+        src = recolor_image(src, recolor)
     small = downscale(src, size)
     index, opaque = quantize(small)
     if with_outline:
         index, opaque = outline(index, opaque)
     return to_image(index, opaque)
+
+
+def recolor_image(img, how):
+    """焼き加減の見た目：'raw' は白っぽく赤み（生）、'burnt' は黒く焦げる。"""
+    a = np.asarray(img, dtype=np.float64).copy()
+    rgb_ = a[..., :3]
+    if how == "raw":
+        rgb_ = rgb_ * np.array([0.5, 0.45, 0.45]) + np.array([245, 175, 160]) * np.array([0.5, 0.55, 0.55])
+    elif how == "burnt":
+        rgb_ = rgb_ * np.array([0.34, 0.26, 0.24]) + np.array([22, 12, 10])
+    a[..., :3] = np.clip(rgb_, 0, 255)
+    return Image.fromarray(a.astype(np.uint8), "RGBA")
 
 
 def save_png(img, path):

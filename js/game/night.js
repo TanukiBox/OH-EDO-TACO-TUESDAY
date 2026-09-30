@@ -1,5 +1,5 @@
 /*
- * 多幸寿：夜の営業（客が来る → 注文 → 料理 → 包んで出す → 評価）
+ * 多幸寿：夜の営業（客が来る → 注文を聞く（木札）→ 焼き場・盛り付け（kitchen.js）→ 包んで出す → 評価）
  */
 (function (global) {
   'use strict';
@@ -8,7 +8,6 @@
   var W = 256, H = 144;               // 屋台の絵の大きさ（ドット）
   var SEAT_X = [58, 128, 198];         // 席の位置
   var GUEST_Y = 130;                   // 客の足もと（カウンターのうしろ）
-  var CATS = ['skin', 'main', 'salsa', 'herb'];
 
   var N = null;   // 今夜のようす
 
@@ -96,7 +95,7 @@
     return {
       typeId: typeId, type: type, want: want, order: null, variant: null, seat: seat,
       x: seat < 1 ? -36 : W + 36, state: 'in', t: 0,
-      patience: type.patience * pm, patienceMax: type.patience * pm, waited: 0,
+      patience: type.patience * pm, patienceMax: type.patience * pm, waitMax: type.patience * pm, waited: 0,
       line: OT.say('cust.' + typeId + '.hello'), lineT: 2.5, mood: 'ok', variantSeed: Math.floor(Math.random() * 1000),
       smallBonus: N.fest && N.fest.smallBonus
     };
@@ -146,7 +145,7 @@
     setTimeout(function () {
       if (!N) return;
       OT.ui.toast(OT.t('trav.brought', { name: g.name, items: Object.keys(info.bring).map(OT.ingName).join('・') }), 'tip');
-      renderBins();
+      if (OT.kitchen._peek()) OT.kitchen.go(OT.kitchen._peek().station);
       if (!OT.story.seen('traveler_first')) { N.pause = true; OT.story.check('traveler', null, function () { if (N) N.pause = false; }); }
     }, 900);
     return g;
@@ -163,7 +162,7 @@
     g.want = cfg().VIP_WANT[V.guest].concat();
     g.type = Object.assign({}, g.type, { omakase: 0, fastBonus: 0, looksBonus: V.guest === 'raizo' ? 0.15 : 0, forbid: null, plainPenalty: 0, rareBonus: 0, bigBonus: 0 });
     g.order = V.recipe;
-    g.patience = g.patienceMax = V.time;
+    g.patience = g.patienceMax = g.waitMax = V.time;
     g.line = OT.t('vip.' + vipId + '.odai');
     g.lineT = 5;
     return g;
@@ -196,8 +195,11 @@
   OT.todayFestival = function () { return OT.state.get() ? todayFestival() : null; };
 
   // ---------------------------------------------------------------
-  // 画面
+  // 画面：上に木札の紐、まん中に持ち場（注文＝屋台 / 焼き場 / 盛り付け）、下に持ち場のボタン
+  //   料理の中身は kitchen.js。ここは客の出入りと、評価・売上・閉店
   // ---------------------------------------------------------------
+  function maxGuests() { return cfg().KITCHEN.maxGuests[Math.min(5, OT.state.chapter() - 1)]; }
+
   OT.night = {
     enter: function (opts) {
       opts = opts || {};
@@ -208,11 +210,9 @@
         tribute: !!opts.tribute, festival: festival, fest: festival ? cfg().FESTIVALS.list[festival] : null,
         queue: [], vip: null, vipResult: null, regularsServed: [],
         time: 0, open: true, closed: false, nextGuest: cfg().DAY.firstGuestAfter,
-        guests: [null, null, null], selected: -1,
-        dish: { skin: null, items: [] }, tab: 'skin',
-        folding: -1, foldT: 0,
-        sales: 0, served: 0, angry: 0, starsSum: 0, repDelta: 0, sold: {}, soldMoney: {}, soldVariant: {},
-        floaters: []
+        guests: [null, null, null],
+        sales: 0, tips: 0, served: 0, angry: 0, starsSum: 0, repDelta: 0, streak: 0, sold: {}, soldMoney: {}, soldVariant: {},
+        mateoAnim: 'wait', mateoT: 0
       };
 
       var timer = OT.el('span', { class: 'hud-timer' });
@@ -220,61 +220,23 @@
       N.timerEl = timer;
       root.appendChild(N.hud);
 
-      // 屋台（客）
+      // 屋台（客）：注文の持ち場
       var stage = OT.el('div', { class: 'stall' });
       N.canvas = OT.ui.pixelCanvas(W, H, 'stall-canvas');
       stage.appendChild(N.canvas);
-      N.bubbles = [];
+      N.bubbles = []; N.hits = [];
       for (var s = 0; s < 3; s++) {
         (function (seat) {
           var b = OT.el('div', { class: 'bubble', style: 'left:' + (SEAT_X[seat] / W * 100) + '%' });
           var hit = OT.el('div', { class: 'seat-hit', style: 'left:' + ((SEAT_X[seat] - 30) / W * 100) + '%;width:' + (60 / W * 100) + '%',
-            onpointerdown: function (e) { e.preventDefault(); selectSeat(seat, true); } });
+            onpointerdown: function (e) { e.preventDefault(); tapSeat(seat); } });
           stage.appendChild(hit);
           stage.appendChild(b);
-          N.bubbles.push(b);
+          N.bubbles.push(b); N.hits.push(hit);
         })(s);
       }
       N.fx = OT.el('div', { class: 'fx' });
       stage.appendChild(N.fx);
-      root.appendChild(stage);
-
-      // 調理台
-      var kitchen = OT.el('div', { class: 'kitchen' });
-      var boardWrap = OT.el('div', { class: 'board' });
-      N.board = OT.ui.pixelCanvas(128, 128, 'board-canvas');
-      boardWrap.appendChild(N.board);
-      N.dishName = OT.el('div', { class: 'dish-name' });
-      boardWrap.appendChild(N.dishName);
-      if (OT.sprites.has('people_mateo_happi')) {
-        N.mateoCanvas = OT.ui.pixelCanvas(64, 80, 'mateo-canvas');
-        boardWrap.appendChild(N.mateoCanvas);
-      }
-      N.mateoAnim = 'wait'; N.mateoT = 0;
-      kitchen.appendChild(boardWrap);
-
-      N.tabsEl = OT.el('div', { class: 'tabs' });
-      CATS.forEach(function (c) {
-        N.tabsEl.appendChild(OT.el('button', { class: 'tab', 'data-cat': c, text: OT.t('night.tab.' + c),
-          onclick: function () { OT.sfx.tap(); N.tab = c; renderBins(); } }));
-      });
-      kitchen.appendChild(N.tabsEl);
-      N.binsEl = OT.el('div', { class: 'bins' });
-      kitchen.appendChild(N.binsEl);
-
-      var actions = OT.el('div', { class: 'actions' });
-      N.clearBtn = OT.button(OT.t('night.clear'), clearDish, 'ghost');
-      N.wrapBtn = OT.button(OT.t('night.wrap'), wrap, 'primary');
-      actions.appendChild(N.clearBtn);
-      // 作り置きのかご蒸し（タップ1回で出せる）
-      if (OT.state.chapter() >= cfg().KAGO.chapter && st().seen.kagomushi) {
-        N.kagoBtn = OT.button('', serveKago, 'kago');
-        actions.appendChild(N.kagoBtn);
-        actions.classList.add('three');
-      }
-      actions.appendChild(N.wrapBtn);
-      kitchen.appendChild(actions);
-      root.appendChild(kitchen);
 
       // 今夜の特別な客
       var forced = OT.story.nightRegular();
@@ -297,217 +259,94 @@
           N.queue.push(function (seat) { return makeRegular(seat, rt); });
         }
       }
-      renderBins();
-      drawBoard();
+
+      OT.kitchen.build(N, root, stage);
+
+      // はじめての夜：時間を止めて、ひとりのお客さん（与吉の紅白タコス）だけで練習する
+      if (OT.kitchen.tutorialActive()) {
+        N.frozen = true;
+        st().flags.tutStep = 0;
+        ['tortilla', 'tai', 'bainiku', 'daikon'].forEach(function (id) { if (OT.state.stockOf(id) <= 0) OT.state.addStock(id, 1); });
+        N.queue = [function (seat) { var g = makeRegular(seat, 'chonin'); g.order = 'kohaku'; g.variant = null; return g; }];
+        N.nextGuest = 0.8;
+      }
+
       OT.sfx.clack(2);
       if (!N.tribute && OT.sprites.has('people_mateo_happi')) {
         // 開店カットイン（暖簾がはためく → マテオが勝負服に着替える）
         N.pause = true;
-        OT.fx.cutin(function () { if (N) N.pause = false; });
+        OT.fx.cutin(function () { if (N) { N.pause = false; OT.kitchen.tutorialCheck(); } });
       } else OT.ui.toast(N.tribute ? OT.t('night.tribute') : OT.t('night.open'), 'big');
       if (N.festival) setTimeout(function () { if (N) OT.ui.toast(OT.t('fest.' + N.festival) + '　' + OT.t('fest.' + N.festival + '.desc'), 'tip long'); }, 1200);
-      if (st().day === 1 && st().flags.tutDone) setTimeout(function () { if (N) OT.ui.toast(OT.t('pon.night1'), 'tip long'); }, 900);
 
       N.last = performance.now();
       N.raf = requestAnimationFrame(loop);
     },
-    leave: function () { if (N && N.raf) cancelAnimationFrame(N.raf); N = null; },
+    leave: function () { if (N && N.raf) cancelAnimationFrame(N.raf); N = null; OT.kitchen.leave(); },
     pickVip: function () { return pickVip(); },
+    /** kitchen.js が、包んだタコスを客に出すときに呼ぶ */
+    serve: function (g, served, plating) { if (N && g) judge(g, served, plating); },
     /** 自動テスト用：今夜のようす（ゲームでは使わない） */
     _peek: function () { return N; }
   };
 
-  // ---------------------------------------------------------------
-  // 食材の箱
-  // ---------------------------------------------------------------
-  function inUse(id) {
-    var n = 0;
-    if (N.dish.skin === id) n++;
-    N.dish.items.forEach(function (x) { if (x === id) n++; });
-    return n;
-  }
-
-  function renderBins() {
-    if (N.kagoBtn) {
-      N.kagoBtn.textContent = '🧺 ×' + OT.state.stockOf('kagomushi');
-      N.kagoBtn.disabled = OT.state.stockOf('kagomushi') <= 0;
-    }
-    var tabs = N.tabsEl.querySelectorAll('.tab');
-    for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('on', tabs[i].getAttribute('data-cat') === N.tab);
-    N.binsEl.innerHTML = '';
-    var ids = Object.keys(cfg().INGREDIENTS).filter(function (id) {
-      var g = cfg().INGREDIENTS[id];
-      if (g.virtual) return g.cat === N.tab && OT.state.chapter() >= 3;   // 3枚重ねの皮（トウモロコシの皮3枚）
-      return g.cat === N.tab && st().seen[id];
-    });
-    // 在庫のあるものを前に
-    ids.sort(function (a, b) { return (OT.state.stockOf(b) > 0) - (OT.state.stockOf(a) > 0); });
-    ids.forEach(function (id) {
-      var left = OT.state.stockOf(id) - inUse(id);
-      var icon = OT.ui.pixelCanvas(24, 24, 'bin-icon');
-      OT.art.drawIcon(icon, id);
-      var on = (N.tab === 'skin' ? N.dish.skin === id : N.dish.items.indexOf(id) >= 0);
-      var b = OT.el('button', { class: 'bin' + (left <= 0 ? ' empty' : '') + (on ? ' on' : ''),
-        onclick: function () { addIngredient(id); } }, [
-        icon,
-        OT.el('span', { class: 'bin-name', text: OT.ingName(id) }),
-        OT.el('span', { class: 'bin-count', text: OT.t('ui.stock', { n: Math.max(0, left) }) })
-      ]);
-      N.binsEl.appendChild(b);
-    });
-  }
-
-  function addIngredient(id) {
-    if (N.folding >= 0) return;
-    var ing = cfg().INGREDIENTS[id];
-    if (OT.state.stockOf(id) - inUse(id) <= 0) { OT.sfx.denied(); OT.ui.toast(OT.t('night.out')); return; }
-    if (ing.cat === 'skin') {
-      N.dish.skin = id;
-      OT.sfx.place();
-      N.tab = 'main';
-    } else {
-      if (!N.dish.skin) { OT.sfx.denied(); OT.ui.toast(OT.t('night.needSkin')); N.tab = 'skin'; renderBins(); return; }
-      var idx = N.dish.items.indexOf(id);
-      if (idx >= 0) { N.dish.items.splice(idx, 1); OT.sfx.tap(); }   // もう一度押すと外す
-      else {
-        if (N.dish.items.length >= cfg().RATING.maxToppings) { OT.sfx.denied(); OT.ui.toast(OT.t('night.full')); return; }
-        N.dish.items.push(id);
-        OT.sfx.place();
-      }
-    }
-    renderBins();
-    drawBoard();
-  }
-
-  function clearDish() {
-    if (N.folding >= 0) return;
-    N.dish = { skin: null, items: [] };
-    N.tab = 'skin';
-    renderBins();
-    drawBoard();
-  }
-
-  // ---------------------------------------------------------------
-  // 調理台の絵
-  // ---------------------------------------------------------------
-  function drawBoard() {
-    var ctx = N.board.getContext('2d');
-    ctx.clearRect(0, 0, 128, 128);
-    var frame = N.folding >= 0 ? N.folding : 0;
-    if (!N.dish.skin) {
-      ctx.drawImage(OT.art.img('plate'), 0, 0);
-    } else {
-      OT.art.drawSkin(ctx, N.dish.skin, frame);
-      OT.art.drawToppings(ctx, N.dish.items, frame);
-      var idd = OT.identifyTaco(N.dish, OT.state.chapter());
-      var rec = idd && cfg().TACOS[idd.id];
-      if (rec && !rec.light && frame === 0) OT.sprites.drawSudachi(ctx);   // さっぱりしたタコス以外は、すだちを添える
-    }
-    var name = '';
-    if (N.dish.skin) {
-      var id = OT.identifyTaco(N.dish, OT.state.chapter());
-      if (id) {
-        name = '→ ' + OT.tacoName(id.id, id.variant);
-        if (cfg().TACOS[id.id]) name += '  Lv' + OT.masteryLevel(id.id);
-      } else if (N.dish.items.length) name = '→ ' + OT.t('night.omakaseName');
-    }
-    N.dishName.textContent = name;
-    N.wrapBtn.disabled = !N.dish.skin || N.folding >= 0;
-  }
-
-  // ---------------------------------------------------------------
-  // 包んで出す
-  // ---------------------------------------------------------------
-  function selectSeat(seat, byTap) {
+  /** 客をタップ：注文を聞いて、木札をつくる */
+  function tapSeat(seat) {
     var g = N.guests[seat];
-    if (!g || g.state !== 'wait') return;
-    N.selected = seat;
-    if (byTap) OT.sfx.tap();
-  }
-
-  function autoSelect() {
-    var cur = N.guests[N.selected];
-    if (cur && cur.state === 'wait') return;
-    var best = -1, bestP = 1e9;
-    N.guests.forEach(function (g, i) {
-      if (g && g.state === 'wait' && g.patience < bestP) { best = i; bestP = g.patience; }
-    });
-    N.selected = best;
-  }
-
-  function wrap() {
-    if (!N.dish.skin || N.folding >= 0) return;
-    autoSelect();
-    if (N.selected < 0) { OT.sfx.denied(); OT.ui.toast(OT.t('night.noGuest')); return; }
-    N.folding = 0; N.foldT = 0;
-    N.foldTarget = N.selected;
-    OT.sfx.wrap();
-    drawBoard();
-  }
-
-  function serve() {
-    var g = N.guests[N.foldTarget];
-    if (!g || g.state !== 'wait') { autoSelect(); g = N.guests[N.selected]; }
-    var dish = N.dish;
-    N.dish = { skin: null, items: [] };
-    N.folding = -1;
-    N.tab = 'skin';
-    if (!g) { renderBins(); drawBoard(); return; }   // 出す相手がいない（まれ）
-    // 在庫を使う
-    OT.state.useStock(dish.skin, 1);
-    dish.items.forEach(function (id) { OT.state.useStock(id, 1); });
-    judge(g, dish);
-    if (OT.tut) OT.tut.done('n4');
-    renderBins();
-    drawBoard();
-  }
-
-  /** 作り置きのかご蒸しを、選んでいる客にすぐ出す */
-  function serveKago() {
-    if (N.folding >= 0) return;
-    autoSelect();
-    var g = N.guests[N.selected];
-    if (!g) { OT.sfx.denied(); OT.ui.toast(OT.t('night.noGuest')); return; }
-    if (!OT.state.useStock('kagomushi', 1)) { OT.sfx.denied(); OT.ui.toast(OT.t('night.out')); return; }
-    OT.sfx.wrap();
-    judge(g, { skin: 'kagomushi', items: [] });
-    renderBins();
+    if (!g) return;
+    if (g.state === 'order') {
+      g.state = 'wait'; g.t = 0;
+      g.patience = g.patienceMax = g.waitMax;
+      g.waited = 0;
+      g.line = g.vip ? OT.t('vip.' + g.vip + '.odai') : OT.t('k.ordered.' + (g.order ? 'menu' : 'omakase'), { name: g.order ? OT.tacoName(g.order, g.variant) : '' });
+      g.lineT = 2.2;
+      OT.kitchen.takeOrder(g);
+      OT.kitchen.tutorialCheck();
+    } else if (g.state === 'wait') {
+      OT.sfx.tap();   // 待っている客：その木札を選んで、盛り付けへ
+      var K = OT.kitchen._peek();
+      if (K && g.ticket && !OT.kitchen.tutorialActive()) { K.selected = g.ticket; OT.kitchen.go('plate'); }
+    }
   }
 
   /** 評価して、客のようす・売上・評判に反映する */
-  function judge(g, dish) {
-    var res = OT.evaluate(g, dish, g.waited, OT.state.chapter());
+  function judge(g, served, plating) {
+    var res = OT.evaluate(g, served, g.waited, OT.state.chapter(), plating);
     // 行事の日の値段
     if (N.fest && N.fest.priceMul && res.recipe && N.fest.priceMul[res.recipe]) res.pay = Math.round(res.pay * N.fest.priceMul[res.recipe]);
     // VIP：お題のタコスを、点数 minScore 以上で出せば勝ち
     if (g.vip) {
       var V = cfg().VIPS[g.vip];
-      var ok = res.recipe === V.recipe && res.score >= V.minScore && (!V.minItems || dish.items.length >= V.minItems);
+      var ok = res.recipe === V.recipe && res.score >= V.minScore && (!V.minItems || served.items.length >= V.minItems);
       N.vipResult = ok ? 'win' : 'lose';
       N.vipScore = res.score;
       res.rep += ok ? cfg().REP.vipWin : cfg().REP.vipLose;
-      if (ok) res.stars = 3;
+      if (ok) res.stars = 5;
     }
-    // 常連：星3を出すと、なじみが深まる
-    if (g.regular && res.stars === 3) {
+    // 星4以上が続くと、評判がさらに上がる
+    if (res.stars >= 4) { N.streak++; if (N.streak >= 2) res.rep += cfg().REP.streakBonus; } else N.streak = 0;
+    // 常連：星4以上を出すと、なじみが深まる
+    if (g.regular && res.stars >= 4) {
       st().regulars[g.regular] = (st().regulars[g.regular] || 0) + 1;
       if (st().regulars[g.regular] >= cfg().REGULARS.eventAfter) N.regularsServed.push(g.regular);
     }
+    // 台詞は3段階（星1〜2 / 星3 / 星4〜5）
+    var say = res.stars >= 4 ? 3 : res.stars === 3 ? 2 : 1;
     g.state = 'eat'; g.t = 0; g.result = res;
-    g.mood = res.stars >= 2 ? 'happy' : 'worry';
+    g.mood = res.stars >= 3 ? 'happy' : 'worry';
     if (res.forbidden && g.type.forbid) g.line = OT.say('cust.' + g.typeId + '.forbid');
     else if (g.vip) g.line = OT.t('vip.' + (N.vipResult === 'win' ? 'win' : 'lose'));
-    else if (g.traveler) g.line = OT.say('trav.' + res.stars);
-    else if (g.regular) g.line = OT.say('reg.' + g.regular + '.' + res.stars);
-    else g.line = OT.say('cust.' + g.typeId + '.' + res.stars);
+    else if (g.traveler) g.line = OT.say('trav.' + say);
+    else if (g.regular) g.line = OT.say('reg.' + g.regular + '.' + say);
+    else g.line = OT.say('cust.' + g.typeId + '.' + say);
     g.lineT = 2.4;
     // ときどき、味のひとこと感想（いちばん好みから外れた味について）
-    if (res.hint && res.stars < 3 && !res.forbidden && Math.random() < cfg().COMMENT_CHANCE) {
+    if (res.hint && res.stars < 4 && !res.forbidden && Math.random() < cfg().COMMENT_CHANCE) {
       g.comment = OT.say('cmt.' + (res.hint.more ? 'more' : 'less') + '.' + res.hint.k);
-    } else if (res.stars === 3 && Math.random() < cfg().COMMENT_CHANCE * 0.5) {
+    } else if (res.stars === 5 && Math.random() < cfg().COMMENT_CHANCE * 0.5) {
       g.comment = OT.say('cmt.great');
     }
-    N.sales += res.pay; N.served++; N.starsSum += res.stars; N.repDelta += res.rep;
+    N.sales += res.pay; N.tips += res.tip; N.served++; N.starsSum += res.stars; N.repDelta += res.rep;
     var key = res.recipe || 'omakase';
     N.sold[key] = (N.sold[key] || 0) + 1;
     N.soldMoney[key] = (N.soldMoney[key] || 0) + res.pay;
@@ -519,9 +358,10 @@
     if (before && OT.masteryLevel(res.recipe) > before) {
       setTimeout(function () { if (N) OT.ui.toast(OT.t('night.levelUp', { name: OT.tacoName(res.recipe), lv: OT.masteryLevel(res.recipe) }), 'lv'); }, 500);
     }
+    OT.kitchen.showCard(g, res);
     OT.sfx.happy(res.stars);
     setTimeout(function () { if (N) OT.sfx.coin(); }, 350);
-    if (res.stars === 3) { mateoDo('pose', 1.4); OT.fx.closeup(OT.sprites.personKey(g), g.line); }
+    if (res.stars === 5) { mateoDo('pose', 1.4); OT.fx.closeup(OT.sprites.personKey(g), g.line); }
     refreshHud();
   }
 
@@ -545,47 +385,53 @@
     var dt = Math.min(0.05, (now - N.last) / 1000);
     N.last = now;
     update(dt);
-    draw();
-    N.raf = requestAnimationFrame(loop);
+    if (N) draw();
+    if (N) N.raf = requestAnimationFrame(loop);
+  }
+
+  function leaveAngry(g, i) {
+    g.state = 'out'; g.t = 0; g.mood = 'angry'; g.line = OT.say('cust.angry'); g.lineT = 2;
+    N.angry++; N.repDelta += cfg().REP.angry; N.streak = 0;
+    if (g.vip) N.vipResult = 'lose';
+    OT.kitchen.dropTicketFor(g);
+    OT.sfx.angry();
+    floater(i, '💢', 'angry');
+    refreshHud();
   }
 
   function update(dt) {
     var D = cfg().DAY;
     if (N.pause || OT.dialogOpen()) return;
-    N.time += dt;
+    OT.kitchen.update(dt);            // 焼き場は、どの持ち場にいても進む（案内中も）
+    if (!N) return;
+    var frozen = !!N.frozen;          // はじめての夜の案内中は、時間が止まる
+    if (!frozen) N.time += dt;
     if (N.mateoT > 0) N.mateoT -= dt;
     if (N.tribute && N.vipResult && N.open) N.time = Math.max(N.time, D.nightSeconds);   // 献上は1皿で終わり
     var left = Math.max(0, Math.ceil(D.nightSeconds - N.time));
-    N.timerEl.textContent = '⏳ ' + OT.t('night.close', { n: left });
+    N.timerEl.textContent = (frozen ? '⏸ ' : '⏳ ') + OT.t('night.close', { n: left });
 
-    // 折りたたみのアニメ
-    if (N.folding >= 0) {
-      N.foldT += dt;
-      var f = Math.min(7, Math.floor(N.foldT / 0.07));
-      if (f !== N.folding) { N.folding = f; drawBoard(); }
-      if (N.foldT > 0.07 * 8 + 0.15) serve();
-    }
-
-    // 新しい客
+    // 新しい客（同時に来る数は章で決まる）
     if (N.open) {
       N.nextGuest -= dt;
-      if (N.nextGuest <= 0 && N.time < D.nightSeconds - D.lastOrderBefore && (!N.tribute || N.queue.length)) {
+      var present = N.guests.filter(function (g) { return g && g.state !== 'out'; }).length;
+      var can = frozen ? (present === 0 && N.queue.length > 0 && !N.tutGuest) : present < maxGuests();
+      if (N.nextGuest <= 0 && can && N.time < D.nightSeconds - D.lastOrderBefore && (!N.tribute || N.queue.length)) {
         var free = [];
         N.guests.forEach(function (g, i) { if (!g) free.push(i); });
         if (free.length) {
-          var seat = free[Math.floor(Math.random() * free.length)];
+          var seat = frozen ? (free.indexOf(1) >= 0 ? 1 : free[0]) : free[Math.floor(Math.random() * free.length)];
           N.guests[seat] = makeGuest(seat);
+          if (frozen) N.tutGuest = true;
           OT.sfx.arrive();
           mateoDo('greet', 1.2);
           var busy = Math.pow(D.busier, Math.min(5, OT.state.chapter()) - 1) * ((N.fest && N.fest.busier) || 1);
           N.nextGuest = (D.arrivalMin + Math.random() * (D.arrivalMax - D.arrivalMin)) * busy;
-        } else {
-          N.nextGuest = 1.5;
-        }
+        } else N.nextGuest = 1.5;
       }
     }
 
-    // 客それぞれ
+    // 客それぞれ：入る → 注文（タップで聞く）→ 待つ → 食べる → 帰る
     N.guests.forEach(function (g, i) {
       if (!g) return;
       g.t += dt;
@@ -593,74 +439,62 @@
       var target = SEAT_X[i];
       if (g.state === 'in') {
         g.x += (target - g.x) * Math.min(1, dt * 6);
-        if (Math.abs(target - g.x) < 0.8) { g.x = target; g.state = 'wait'; g.t = 0; }
-      } else if (g.state === 'wait') {
-        if (N.folding < 0 || N.foldTarget !== i) g.patience -= dt;
-        g.waited += dt;
+        if (Math.abs(target - g.x) < 0.8) {
+          g.x = target; g.state = 'order'; g.t = 0;
+          g.patience = g.patienceMax = cfg().KITCHEN.orderPatience * ((N.fest && N.fest.patienceMul) || 1);
+          OT.kitchen.tutorialCheck();
+        }
+      } else if (g.state === 'order' || g.state === 'wait') {
+        if (!frozen) g.patience -= dt;
+        if (g.state === 'wait' && !frozen) g.waited += dt;
         var ratio = g.patience / g.patienceMax;
         g.mood = ratio > 0.5 ? 'ok' : ratio > 0.2 ? 'worry' : 'angry';
-        if (g.patience <= 0) {
-          g.state = 'out'; g.mood = 'angry'; g.line = OT.say('cust.angry'); g.lineT = 2;
-          N.angry++; N.repDelta += cfg().REP.angry;
-          if (g.vip) N.vipResult = 'lose';
-          OT.sfx.angry();
-          floater(i, '💢', 'angry');
-          refreshHud();
-          if (N.selected === i) N.selected = -1;
-        }
+        if (g.patience <= 0) leaveAngry(g, i);
       } else if (g.state === 'eat') {
         if (g.t > 2.2) { g.state = 'out'; g.t = 0; }
       } else if (g.state === 'out') {
         var dir = i < 1 ? -1 : 1;
         g.x += dir * dt * 70;
-        if (g.x < -40 || g.x > W + 40) { N.guests[i] = null; if (N.selected === i) N.selected = -1; }
+        if (g.x < -40 || g.x > W + 40) N.guests[i] = null;
       }
     });
-    autoSelect();
     updateBubbles();
-    tutorialStep();
 
     // 閉店
     if (N.open && N.time >= D.nightSeconds) {
       N.open = false;
-      N.guests.forEach(function (g) { if (g && (g.state === 'wait' || g.state === 'in')) { g.state = 'out'; g.line = ''; } });
+      N.guests.forEach(function (g) {
+        if (g && (g.state === 'wait' || g.state === 'in' || g.state === 'order')) { g.state = 'out'; g.line = ''; OT.kitchen.dropTicketFor(g); }
+      });
       OT.sfx.clack(3);
       OT.ui.toast(OT.t('night.closed'), 'big');
     }
-    if (!N.open && !N.closed && N.folding < 0 && N.guests.every(function (g) { return !g || g.state === 'out'; }) && N.time >= D.nightSeconds + 1.8) {
+    if (!N.open && !N.closed && !OT.kitchen.isBusy() && N.guests.every(function (g) { return !g || g.state === 'out'; }) && N.time >= D.nightSeconds + 1.8) {
       N.closed = true;
       finish();
     }
   }
 
-  /** はじめての1日の案内：注文 → 皮 → 具 → 包む */
-  function tutorialStep() {
-    if (!OT.tut) return;
-    var g = N.guests[N.selected];
-    if (!g || g.state !== 'wait') return;
-    if (!N.dish.skin) OT.tut.point('n2', '.bin');
-    else if (N.dish.items.length < (g.order ? OT.needOf(g.order, g.variant).length : 2)) { OT.tut.done('n2'); OT.tut.point('n3', '.tabs'); }
-    else { OT.tut.done('n3'); OT.tut.point('n4', '.actions .btn.primary'); }
-  }
-
   function updateBubbles() {
     N.guests.forEach(function (g, i) {
       var b = N.bubbles[i];
+      N.hits[i].className = 'seat-hit' + (g && g.state === 'order' ? ' call' : '');
       if (!g || g.state === 'in' || (g.state === 'out' && g.lineT <= 0)) { b.className = 'bubble'; b.innerHTML = ''; return; }
       var html = '';
-      if (g.lineT > 0 && g.line) html += '<div class="b-line">' + esc(g.line) + '</div>';
+      var label = g.name ? g.name : OT.t('cust.' + g.typeId);
+      var typeCls = g.vip ? ' vip' : g.regular ? ' reg' : g.traveler ? ' trav' : '';
+      if (g.state === 'order') {
+        html += '<div class="b-type' + typeCls + '">' + esc(label) + '</div>';
+        html += '<div class="b-call">' + esc(OT.t('k.callOrder')) + '</div>';
+      } else if (g.lineT > 0 && g.line) html += '<div class="b-line">' + esc(g.line) + '</div>';
       else if (g.state === 'eat' && g.comment) html += '<div class="b-line cmt">' + esc(g.comment) + '</div>';
-      if (g.state === 'wait') {
-        var order = g.order ? OT.tacoName(g.order, g.variant) : OT.t('night.omakase');
-        if (g.vip) order = OT.t('vip.odaiShort') + '：' + OT.tacoName(g.order);
-        var label = g.name ? g.name : OT.t('cust.' + g.typeId);
-        html += '<div class="b-type' + (g.vip ? ' vip' : g.regular ? ' reg' : g.traveler ? ' trav' : '') + '">' + esc(label) + '</div>';
-        html += '<div class="b-order">' + esc(order) + '</div>';
+      else if (g.state === 'wait') html += '<div class="b-type' + typeCls + '">' + esc(label) + '</div>';
+      if (g.state === 'wait' || g.state === 'order') {
         var r = Math.max(0, g.patience / g.patienceMax);
         html += '<div class="b-bar"><i style="width:' + (r * 100).toFixed(0) + '%;background:' + (r > 0.5 ? '#46b03a' : r > 0.2 ? '#f5b860' : '#f24a2a') + '"></i></div>';
       }
       if (b.innerHTML !== html) b.innerHTML = html;
-      b.className = 'bubble on' + (N.selected === i && g.state === 'wait' ? ' sel' : '');
+      b.className = 'bubble on' + (g.state === 'order' ? ' call' : '');
     });
   }
 
@@ -670,7 +504,7 @@
   function guestAnim(g) {
     if (g.state === 'in') return 'walk';
     if (g.state === 'out') return g.mood === 'angry' && g.t < 0.9 ? 'angry' : 'walk';
-    if (g.state === 'eat') return g.t < 1.1 ? 'eat' : (g.result && g.result.stars >= 2 ? 'happy' : 'worry');
+    if (g.state === 'eat') return g.t < 1.1 ? 'eat' : (g.result && g.result.stars >= 3 ? 'happy' : 'worry');
     if (g.mood === 'angry') return g.patience / g.patienceMax < 0.1 ? 'angry' : 'worry';
     return g.mood === 'worry' ? 'worry' : 'wait';
   }
@@ -683,30 +517,22 @@
     N.guests.forEach(function (g, i) {
       if (!g) return;
       var key = OT.sprites.personKey(g);
-      var sel = N.selected === i && g.state === 'wait';
       if (key) {
-        if (sel) { ctx.fillStyle = 'rgba(255,230,176,0.18)'; ctx.fillRect(Math.round(g.x) - 30, 40, 60, 90); }
+        if (g.state === 'order' && Math.floor(g.t * 3) % 2) { ctx.fillStyle = 'rgba(255,230,176,0.16)'; ctx.fillRect(Math.round(g.x) - 30, 40, 60, 90); }
         var anim = guestAnim(g);
         var left = (g.state === 'in' && g.x > SEAT_X[i]) || (g.state === 'out' && i >= 1);
         OT.sprites.drawPerson(ctx, key, anim, g.t + i * 0.37, g.x, GUEST_Y, left && anim === 'walk', anim === 'walk' ? 8 : 3);
       } else {
-        OT.art.drawGuest(ctx, g.skin || g.regular || g.typeId, Math.round(g.x), GUEST_Y - 18, g.mood, N.time, sel, g.typeId);
+        OT.art.drawGuest(ctx, g.skin || g.regular || g.typeId, Math.round(g.x), GUEST_Y - 18, g.mood, N.time, g.state === 'order', g.typeId);
       }
     });
     var fg = OT.sprites.stallFg();
     if (fg) ctx.drawImage(fg, 0, 18); else OT.art.drawCounter(ctx, W, H);   // カウンターは少し下げて、客の上半身が見えるように
-    drawMateo();
+    OT.kitchen.draw();
   }
 
-  // 厨房のマテオ：調理中・いらっしゃい・決めポーズ
+  // 厨房のマテオ：調理中・いらっしゃい・決めポーズ（盛り付けの持ち場に出る）
   function mateoDo(anim, sec) { if (N) { N.mateoAnim = anim; N.mateoT = sec; } }
-  function drawMateo() {
-    if (!N.mateoCanvas) return;
-    var ctx = N.mateoCanvas.getContext('2d');
-    ctx.clearRect(0, 0, 64, 80);
-    var anim = N.mateoT > 0 ? N.mateoAnim : (N.dish.skin || N.folding >= 0 ? 'cook' : 'wait');
-    OT.sprites.drawPerson(ctx, N.tribute ? 'mateo_happi' : 'mateo_happi', anim, N.time, 32, 80, false, anim === 'cook' ? 5 : 3);
-  }
 
   // ---------------------------------------------------------------
   // 閉店 → 結果
@@ -720,14 +546,15 @@
     var avg = N.served ? N.starsSum / N.served : 0;
     var chapterBefore = OT.state.chapter();
     s.rep = Math.max(0, s.rep + N.repDelta);
+    s.money += N.tips;                 // 心付けの壺は、閉店のあとに開ける
     s.rankSeen = Math.max(s.rankSeen, OT.state.rank());
     var chapterAfter = OT.state.chapter();
     s.chStart = s.chStart || { 1: 1 };
     for (var c = chapterBefore + 1; c <= chapterAfter; c++) if (!s.chStart[c]) s.chStart[c] = s.day + 1;
-    s.totals.sales += N.sales; s.totals.served += N.served; s.totals.stars += N.starsSum;
+    s.totals.sales += N.sales + N.tips; s.totals.served += N.served; s.totals.stars += N.starsSum;
     s.lastResult = {
-      day: s.day, sales: N.sales, served: N.served, angry: N.angry,
-      avg: avg, satisfaction: N.served + N.angry ? Math.round(N.starsSum / (3 * (N.served + N.angry)) * 100) : 0,
+      day: s.day, sales: N.sales, tips: N.tips, served: N.served, angry: N.angry,
+      avg: avg, satisfaction: N.served + N.angry ? Math.round(N.starsSum / (5 * (N.served + N.angry)) * 100) : 0,
       rep: N.repDelta, best: best === 'omakase' ? null : best, bestIsOmakase: best === 'omakase',
       bestVariant: N.soldVariant[best] || null,
       rankUp: chapterAfter > chapterBefore ? chapterAfter : 0,
@@ -735,6 +562,7 @@
       regulars: N.regularsServed, tribute: N.tribute, festival: N.festival
     };
     if (N.vip && N.vipResult === 'win') s.flags[cfg().VIPS[N.vip].win] = 1;
+    s.flags.tutNight = 1;
     s.phase = 'result';
     OT.state.save();
     setTimeout(function () { OT.night.leave(); OT.flow.result(); }, 600);

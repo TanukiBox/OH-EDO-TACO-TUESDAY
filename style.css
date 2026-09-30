@@ -349,7 +349,125 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .kami-pic { width: 100%; height: auto; aspect-ratio: 3 / 2; border: 2px solid #2e1a12; }
 
 .tut { position: absolute; inset: 0; pointer-events: none; z-index: 60; }
-.tut-ring { position: absolute; border: 3px solid #ffe6b0; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(7,11,24,.35), 0 0 16px #f5b860; animation: blink 1s infinite; }
-.tut-bubble { position: absolute; left: 12px; right: 12px; background: #2a2838; border: 2px solid #f5b860; border-radius: 12px; padding: 8px 12px; font-size: 14px; display: flex; flex-direction: column; }
+.tut-ring { position: absolute; border: 3px solid #ffe6b0; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(7,11,24,.35), 0 0 16px #f5b860; animation: tutPulse 1s infinite; }
+@keyframes tutPulse { 50% { border-color: #f5b860; box-shadow: 0 0 0 4000px rgba(7,11,24,.35), 0 0 4px #f5b860; } }
+.tut-bubble { position: absolute; left: 12px; right: 12px; background: #2a2838; border: 2px solid #f5b860; border-radius: 12px; padding: 8px 12px; font-size: 14px; line-height: 1.45; display: flex; flex-direction: column; gap: 4px; pointer-events: auto; box-shadow: 0 4px 0 rgba(0,0,0,.4); }
 .tut-bubble b { color: #f5b860; font-size: 12px; }
+.tut-head { display: flex; align-items: center; gap: 8px; }
+.tut-step { font-size: 11px; color: var(--muted); }
+.tut-x { margin-left: auto; background: none; border: 0; color: var(--ink2); font-size: 20px; line-height: 1; padding: 0 4px; cursor: pointer; }
+.tut-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 2px; }
+.tut-btns button { border-radius: 8px; padding: 6px 14px; font-weight: 800; font-size: 13px; border: 2px solid #f5b860; cursor: pointer; }
+.tut-ok { background: #f5b860; color: #1c1220; }
+.tut-skip { background: transparent; color: var(--ink2); border-color: #4a4658 !important; }
 .screen.scroll > * { flex-shrink: 0; }
+
+
+/* ------------------------------------------------------------------
+   夜の厨房：木札の紐 / 3つの持ち場 / 持ち場のボタン
+   ------------------------------------------------------------------ */
+.rail { position: relative; flex: none; display: flex; gap: 6px; overflow-x: auto; padding: 12px 8px 4px; min-height: 100px; background: linear-gradient(#2e1a12, #1c1220); border-bottom: 2px solid #5a3218; scrollbar-width: none; }
+.rail::-webkit-scrollbar { display: none; }
+.rope { position: absolute; left: 0; right: 0; top: 4px; height: 12px; background: url('art/output/game/kitchen/k_rope.png') repeat-x; background-size: auto 12px; image-rendering: pixelated; pointer-events: none; }
+.rail-empty { align-self: center; color: var(--muted); font-size: 12px; margin: 0 auto; }
+.ticket { position: relative; flex: none; width: 104px; min-height: 84px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 12px 4px 5px; border: 0; border-radius: 4px; color: #1c1220; cursor: pointer;
+  background: url('art/output/game/kitchen/k_ticket.png') center / 100% 100%, #f4cc62; image-rendering: pixelated; box-shadow: 0 3px 0 #5a3218; transform-origin: 50% 0; animation: tkIn .35s ease-out; }
+@keyframes tkIn { 0% { transform: rotate(-8deg) translateY(-12px); opacity: 0; } 60% { transform: rotate(4deg); opacity: 1; } 100% { transform: rotate(0); } }
+.ticket.sel { outline: 3px solid #ffe6b0; box-shadow: 0 0 12px #f5b860, 0 3px 0 #5a3218; }
+.ticket .tk-name { font-size: 9.5px; color: #5a3218; font-weight: 700; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ticket .tk-title { font-size: 11px; font-weight: 900; line-height: 1.1; text-align: center; }
+.ticket .tk-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 1px; }
+.ticket .tk-step { position: relative; width: 22px; height: 22px; }
+.ticket .tk-step canvas { width: 22px; height: 22px; image-rendering: pixelated; }
+.ticket .tk-step b { position: absolute; left: -2px; top: -3px; font-size: 8px; background: #b8323a; color: #fff; border-radius: 6px; padding: 0 2px; line-height: 1.2; }
+.ticket .tk-hint { font-size: 10px; color: #7a1414; font-weight: 700; text-align: center; }
+.ticket .tk-bar { width: 86%; height: 4px; background: rgba(0,0,0,.35); border-radius: 2px; overflow: hidden; margin-top: auto; }
+.ticket .tk-bar i { display: block; height: 100%; }
+
+.stations { position: relative; flex: 1; min-height: 0; }
+.station { position: absolute; inset: 0; display: none; flex-direction: column; overflow: hidden; }
+.station.on { display: flex; }
+.st-order { background: #0d1830; justify-content: flex-start; }
+#scr-night .st-order .stall { width: 100%; max-height: none; aspect-ratio: 256 / 144; }
+.st-hint { text-align: center; color: var(--lantern2); font-size: 13px; padding: 8px; animation: blink 1.4s infinite; }
+.st-grill { background: #2e1a12; padding: 0 8px 6px; gap: 4px; }
+.grill-canvas { width: 100%; max-height: 52%; object-fit: contain; image-rendering: pixelated; touch-action: none; flex: none; margin: 0 auto; aspect-ratio: 256 / 176; }
+.grill-msg { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); background: rgba(13,24,48,.88); border: 2px solid var(--lantern); border-radius: 8px; padding: 3px 10px; font-size: 13px; font-weight: 800; opacity: 0; transition: opacity .15s; pointer-events: none; white-space: nowrap; z-index: 3; }
+.grill-msg.on { opacity: 1; }
+.k-label { font-size: 11px; color: var(--lantern2); margin-top: 2px; flex: none; }
+.k-row { display: flex; gap: 6px; overflow-x: auto; flex: none; padding-bottom: 2px; scrollbar-width: thin; }
+.k-empty { color: var(--muted); font-size: 12px; padding: 6px 2px; }
+.k-chip { flex: none; width: 70px; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; border-radius: 10px; border: 2px solid #5a3218; background: linear-gradient(#8c5228, #5a3218); color: var(--ink); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.k-chip .k-ico { width: 40px; height: 40px; image-rendering: pixelated; pointer-events: none; }
+.k-chip .k-name { font-size: 10.5px; font-weight: 800; line-height: 1.1; text-align: center; pointer-events: none; }
+.k-chip .k-sub { font-size: 9.5px; color: var(--ink2); pointer-events: none; }
+.k-chip.empty { opacity: .4; }
+.k-chip.on { border-color: #ffe6b0; }
+.k-chip.want { border-color: #f5b860; box-shadow: 0 0 8px rgba(245,184,96,.7); }
+.k-chip.small { width: 58px; cursor: default; }
+.k-chip.q-good .k-sub { color: #a8e05a; }
+.k-chip.q-raw .k-sub { color: #f6c39c; }
+.k-chip.q-burnt .k-sub { color: #f24a2a; }
+.k-chip.bowl { background: linear-gradient(#34569a, #243f7a); border-color: #172b58; }
+.k-chip.jug { background: linear-gradient(#76726a, #4a4658); border-color: #4a4658; }
+.k-chip.bowl.want, .k-chip.jug.want { border-color: #f5b860; }
+.st-plate { background: linear-gradient(#5a3218, #3a2010); padding: 4px 8px 6px; gap: 4px; }
+.plate-top { position: relative; display: flex; align-items: center; justify-content: center; gap: 6px; flex: 1 1 auto; min-height: 120px; }
+.plate-board-wrap { position: relative; height: 100%; max-height: 300px; max-width: 100%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(#d6ccb8 0 62%, #aaa292 63% 66%, transparent 67%); }
+.plate-board { width: 100%; height: 100%; image-rendering: pixelated; touch-action: none; }
+.plate-info { position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%); white-space: nowrap; font-size: 11px; font-weight: 800; background: rgba(13,24,48,.85); border-radius: 8px; padding: 1px 8px; }
+.plate-mateo { position: absolute; left: 0; bottom: 0; width: 64px; height: 80px; image-rendering: pixelated; pointer-events: none; }
+.plate-side { position: absolute; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 6px; align-items: center; }
+.trash { width: 62px; display: flex; flex-direction: column; align-items: center; font-size: 10px; color: var(--ink2); background: none; border: 0; cursor: pointer; }
+.trash-ico { width: 48px; height: 48px; background: url('art/output/game/kitchen/k_trash.png') center / contain no-repeat; image-rendering: pixelated; }
+.kago-serve { border-radius: 10px; border: 2px solid #8c5228; background: #5a3218; color: var(--ink); font-size: 13px; padding: 6px 8px; cursor: pointer; }
+.plate-rows { flex: 0 1 auto; overflow-y: auto; min-height: 0; max-height: 44%; display: flex; flex-direction: column; gap: 2px; }
+.wrap-btn { flex: none; min-height: 48px; font-size: 17px; }
+.drag-ghost { position: absolute; z-index: 70; pointer-events: none; display: none; transform: translate(-50%, -50%); }
+.drag-ghost.on { display: block; }
+.drag-ghost.sprinkle, .drag-ghost.drizzle { transform: translate(-50%, -100%) rotate(-25deg); }
+.drag-ghost .ghost-ico { width: 56px; height: 56px; image-rendering: pixelated; filter: drop-shadow(0 4px 2px rgba(0,0,0,.5)); }
+
+.score-card { position: absolute; left: 50%; top: 8px; transform: translate(-50%, -10px); width: min(260px, 86%); background: #fffaf0; color: #1c1220; border-radius: 12px; border: 3px solid #b87838; padding: 8px 12px; z-index: 5; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; box-shadow: 0 4px 0 rgba(0,0,0,.4); }
+.score-card.on { opacity: 1; transform: translate(-50%, 0); }
+.score-card .sc-name { font-size: 11px; color: #5a3218; font-weight: 800; }
+.score-card .sc-stars { font-size: 22px; color: #f5b860; text-shadow: 0 1px 0 #8c5228; letter-spacing: 1px; }
+.score-card .sc-stars s { text-decoration: none; color: #d6ccb8; text-shadow: none; }
+.score-card.s5 .sc-stars { animation: pop .4s; color: #f24a2a; }
+.sc-row { display: grid; grid-template-columns: 4.5em 1fr 3em; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; }
+.sc-row i { height: 7px; background: #d6ccb8; border-radius: 4px; overflow: hidden; }
+.sc-row i b { display: block; height: 100%; background: linear-gradient(90deg, #f5b860, #46b03a); }
+.sc-row em { font-style: normal; text-align: right; }
+.sc-pay { margin-top: 3px; font-weight: 900; font-size: 13px; color: #b8323a; }
+
+.st-buttons { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 6px 8px calc(8px + var(--safe-b)); background: #1c1220; border-top: 2px solid #5a3218; }
+.st-btn { position: relative; min-height: 58px; border-radius: 12px; border: 2px solid #5a3218; background: linear-gradient(#8c5228, #5a3218); color: var(--ink); font-weight: 900; font-size: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; cursor: pointer; }
+.st-btn .ico { font-size: 20px; line-height: 1; }
+.st-btn.on { background: linear-gradient(#f24a2a, #c42618); border-color: #ffb8a4; }
+.st-btn.alert { animation: stAlert .7s infinite; }
+.st-btn.alert::after { content: '!'; position: absolute; top: -6px; right: 8px; background: #f24a2a; color: #fff; border-radius: 10px; width: 18px; height: 18px; font-size: 13px; line-height: 18px; }
+@keyframes stAlert { 50% { box-shadow: 0 0 14px 3px #f5b860; border-color: #ffe6b0; } }
+.seat-hit.call { cursor: pointer; }
+.bubble .b-call { background: #f24a2a; color: #fff; font-size: 13px; font-weight: 900; border-radius: 10px; padding: 2px 10px; animation: blink .8s infinite; box-shadow: 0 2px 0 #7a1414; }
+@media (min-width: 700px) {
+  .rail { min-height: 112px; }
+  .ticket { width: 120px; }
+}
+@media (max-height: 700px) {
+  .rail { min-height: 90px; padding-top: 10px; }
+  .st-btn { min-height: 50px; }
+  .k-chip .k-ico { width: 32px; height: 32px; }
+}
+/* 盛り付け：3段（皮・具・たれと薬味）が縦長のスマホでも全部見えるように、札を小さめに */
+.st-plate .plate-top { min-height: 130px; }
+.st-plate .plate-rows { max-height: none; flex: none; }
+.st-plate .k-chip { width: 60px; padding: 2px; }
+.st-plate .k-chip .k-ico { width: 32px; height: 32px; }
+.st-plate .k-label { margin-top: 0; font-size: 10px; }
+.st-plate .plate-top { flex: 1 1 0; min-height: 110px; }
+.st-plate .k-chip .k-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.st-plate .k-chip .k-sub { white-space: nowrap; font-size: 9px; }
+.st-plate .k-label { line-height: 12px; }
+.st-order { justify-content: flex-start; background: linear-gradient(#3a2010, #2e1a12); }
+.st-order .st-hint { background: rgba(13,24,48,.7); border-radius: 10px; margin: 8px 16px 0; }
+.ticket.old { animation: none; }

@@ -106,7 +106,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story")
+    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story,kitchen")
     p.add_argument("--foods", default="", help="食材をしぼる（カンマ区切り）")
     p.add_argument("--people", default="", help="人物をしぼる（カンマ区切り）")
     a = p.parse_args(argv)
@@ -145,6 +145,9 @@ def main():
     if "story" in jobs:
         print("== 紙芝居", flush=True)
         scenes.job_story(a.out, a.textures)
+    if "kitchen" in jobs:
+        print("== 厨房", flush=True)
+        scenes.job_kitchen(a.out)
     if "noren" in jobs:
         print("== 暖簾", flush=True)
         job_noren(a.out, a.textures)

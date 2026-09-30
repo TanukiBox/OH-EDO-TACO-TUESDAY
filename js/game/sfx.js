@@ -39,8 +39,9 @@
           env: { a: 0.002, d: 0.2, s: 0, r: 0.2 }, reverb: 0.2, delay: i * 0.07 });
       });
     },
+    // 星1〜5（星5は高い音まで）
     happy: function (stars) {
-      var notes = stars >= 3 ? [523, 659, 784, 1047] : stars === 2 ? [523, 659] : [392];
+      var notes = [[392], [392, 523], [523, 659], [523, 659, 784], [523, 659, 784, 1047, 1319]][Math.max(1, Math.min(5, stars)) - 1];
       notes.forEach(function (f, i) {
         S().synth({ f: f, dur: 0.09, vol: 0.09, osc: [{ type: 'square', gain: 0.5 }, { type: 'triangle' }],
           env: { a: 0.003, d: 0.08, s: 0.4, r: 0.08 }, filter: { f: 3000 }, delay: i * 0.07, reverb: 0.15 });
@@ -50,6 +51,23 @@
       S().synth({ f: 200, f1: 120, dur: 0.35, vol: 0.12, osc: [{ type: 'sawtooth', detune: -10 }, { type: 'sawtooth', detune: 10 }], filter: { f: 700 } });
     },
     arrive: function () { S().tone({ type: 'sine', f0: 988, dur: 0.08, vol: 0.07 }); S().tone({ type: 'sine', f0: 784, dur: 0.12, vol: 0.07, delay: 0.09 }); },
+    // 焼き場：じゅう（網）・しゅわしゅわ（油）・ぼうっ（藁の炎）・ぱたん（裏返す）
+    sizzle: function (soft) { S().noise({ dur: soft ? 0.35 : 0.5, vol: soft ? 0.035 : 0.09, f0: 5200, f1: 3600, q: 0.6 }); },
+    oil: function (soft) {
+      for (var i = 0; i < (soft ? 3 : 6); i++) S().noise({ dur: 0.03, vol: soft ? 0.03 : 0.06, f0: 2600 + Math.random() * 1800, f1: 1800, q: 2, delay: i * 0.06 + Math.random() * 0.03 });
+    },
+    flame: function () {
+      S().noise({ dur: 0.5, vol: 0.14, f0: 300, f1: 900, q: 0.5 });
+      S().noise({ dur: 0.4, vol: 0.05, f0: 4000, f1: 2500, q: 0.8, delay: 0.1 });
+    },
+    flip: function () {
+      S().noise({ dur: 0.05, vol: 0.16, f0: 1400, f1: 500, q: 1 });
+      S().tone({ type: 'triangle', f0: 300, f1: 520, dur: 0.07, vol: 0.07 });
+      S().noise({ dur: 0.3, vol: 0.07, f0: 5200, f1: 3800, q: 0.6, delay: 0.05 });
+    },
+    // 盛り付け：ぱらぱら（撒く）・とろり（回しかける）
+    sprinkle: function () { S().noise({ dur: 0.04, vol: 0.07, f0: 6000 + Math.random() * 2000, f1: 4000, q: 3 }); },
+    pour: function () { S().tone({ type: 'sine', f0: 240 + Math.random() * 60, f1: 180, dur: 0.12, vol: 0.04 }); },
     tick: function () { S().tone({ type: 'square', f0: 1200, dur: 0.03, vol: 0.05 }); }
   };
 })(window);

@@ -21,6 +21,8 @@
   file('faces', 'faces.png');
   file('icons', 'food_icons.png');
   file('pieces', 'food_pieces.png');
+  if (A.cooked) { file('pieces_raw', 'food_pieces_raw.png'); file('pieces_burnt', 'food_pieces_burnt.png'); }
+  ((A.kitchen || {}).images || []).forEach(function (k) { file(k, 'kitchen/' + k + '.png'); });
   (A.skins || []).forEach(function (k) { file('skin_' + k, 'skins/' + k + '.png'); });
   (A.stall || []).forEach(function (k) { file('stall_' + k, 'stall/' + k + '.png'); });
   file('stall_fg', 'stall/fg.png');
@@ -149,6 +151,95 @@
     var pos = (A.pieces || {}).sudachi;
     if (!pos || !S.has('pieces')) return;
     ctx.drawImage(loaded.pieces, pos[0], pos[1], 36, 36, 90, 86, 36, 36);
+  };
+
+  // ---------------------------------------------------------------
+  // 厨房：焼き場の具・盛り付けの層（置く・撒く・回しかける）
+  // ---------------------------------------------------------------
+  function pieceSheet(id, state) {
+    var cooked = (A.cooked || []).indexOf(id) >= 0;
+    if (cooked && state === 'raw' && S.has('pieces_raw')) return loaded.pieces_raw;
+    if (cooked && state === 'burnt' && S.has('pieces_burnt')) return loaded.pieces_burnt;
+    return S.has('pieces') ? loaded.pieces : null;
+  }
+
+  /** 焼き場の上の具（2倍の大きさ）。state は raw / good / burnt */
+  OT.sprites.drawPieceState = function (ctx, id, state, x, y, flipped) {
+    var pos = (A.pieces || {})[id], sheet = pieceSheet(id, state);
+    if (!pos || !sheet) {
+      var look = OT.art.look(id);
+      ctx.fillStyle = state === 'burnt' ? '#2e1a12' : state === 'raw' ? '#f6c39c' : look.c[0];
+      ctx.fillRect(Math.round(x) - 10, Math.round(y) - 7, 20, 14);
+      return;
+    }
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+    if (flipped) ctx.scale(-1, 1);
+    for (var k = 0; k < 2; k++) ctx.drawImage(sheet, pos[0] + k * 36, pos[1], 36, 36, -36 + k * 10 - 5, -36 + k * 6 - 3, 72, 72);
+    ctx.restore();
+  };
+
+  /** 撒いている途中のかけら（落ちてくる動き） */
+  OT.sprites.drawPieceMini = function (ctx, id, x, y) {
+    var pos = (A.pieces || {})[id];
+    if (!pos || !S.has('pieces')) { ctx.fillStyle = OT.art.look(id).c[0]; ctx.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3); return; }
+    ctx.drawImage(loaded.pieces, pos[0], pos[1], 36, 36, Math.round(x) - 18, Math.round(y) - 18, 36, 36);
+  };
+
+  /** 盛り付けた層を、のせた順に描く（折りたたみのコマ frame にも合わせる） */
+  OT.sprites.drawLayers = function (ctx, layers, frame) {
+    var P = A.pieces || {};
+    var fd = global.OT_FOLD, ppu = fd.size / fd.orthoScale, cx = fd.size / 2, cy = fd.size / 2;
+    frame = frame || 0;
+    layers.forEach(function (L, li) {
+      var look = OT.art.look(L.id), pos = P[L.id], sheet = pieceSheet(L.id, L.state || 'good');
+      var h = look.h || 0.06;
+      function at(px, py) {
+        var wx = (px - cx) / ppu, wy = (cy - py) / ppu;
+        var f = OT.art.foldY(wy, h, frame);
+        return { x: cx + wx * ppu, y: cy - f.y * ppu, squash: f.squash };
+      }
+      if (L.use === 'drizzle') {
+        ctx.fillStyle = look.c[0];
+        var shade = look.c[1] || look.c[0];
+        for (var i = 1; i < L.pts.length; i++) {
+          var a = L.pts[i - 1], b = L.pts[i];
+          if (b.brk) continue;
+          var n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y)));
+          for (var k = 0; k <= n; k++) {
+            var q = at(a.x + (b.x - a.x) * k / n, a.y + (b.y - a.y) * k / n);
+            ctx.fillStyle = look.c[0];
+            ctx.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 3, Math.max(1, Math.round(2 * q.squash)));
+            ctx.fillStyle = shade;
+            ctx.fillRect(Math.round(q.x) - 1, Math.round(q.y) + 1, 3, 1);
+          }
+        }
+        return;
+      }
+      if (L.use === 'sprinkle') {
+        L.pts.forEach(function (p, i) {
+          var q = at(p.x, p.y);
+          if (pos && sheet) {
+            var hh = Math.max(6, Math.round(36 * q.squash));
+            ctx.drawImage(sheet, pos[0] + (i % 3) * 36, pos[1], 36, 36, Math.round(q.x - 18), Math.round(q.y - hh / 2), 36, hh);
+          } else { ctx.fillStyle = look.c[0]; ctx.fillRect(Math.round(q.x) - 1, Math.round(q.y) - 1, 3, 3); }
+        });
+        return;
+      }
+      // 置く具：皮の上に散らす（置いた所のまわりに寄せる）
+      if (!pos || !sheet) { OT.art.drawToppings(ctx, [L.id], frame); return; }
+      var r = OT.rng(OT.hash(L.id) + li * 97);
+      var cnt = pos[2] || look.n || 5, p0 = L.pts[0] || { x: cx, y: cy };
+      var bx = (p0.x - cx) / ppu * 0.35, by = (cy - p0.y) / ppu * 0.35;
+      for (var j = 0; j < cnt; j++) {
+        var ang = r() * Math.PI * 2, d = Math.sqrt(r());
+        var wx = bx + 0.5 * d * Math.cos(ang), wy = by + 0.24 * d * Math.sin(ang);
+        var f = OT.art.foldY(wy, h, frame);
+        var v = Math.floor(r() * 3);
+        var hh2 = Math.max(6, Math.round(36 * f.squash));
+        ctx.drawImage(sheet, pos[0] + v * 36, pos[1], 36, 36, Math.round(cx + wx * ppu - 18), Math.round(cy - f.y * ppu - hh2 / 2), 36, hh2);
+      }
+    });
   };
 
   // ---------------------------------------------------------------

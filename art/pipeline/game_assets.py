@@ -14,8 +14,8 @@ from .palette import PALETTE, rgb
 FONTS = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts")
 
 
-def _px(src, size, outline=True):
-    return pixelate.pixelate(src, size, with_outline=outline)
+def _px(src, size, outline=True, recolor=None):
+    return pixelate.pixelate(src, size, with_outline=outline, recolor=recolor)
 
 
 def _save(img, path):
@@ -103,15 +103,21 @@ def food_atlases(R, out, man, food_keys):
     import re
     fsrc = open(os.path.join(os.path.dirname(__file__), "..", "blender", "foods.py"), encoding="utf-8").read()
     counts = {k: int(n) for k, n in re.findall(r'^    "(\w+)":\s+dict\(.*?\bn=(\d+)', fsrc, re.M)}
-    sheet = Image.new("RGBA", (36 * 3 * 8, 36 * ((len(pieces) + 7) // 8)), (0, 0, 0, 0))
-    man["pieces"] = {}
-    for i, k in enumerate(pieces):
-        x0, y0 = (i % 8) * 108, (i // 8) * 36
-        for v in range(3):
-            if _exists(R, "piece_%s_%d.png" % (k, v)):
-                sheet.alpha_composite(_px(os.path.join(R, "piece_%s_%d.png" % (k, v)), (36, 36), False), (x0 + v * 36, y0))
-        man["pieces"][k] = [x0, y0, counts.get(k, 5)]
-    _save(sheet, os.path.join(out, "food_pieces.png"))
+    # 焼き場で焼く具（config.js の cook:）は、生焼けと焦げの絵も作る（同じ並びの別の画像）
+    csrc = open(os.path.join(os.path.dirname(__file__), "..", "..", "js", "game", "config.js"), encoding="utf-8").read()
+    cooked = set(re.findall(r"^\s+(\w+):\s*\{ cat: '\w+', cook: '", csrc, re.M))
+    man["cooked"] = sorted(k for k in cooked if k in pieces)
+    for look, fname in ((None, "food_pieces.png"), ("raw", "food_pieces_raw.png"), ("burnt", "food_pieces_burnt.png")):
+        sheet = Image.new("RGBA", (36 * 3 * 8, 36 * ((len(pieces) + 7) // 8)), (0, 0, 0, 0))
+        man["pieces"] = {}
+        for i, k in enumerate(pieces):
+            x0, y0 = (i % 8) * 108, (i // 8) * 36
+            if look is None or k in cooked:
+                for v in range(3):
+                    if _exists(R, "piece_%s_%d.png" % (k, v)):
+                        sheet.alpha_composite(_px(os.path.join(R, "piece_%s_%d.png" % (k, v)), (36, 36), False, look), (x0 + v * 36, y0))
+            man["pieces"][k] = [x0, y0, counts.get(k, 5)]
+        _save(sheet, os.path.join(out, fname))
 
 
 def skin_atlases(R, out, man):
@@ -158,6 +164,16 @@ def scene_images(R, out, man):
         if _exists(R, k + ".png"):
             _save(_px(os.path.join(R, k + ".png"), sz), os.path.join(out, "creatures", k + ".png"))
             man["creatures"][k] = list(sz)
+    # 夜の厨房（焼き場・炎・木札・紐・捨て桶・鉢・徳利）
+    kitchen = {"k_grill": ((256, 176), False), "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
+               "k_ticket": ((56, 72), True), "k_rope": ((128, 12), False), "k_trash": ((40, 40), True), "k_bowl": ((32, 32), True), "k_jug": ((32, 32), True)}
+    man["kitchen"] = {"images": []}
+    for k, (sz, ol) in kitchen.items():
+        if _exists(R, k + ".png"):
+            _save(_px(os.path.join(R, k + ".png"), sz, ol), os.path.join(out, "kitchen", k + ".png"))
+            man["kitchen"]["images"].append(k)
+    if _exists(R, "kitchen_slots.json"):
+        man["kitchen"]["slots"] = json.load(open(os.path.join(R, "kitchen_slots.json"), encoding="utf-8"))
     # 紙芝居
     man["story"] = 0
     for i in range(1, 10):

@@ -31,14 +31,22 @@
       flags: {},              // 物語の進み具合など
       chStart: { 1: 1 },      // 各章になった日
       regulars: {},           // 常連ごとの、星3を出した回数
-      vipLast: 0              // 最後に VIP が来た日
+      vipLast: 0,             // 最後に VIP が来た日
+      starScale: 5            // 星の段階（以前のセーブは3段階）
     };
   }
 
   /** 古いセーブに、あとから増えた項目を足す */
   function upgrade(s) {
+    var had = s.starScale;
     var f = fresh();
     Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
+    // 星3段階のころのセーブ：過去の星の記録を5段階に換算して引き継ぐ（星3 → 星5、星2 → 約星3）
+    if (had !== 5) {
+      if (s.totals) s.totals.stars = Math.round((s.totals.stars || 0) * 5 / 3);
+      if (s.lastResult && s.lastResult.avg) s.lastResult.avg = s.lastResult.avg * 5 / 3;
+      s.starScale = 5;
+    }
     return s;
   }
 

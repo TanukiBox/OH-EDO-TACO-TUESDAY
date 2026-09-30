@@ -47,7 +47,7 @@
     // 1日の流れ
     // ---------------------------------------------------------
     DAY: {
-      nightSeconds: 180,     // 夜の営業の長さ（秒）。約3分
+      nightSeconds: 240,     // 夜の営業の長さ（秒）。約4分（同時進行が楽しめる長さ）
       firstGuestAfter: 3,    // 開店から最初の客が来るまで（秒）
       arrivalMin: 11,        // 次の客が来るまでの間隔（秒）の最小（第1章）
       arrivalMax: 17,        // 　　　　〃　　　　　　　　　の最大（第1章）
@@ -66,6 +66,8 @@
     //   value : 「おまかせ」の値段を決めるときの食材の値打ち（文）
     //   tags  : 'fish' 魚介 / 'meat' 肉 / 'egg' 卵 / 'red' 赤い / 'white' 白い / 'rare' 珍品 / 'lean' 赤身 / 'fatty' 脂
     //   as    : 皮のとき、どの皮の代わりになるか（もろこし粉の皮は、トルティーヤの代わりに使える）
+    //   cook  : 夜の焼き場での調理法 'grill' 焼く / 'fry' 揚げる / 'sear' 炙る（書いていないものは「なし」＝そのまま盛り付けで使う）
+    //   use   : 盛り付け方 'drop' 置く / 'sprinkle' 撒く / 'drizzle' 回しかける（書いていないものは、具=置く・薬味=撒く・サルサ=回しかける）
     // ---------------------------------------------------------
     INGREDIENTS: {
       // ----- 皮 -----
@@ -81,40 +83,40 @@
       // ----- 作り置き -----
       kagomushi:   { cat: 'ready', taste: [0, 1, 4, 3, 2], value: 8, tags: [] },
       // ----- 具：魚介 -----
-      tai:        { cat: 'main', taste: [0, 0, 4, 1, 1], value: 14, tags: ['fish', 'red', 'white'] },
-      kisu_ten:   { cat: 'main', taste: [0, 0, 3, 1, 4], value: 10, tags: ['fish', 'white'] },
+      tai:        { cat: 'main', cook: 'grill', taste: [0, 0, 4, 1, 1], value: 14, tags: ['fish', 'red', 'white'] },
+      kisu_ten:   { cat: 'main', cook: 'fry', taste: [0, 0, 3, 1, 4], value: 10, tags: ['fish', 'white'] },
       tako:       { cat: 'main', taste: [0, 0, 3, 0, 3], value: 11, tags: ['fish', 'red'] },
-      katsuo:     { cat: 'main', taste: [0, 0, 5, 2, 1], value: 12, tags: ['fish', 'red'] },
-      aji_nanban: { cat: 'main', taste: [1, 3, 3, 1, 3], value: 9, tags: ['fish'] },
-      iwashi:     { cat: 'main', taste: [0, 0, 4, 2, 1], value: 6, tags: ['fish'] },
+      katsuo:     { cat: 'main', cook: 'sear', taste: [0, 0, 5, 2, 1], value: 12, tags: ['fish', 'red'] },
+      aji_nanban: { cat: 'main', cook: 'fry', taste: [1, 3, 3, 1, 3], value: 9, tags: ['fish'] },
+      iwashi:     { cat: 'main', cook: 'grill', taste: [0, 0, 4, 2, 1], value: 6, tags: ['fish'] },
       zuke:       { cat: 'main', taste: [0, 1, 4, 1, 1], value: 13, tags: ['fish', 'red', 'lean'] },
       akami:      { cat: 'main', taste: [0, 0, 4, 1, 1], value: 14, tags: ['fish', 'red', 'lean'] },
       chutoro:    { cat: 'main', taste: [0, 0, 5, 1, 1], value: 22, tags: ['fish', 'red', 'fatty'] },
       otoro:      { cat: 'main', taste: [0, 0, 6, 1, 0], value: 32, tags: ['fish', 'fatty', 'rare'] },
-      kabayaki:   { cat: 'main', taste: [0, 0, 6, 4, 2], value: 20, tags: ['fish'] },
+      kabayaki:   { cat: 'main', cook: 'grill', taste: [0, 0, 6, 4, 2], value: 20, tags: ['fish'] },
       uni:        { cat: 'main', taste: [0, 0, 6, 2, 0], value: 30, tags: ['fish', 'rare'] },
-      kujira:     { cat: 'main', taste: [0, 0, 5, 1, 2], value: 24, tags: ['fish', 'red', 'rare'] },
+      kujira:     { cat: 'main', cook: 'grill', taste: [0, 0, 5, 1, 2], value: 24, tags: ['fish', 'red', 'rare'] },
       // ----- 具：里山・山 -----
-      inago:      { cat: 'main', taste: [0, 0, 3, 1, 4], value: 8, tags: ['meat', 'rare'] },
-      hachinoko:  { cat: 'main', taste: [0, 0, 4, 2, 2], value: 14, tags: ['meat', 'rare'] },
-      makomo:     { cat: 'main', taste: [0, 0, 2, 3, 3], value: 12, tags: ['rare'] },
-      inoshishi:  { cat: 'main', taste: [0, 0, 5, 2, 2], value: 16, tags: ['meat', 'red'] },
-      ino_bara:   { cat: 'main', taste: [0, 0, 6, 1, 2], value: 16, tags: ['meat', 'fatty'] },
-      ino_shita:  { cat: 'main', taste: [0, 0, 4, 1, 3], value: 18, tags: ['meat', 'rare'] },
-      ino_mimi:   { cat: 'main', taste: [0, 0, 2, 1, 5], value: 9, tags: ['meat'] },
-      shika:      { cat: 'main', taste: [0, 0, 4, 2, 2], value: 18, tags: ['meat', 'red'] },
+      inago:      { cat: 'main', use: 'sprinkle', taste: [0, 0, 3, 1, 4], value: 8, tags: ['meat', 'rare'] },
+      hachinoko:  { cat: 'main', use: 'sprinkle', taste: [0, 0, 4, 2, 2], value: 14, tags: ['meat', 'rare'] },
+      makomo:     { cat: 'main', cook: 'grill', taste: [0, 0, 2, 3, 3], value: 12, tags: ['rare'] },
+      inoshishi:  { cat: 'main', cook: 'grill', taste: [0, 0, 5, 2, 2], value: 16, tags: ['meat', 'red'] },
+      ino_bara:   { cat: 'main', cook: 'grill', taste: [0, 0, 6, 1, 2], value: 16, tags: ['meat', 'fatty'] },
+      ino_shita:  { cat: 'main', cook: 'grill', taste: [0, 0, 4, 1, 3], value: 18, tags: ['meat', 'rare'] },
+      ino_mimi:   { cat: 'main', cook: 'grill', taste: [0, 0, 2, 1, 5], value: 9, tags: ['meat'] },
+      shika:      { cat: 'main', cook: 'grill', taste: [0, 0, 4, 2, 2], value: 18, tags: ['meat', 'red'] },
       // ----- 具：鳥屋・豆腐屋・青物 -----
-      shamo:      { cat: 'main', taste: [0, 0, 4, 1, 3], value: 15, tags: ['meat'] },
-      kamo:       { cat: 'main', taste: [0, 0, 5, 2, 2], value: 17, tags: ['meat'] },
+      shamo:      { cat: 'main', cook: 'grill', taste: [0, 0, 4, 1, 3], value: 15, tags: ['meat'] },
+      kamo:       { cat: 'main', cook: 'grill', taste: [0, 0, 5, 2, 2], value: 17, tags: ['meat'] },
       atsuyaki:   { cat: 'main', taste: [0, 0, 3, 1, 2], value: 7, tags: ['egg'] },
-      tofu_soboro: { cat: 'main', taste: [0, 0, 3, 1, 1], value: 4, tags: ['white'] },
-      yakidofu:   { cat: 'main', taste: [0, 0, 3, 1, 2], value: 4, tags: [] },
+      tofu_soboro: { cat: 'main', use: 'sprinkle', taste: [0, 0, 3, 1, 1], value: 4, tags: ['white'] },
+      yakidofu:   { cat: 'main', cook: 'grill', taste: [0, 0, 3, 1, 2], value: 4, tags: [] },
       nidaikon:   { cat: 'main', taste: [0, 0, 3, 1, 2], value: 3, tags: ['white'] },
       konnyaku:   { cat: 'main', taste: [0, 0, 1, 0, 4], value: 3, tags: [] },
       satsumaimo: { cat: 'main', taste: [0, 0, 2, 2, 2], value: 4, tags: [] },
       satoimo:    { cat: 'main', taste: [0, 0, 2, 1, 3], value: 4, tags: ['white'] },
-      nasu:       { cat: 'main', taste: [0, 0, 3, 2, 2], value: 5, tags: [] },
-      matsutake:  { cat: 'main', taste: [0, 0, 4, 6, 3], value: 30, tags: ['rare'] },
+      nasu:       { cat: 'main', cook: 'grill', taste: [0, 0, 3, 2, 2], value: 5, tags: [] },
+      matsutake:  { cat: 'main', cook: 'grill', taste: [0, 0, 4, 6, 3], value: 30, tags: ['rare'] },
       sumeshi:    { cat: 'main', taste: [0, 3, 2, 1, 1], value: 4, tags: ['white'] },
       // ----- サルサ -----
       shiraae:      { cat: 'salsa', taste: [0, 0, 2, 1, 0], value: 3, tags: ['white'] },
@@ -127,27 +129,27 @@
       dashi:        { cat: 'salsa', taste: [0, 0, 4, 2, 0], value: 2, tags: ['fish'] },
       // ----- 薬味 -----
       daikon:      { cat: 'herb', taste: [1, 0, 0, 1, 3], value: 1, tags: ['white'] },
-      oroshi:      { cat: 'herb', taste: [1, 0, 0, 1, 1], value: 1, tags: ['white'] },
+      oroshi:      { cat: 'herb', use: 'drop', taste: [1, 0, 0, 1, 1], value: 1, tags: ['white'] },
       kyuri:       { cat: 'herb', taste: [0, 0, 0, 1, 3], value: 1, tags: [] },
       myoga:       { cat: 'herb', taste: [0, 0, 0, 4, 2], value: 2, tags: [] },
       amazu_myoga: { cat: 'herb', taste: [0, 3, 0, 4, 2], value: 2, tags: ['red'] },
       negi:        { cat: 'herb', taste: [1, 0, 1, 3, 1], value: 1, tags: [] },
       shiraganegi: { cat: 'herb', taste: [1, 0, 0, 3, 2], value: 1, tags: ['white'] },
-      yakinegi:    { cat: 'herb', taste: [0, 0, 2, 3, 1], value: 1, tags: [] },
+      yakinegi:    { cat: 'herb', use: 'drop', taste: [0, 0, 2, 3, 1], value: 1, tags: [] },
       shoga:       { cat: 'herb', taste: [2, 0, 0, 4, 1], value: 1, tags: [] },
-      shiso:       { cat: 'herb', taste: [0, 0, 0, 5, 1], value: 1, tags: [] },
+      shiso:       { cat: 'herb', use: 'drop', taste: [0, 0, 0, 5, 1], value: 1, tags: [] },
       mitsuba:     { cat: 'herb', taste: [0, 0, 0, 4, 1], value: 1, tags: [] },
       yuzu:        { cat: 'herb', taste: [0, 3, 0, 4, 0], value: 2, tags: [] },
       goma:        { cat: 'herb', taste: [0, 0, 2, 3, 2], value: 1, tags: [] },
       kizaminori:  { cat: 'herb', taste: [0, 0, 2, 3, 1], value: 1, tags: [] },
-      wasabi:      { cat: 'herb', taste: [4, 0, 0, 4, 0], value: 3, tags: [] },
+      wasabi:      { cat: 'herb', use: 'drop', taste: [4, 0, 0, 4, 0], value: 3, tags: [] },
       sansho:      { cat: 'herb', taste: [3, 0, 0, 5, 0], value: 2, tags: [] },
       shichimi:    { cat: 'herb', taste: [5, 0, 0, 3, 0], value: 1, tags: ['red'] },
       togarashi:   { cat: 'herb', taste: [6, 0, 0, 2, 1], value: 1, tags: ['red'] },
 
       // ----- 第3段階：山・対決・行事・旅の客 -----
-      kashira:     { cat: 'main', taste: [0, 0, 6, 2, 3], value: 20, tags: ['meat', 'rare'] },
-      ino_karaage: { cat: 'main', taste: [0, 0, 5, 2, 4], value: 14, tags: ['meat'] },
+      kashira:     { cat: 'main', cook: 'grill', taste: [0, 0, 6, 2, 3], value: 20, tags: ['meat', 'rare'] },
+      ino_karaage: { cat: 'main', cook: 'fry', taste: [0, 0, 5, 2, 4], value: 14, tags: ['meat'] },
       amazu:       { cat: 'salsa', taste: [0, 4, 2, 1, 0], value: 3, tags: ['red'] },
       sanmai:      { cat: 'skin', taste: [0, 0, 3, 5, 5], value: 12, tags: [], virtual: true },
       pan:         { cat: 'skin', taste: [0, 0, 2, 3, 2], value: 6, tags: [] },
@@ -155,8 +157,8 @@
       ranou:       { cat: 'salsa', taste: [0, 0, 5, 1, 0], value: 4, tags: ['egg'] },
       konbu:       { cat: 'herb', taste: [0, 0, 4, 2, 1], value: 2, tags: [] },
       yuba:        { cat: 'skin', taste: [0, 0, 3, 2, 1], value: 8, tags: ['white'] },
-      sake:        { cat: 'main', taste: [0, 0, 5, 2, 1], value: 14, tags: ['fish', 'red'] },
-      buta:        { cat: 'main', taste: [0, 0, 6, 2, 2], value: 14, tags: ['meat'] },
+      sake:        { cat: 'main', cook: 'grill', taste: [0, 0, 5, 2, 1], value: 14, tags: ['fish', 'red'] },
+      buta:        { cat: 'main', cook: 'grill', taste: [0, 0, 6, 2, 2], value: 14, tags: ['meat'] },
       // ----- 第3段階：長崎の抜け荷（本場の食材） -----
       kosho:       { cat: 'herb', taste: [4, 0, 0, 4, 0], value: 4, tags: ['rare'] },
       nikkei:      { cat: 'herb', taste: [0, 0, 1, 6, 0], value: 4, tags: ['rare'] },
@@ -178,7 +180,7 @@
     // ---------------------------------------------------------
     // タコス（メニュー）
     //   skin    : 使う皮（'tortilla' のタコスは、もろこし粉の皮でも作れる）
-    //   need    : 必ずのせる食材（これがそろえば「注文どおり」）
+    //   need    : 必ずのせる食材。並び = 木札に描く「のせる順番」（皮のあと、この順にのせる。ふつうは 具 → サルサ → 薬味）
     //   price   : 値段（文）。星の数・熟練度・客によって上下する
     //   chapter : 何章から出てくるか
     //   light   : さっぱりしたタコスなら true（絵ですだちを添えない）
@@ -188,14 +190,14 @@
     // ---------------------------------------------------------
     TACOS: {
       // 第1章
-      tempura:   { skin: 'tortilla', need: ['kisu_ten', 'daikon', 'shiraae', 'yuzu'], price: 32, chapter: 1 },
+      tempura:   { skin: 'tortilla', need: ['kisu_ten', 'shiraae', 'daikon', 'yuzu'], price: 32, chapter: 1 },
       takotaco:  { skin: 'tortilla', need: ['tako', 'sumiso', 'kyuri', 'myoga'], price: 30, chapter: 1, light: true },
-      kohaku:    { skin: 'tortilla', need: ['tai', 'daikon', 'bainiku'], price: 40, chapter: 1, light: true },
+      kohaku:    { skin: 'tortilla', need: ['tai', 'bainiku', 'daikon'], price: 40, chapter: 1, light: true },
       // 第2章
-      katsuo_tataki: { skin: 'tortilla', need: ['katsuo', 'negi', 'shoga', 'irizake', 'shichimi'], price: 42, chapter: 2 },
+      katsuo_tataki: { skin: 'tortilla', need: ['katsuo', 'irizake', 'negi', 'shoga', 'shichimi'], price: 42, chapter: 2 },
       dorado:    { skin: 'aburaage', need: ['tofu_soboro', 'shiso'], price: 22, chapter: 2 },
       shojin:    { skin: 'funoyaki', need: ['satsumaimo', 'satoimo', 'dengaku_miso', 'goma'], price: 30, chapter: 2 },
-      kago:      { skin: 'kagomushi', need: [], price: 20, chapter: 2, maxStars: 2 },
+      kago:      { skin: 'kagomushi', need: [], price: 20, chapter: 2, maxStars: 3 },
       nigiri:    { skin: 'nori', need: ['sumeshi', 'zuke', 'wasabi'], price: 44, chapter: 2, light: true },
       kamo_nanban: { skin: 'soba', need: ['kamo', 'yakinegi', 'togarashi'], price: 46, chapter: 2 },
       nanbanzuke: { skin: 'tortilla', need: ['aji_nanban', 'myoga'], price: 32, chapter: 2, light: true },
@@ -227,18 +229,18 @@
       yamanushi: { skin: 'tortilla', need: ['kashira', 'shiraganegi', 'yuzu'], price: 58, chapter: 3, needFlag: 'gotNushi' },
       yokozuna:  { skin: 'sanmai', need: ['inoshishi', 'shika', 'shamo'], price: 90, chapter: 3, needFlag: 'win_rikishi' },
       tojin:     { skin: 'tortilla', need: ['ino_karaage', 'amazu'], price: 54, chapter: 4, needFlag: 'win_tojin' },
-      mie:       { skin: 'tortilla', need: ['tai', 'bainiku', 'oroshi', 'shiraae'], price: 64, chapter: 4, needFlag: 'win_raizo', light: true },
+      mie:       { skin: 'tortilla', need: ['tai', 'bainiku', 'shiraae', 'oroshi'], price: 64, chapter: 4, needFlag: 'win_raizo', light: true },
       oranda:    { skin: 'pan', need: ['tai', 'butter'], price: 60, chapter: 5, needFlag: 'win_oranda' },
-      pastor:    { skin: 'tortilla', need: ['inoshishi', 'choji', 'nikkei', 'honba_chili', 'pineapple'], price: 96, chapter: 5 },
+      pastor:    { skin: 'tortilla', need: ['inoshishi', 'pineapple', 'choji', 'nikkei', 'honba_chili'], price: 96, chapter: 5 },
       quesabirria: { skin: 'tortilla', need: ['gyuniku', 'cheese'], price: 88, chapter: 5 },
       pico:      { skin: 'tortilla', need: ['tomato', 'negi', 'mitsuba', 'yuzu'], price: 58, chapter: 5, light: true },
       guacamole: { skin: 'tortilla', need: ['kisu_ten', 'avocado', 'yuzu'], price: 72, chapter: 5 },
       tenka:     { skin: 'real_tortilla', need: ['tai', 'mole', 'negi', 'shiso', 'myoga', 'yuzu'], price: 160, chapter: 6 },
       // 年中行事の限定（festival = その行事の日だけ）
-      hanami:    { skin: 'tortilla', need: ['sakura', 'tai', 'shiraae'], price: 50, chapter: 4, festival: 'hanami', light: true },
+      hanami:    { skin: 'tortilla', need: ['tai', 'shiraae', 'sakura'], price: 50, chapter: 4, festival: 'hanami', light: true },
       tsukimi:   { skin: 'tortilla', need: ['satoimo', 'ranou', 'dashi'], price: 46, chapter: 4, festival: 'tsukimi' },
       // 旅の客の、ふるさとのタコス（traveler = その地方の客だけが頼む）
-      osaka:     { skin: 'tortilla', need: ['konbu', 'dashi', 'yakidofu'], price: 48, chapter: 4, traveler: 'osaka' },
+      osaka:     { skin: 'tortilla', need: ['yakidofu', 'dashi', 'konbu'], price: 48, chapter: 4, traveler: 'osaka' },
       kyo:       { skin: 'yuba', need: ['tofu_soboro', 'mitsuba'], price: 52, chapter: 4, traveler: 'kyo', light: true },
       ezo:       { skin: 'tortilla', need: ['sake', 'konbu'], price: 50, chapter: 4, traveler: 'ezo' },
       satsuma:   { skin: 'tortilla', need: ['buta', 'satsumaimo'], price: 50, chapter: 4, traveler: 'satsuma' },
@@ -246,13 +248,13 @@
     },
 
     // 素タコス（食材1つだけのタコス）：食材を初めて手に入れると図鑑に加わる
-    SU_TACO: { base: 12, maxStars: 2 },
+    SU_TACO: { base: 12, maxStars: 3 },
 
     // 熟練度：同じタコスを出した回数がこれ以上で Lv1〜5
     MASTERY: {
       served: [0, 2, 6, 12, 20],
       priceMul: [1, 1.08, 1.16, 1.25, 1.35],   // Lv ごとの値段の倍率
-      maxStars: [2, 3, 3, 3, 3]                 // Lv ごとの星の上限（Lv1 は練習中で星2まで）
+      maxStars: [3, 4, 5, 5, 5]                 // Lv ごとの星の上限（星5段階。Lv1 は練習中で星3まで）
     },
 
     // ---------------------------------------------------------
@@ -322,18 +324,53 @@
       orderWeight: 0.55,     // 注文どおりかどうかの重み（残りは好みとの近さ）
       missingPenalty: 0.34,  // 必要な食材が1つ足りないごとに引く
       extraPenalty: 0.04,    // 注文にない食材を1つ足すごとに引く（好みに合えば取り返せる）
-      wrongOrderMaxStars: 1, // 必要な食材が2つ以上足りないと、星はこれ以下
-      star3: 0.85,           // 点数がこれ以上なら星3
-      star2: 0.6,            // 点数がこれ以上なら星2（それ未満は星1）
+      wrongOrderMaxStars: 2, // 必要な食材が2つ以上足りないと、星はこれ以下
+      star3: 0.85,           // （使っていない：星3段階だったころの区切り。いまは下の SCORE.stars）
+      star2: 0.6,            // （使っていない：同上）
       tolerance: 4,          // 好みの味との差がこれだけあると、その要素は0点（want が大きい客はそれに合わせて広がる）
-      starPay: [0, 0.6, 1.0, 1.35],  // 星1〜3のときの値段の倍率
+      starPay: [0, 0.5, 0.75, 1.0, 1.25, 1.5],   // 星1〜5のときの値段の倍率
+      tipRate: [0, 0, 0, 0.05, 0.12, 0.25],       // 星1〜5のときの心付け（値段のこの割合が壺に入る）
       omakaseBase: 16,       // 「おまかせ」の値段 = omakaseBase + 食材の値打ちの合計
       maxToppings: 6         // 皮の上にのせられる食材の数
     },
 
+    // ---------------------------------------------------------
+    // 採点（星5段階）：4項目をそれぞれ 0〜100% で出し、重みをかけて合計する
+    // ---------------------------------------------------------
+    SCORE: {
+      weights: { wait: 0.2, cook: 0.25, plate: 0.3, pref: 0.25 },          // 注文のある客
+      omakaseWeights: { wait: 0.2, cook: 0.2, plate: 0.2, pref: 0.4 },     // おまかせの客（好みを重く）
+      stars: [40, 60, 75, 90],   // 合計% がこれ以上で 星2 / 星3 / 星4 / 星5（40未満は星1）
+      waitGrace: 0.4,            // 待てる時間のこの割合までに出せば、待ち時間は100%
+      waitFloor: 0.2,            // 待ちくたびれる直前でも、待ち時間はこの割合は残る
+      plate: { order: 0.35, amount: 0.3, even: 0.35 },   // 盛り付けの中の重み（順番・量・均等さ）
+      sprinkleTarget: 6,         // 薬味を撒く回数のちょうど良い数
+      drizzleTarget: 150,        // たれを回しかける長さのちょうど良い量（ドット）
+      zones: 4                   // 均等さを見るとき、皮を横にいくつに分けるか
+    },
+
+    // ---------------------------------------------------------
+    // 厨房（3つの持ち場：注文・焼き場・盛り付け）
+    // ---------------------------------------------------------
+    KITCHEN: {
+      maxGuests: [1, 2, 2, 3, 3, 3],   // 章ごとの、同時に来る客の数（序盤は1人ずつ）
+      orderPatience: 30,               // 注文を聞いてもらうまで待てる秒数
+      grillSlots: [2, 2, 3, 3, 4, 4],  // 章ごとの七輪の網の数
+      fryerSlots: [1, 1, 1, 2, 2, 2],  // 章ごとの油鍋の数
+      searSlots: [1, 1, 1, 1, 1, 1],   // 章ごとの藁焼きの数
+      warmTray: 6,                     // 焼き上がりを置いておける数
+      // 調理法ごとの時間（秒）と、ちょうど良い範囲（1 = 焼き上がり）
+      grill: { time: 9, flipAt: 0.5, flipWindow: 0.12, done: [0.95, 1.15], burn: 1.4 },
+      fry: { time: 7, done: [0.82, 0.96], burn: 1.15 },
+      sear: { done: [1.2, 1.9], burn: 2.8 },           // 押している合計の秒数
+      // 食材ごとの焼き時間の倍率（書いていないものは 1）
+      timeMul: { kabayaki: 1.3, kashira: 1.25, buta: 1.1, iwashi: 0.8, matsutake: 0.8, nasu: 0.9, yakidofu: 0.8, makomo: 0.8 }
+    },
+
     // 評判の増減
     REP: {
-      perStar: [0, 0, 2, 4],    // 星1〜3の客1人ごと（星1では減らない）
+      perStar: [0, 0, 1, 2, 3, 5],   // 星1〜5の客1人ごと（星1では減らない）
+      streakBonus: 1,               // 星4以上が続いたとき、2人目からさらに足す
       angry: -2,                // 怒って帰った客1人ごと
       vipWin: 20,               // VIP対決に勝ったとき
       vipLose: -4               // VIP対決に負けたとき
