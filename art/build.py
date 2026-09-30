@@ -68,6 +68,28 @@ def render(jobs):
     print(f"レンダリング完了（{time.time() - t0:.0f} 秒）")
 
 
+def write_fold_js(path):
+    """ゲームが具を一緒に折りたたむための数字（Blender 側と同じ値）を書き出す。"""
+    import json
+    import re
+    src = open(os.path.join(ROOT, "blender", "taco.py"), encoding="utf-8").read()
+    ra = open(os.path.join(ROOT, "blender", "render_all.py"), encoding="utf-8").read()
+
+    def num(name, text):
+        return float(re.search(rf"^{name} = ([0-9.]+)", text, re.M).group(1))
+
+    data = {
+        "size": TACO[0],
+        "orthoScale": num("TOP_ORTHO_SCALE", ra),
+        "foldBand": num("FOLD_BAND", src),
+        "foldMaxAngle": 3.141592653589793 * float(re.search(r"^FOLD_MAX_ANGLE = math.pi \* ([0-9.]+)", src, re.M).group(1)),
+        "frames": FOLD_FRAMES,
+    }
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("// art/build.py が自動で書き出すファイル（手で書きかえない）\n")
+        f.write("window.OT_FOLD = " + json.dumps(data) + ";\n")
+
+
 def convert():
     names, labels = ingredient_list()
     os.makedirs(OUT, exist_ok=True)
@@ -90,6 +112,12 @@ def convert():
     pixelate.save_gif(fold, os.path.join(OUT, "taco_fold/taco_fold_x4.gif"),
                       [700] + [110] * (FOLD_FRAMES - 2) + [900])
     made.append("taco_fold/taco_fold_x4.gif")
+    # 料理画面用：空の皿と、具なしトルティーヤの折りたたみ
+    one("plate_top.png", TACO, "taco_plain/plate_top.png")
+    for i in range(FOLD_FRAMES):
+        one(f"plain_fold_{i:02d}.png", TACO, f"taco_plain/plain_fold_{i:02d}.png")
+    write_fold_js(os.path.join(OUT, "taco_plain", "fold.js"))
+    made.append("taco_plain/fold.js")
     # 5.4
     for n in names:
         one(f"icon_{n}.png", ICON, f"icons/icon_{n}.png")
@@ -113,7 +141,7 @@ def convert():
 def main():
     p = argparse.ArgumentParser(description="Oh!Edo Taco Tuesday!! のドット絵を作り直す")
     p.add_argument("--skip-render", action="store_true", help="Blender のレンダリングを省略する")
-    p.add_argument("--only", default="taco,icons,noren", help="レンダリングする種類")
+    p.add_argument("--only", default="taco,plain,icons,noren", help="レンダリングする種類")
     a = p.parse_args()
     if not a.skip_render:
         render(a.only)

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Oh!Edo Taco Tuesday!!／多幸寿</title>
+<meta name="description" content="江戸にタイムスリップしたタコス職人が、屋台「多幸寿」を営む料理ゲーム。ブラウザで無料で遊べます。">
+<meta name="theme-color" content="#0d1830">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tanuki Box">
+<meta property="og:title" content="Oh!Edo Taco Tuesday!!／多幸寿">
+<meta property="og:description" content="江戸の屋台で、タコスを売ろう。ブラウザで無料で遊べます。">
+<meta property="og:url" content="https://tanukibox.github.io/OH-EDO-TACO-TUESDAY/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="多幸寿">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&family=Mochiy+Pop+One&family=Yuji+Syuku&display=swap">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<div id="app">
+  <section id="scr-title" class="screen"></section>
+  <section id="scr-morning" class="screen scroll"></section>
+  <section id="scr-auction" class="screen scroll"></section>
+  <section id="scr-night" class="screen"></section>
+  <section id="scr-result" class="screen scroll"></section>
+  <div id="toast"></div>
+  <div id="tipbox"></div>
+  <div id="keys" hidden></div>
+  <div id="loading">🌮</div>
+</div>
+
+<!-- Tanuki Box 共通土台 -->
+<script src="js/common/tb-i18n.js?v=1"></script>
+<script src="js/common/tb-input.js?v=1"></script>
+<script src="js/common/tb-sound.js?v=1"></script>
+<script src="js/common/tb-store.js?v=1"></script>
+<!-- 設定（数値）とことば（日英） -->
+<script>window.OT = { VERSION: 1 };</script>
+<script src="js/game/config.js?v=1"></script>
+<script src="js/game/text.js?v=1"></script>
+<!-- 絵の仕組み（art/build.py）が書き出す折りたたみの数値 -->
+<script src="art/output/taco_plain/fold.js?v=1"></script>
+<!-- ゲーム本体 -->
+<script src="js/game/state.js?v=1"></script>
+<script src="js/game/taste.js?v=1"></script>
+<script src="js/game/ui.js?v=1"></script>
+<script src="js/game/art.js?v=1"></script>
+<script src="js/game/sfx.js?v=1"></script>
+<script src="js/game/share.js?v=1"></script>
+<script src="js/game/auction.js?v=1"></script>
+<script src="js/game/night.js?v=1"></script>
+<script src="js/game/screens.js?v=1"></script>
+<script src="js/game/main.js?v=1"></script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-# 途中のファイル（python build.py でいつでも作り直せる）
-build/
+# 途中のファイル（art/build.py でいつでも作り直せる）
+art/build/
 __pycache__/
 *.pyc
 *.blend1
+node_modules/

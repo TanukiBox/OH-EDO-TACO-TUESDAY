@@ -55,6 +55,23 @@ def job_taco(out):
         common.render_to(os.path.join(out, f"taco_fold_{f:02d}.png"))
 
 
+def job_plain(out):
+    """料理画面用：具なしのトルティーヤ（皿つき）が折りたたまれる8コマ。
+    ゲームの中で、好きな具をこの上に重ねて一緒に折りたたむ。"""
+    common.reset_scene()
+    common.set_resolution(TACO_SIZE * SCALE, TACO_SIZE * SCALE)
+    common.add_lantern_light()
+    common.add_night_world()
+    taco.build_plate()
+    common.top_camera(TOP_ORTHO_SCALE)
+    common.render_to(os.path.join(out, "plate_top.png"))   # 皮を置く前の空の皿
+    tortillas = taco.build_tortilla()
+    folder = taco.Folder(tortillas)
+    for f in range(FOLD_FRAMES):
+        folder.apply(f / (FOLD_FRAMES - 1))
+        common.render_to(os.path.join(out, f"plain_fold_{f:02d}.png"))
+
+
 def job_icons(out):
     for ing in INGREDIENTS:
         common.reset_scene()
@@ -86,13 +103,16 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,icons,noren")
+    p.add_argument("--jobs", default="taco,plain,icons,noren")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     jobs = a.jobs.split(",")
     if "taco" in jobs:
         print("== タコス", flush=True)
         job_taco(a.out)
+    if "plain" in jobs:
+        print("== 具なしトルティーヤ", flush=True)
+        job_plain(a.out)
     if "icons" in jobs:
         print("== 具材アイコン", flush=True)
         job_icons(a.out)

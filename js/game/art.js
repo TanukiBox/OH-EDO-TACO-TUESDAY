@@ -1,0 +1,352 @@
+/*
+ * 多幸寿：絵
+ *   ・art/output/ のドット絵（Blender → ドット絵化）を読み込む
+ *   ・まだ絵がないものは「仮の図形」を、ドット絵と同じパレットの色で描く
+ *     （第4段階で、Blender で作った絵に差し替える）
+ */
+(function (global) {
+  'use strict';
+  var OT = global.OT = global.OT || {};
+
+  // art/pipeline/palette.py と同じ32色
+  var P = {
+    outline: '#1c1220',
+    char: '#2e1a12', brown1: '#5a3218', brown2: '#8c5228', brown3: '#b87838', brown4: '#dca24a',
+    corn: '#f4cc62', corn2: '#fbe39a', cornShade: '#b08a4a',
+    white: '#fffaf0', white2: '#f0e6d2', gray1: '#d6ccb8', gray2: '#aaa292', gray3: '#76726a',
+    pink1: '#ffb8a4', pink2: '#f0664e', pink3: '#b8323a',
+    red1: '#f24a2a', red2: '#c42618', red3: '#7a1414',
+    green1: '#a8e05a', green2: '#46b03a', green3: '#1f6a2c',
+    ind1: '#5070b0', ind2: '#34569a', ind3: '#243f7a', ind4: '#172b58', ind5: '#0d1830',
+    warm1: '#ffe6b0', warm2: '#f5b860',
+    night1: '#4a4658', night2: '#2a2838'
+  };
+  OT.PAL = P;
+
+  var BASE = 'art/output/';
+  var images = {};
+  var FILES = {
+    plate: 'taco_plain/plate_top.png',
+    icon_tai: 'icons/icon_tai.png',
+    icon_negi: 'icons/icon_negi.png',
+    taco_top: 'taco/taco_top.png'
+  };
+  for (var i = 0; i < 8; i++) FILES['fold' + i] = 'taco_plain/plain_fold_0' + i + '.png';
+  for (var j = 0; j < 6; j++) FILES['noren' + j] = 'noren/noren_0' + j + '.png';
+
+  OT.art = {
+    img: function (k) { return images[k]; },
+    load: function (done) {
+      var keys = Object.keys(FILES), left = keys.length;
+      keys.forEach(function (k) {
+        var im = new Image();
+        im.onload = im.onerror = function () { if (--left === 0) done(); };
+        im.src = BASE + FILES[k] + '?v=' + OT.VERSION;
+        images[k] = im;
+      });
+    },
+    // 食材の本物のアイコン（あるものだけ）
+    iconFor: function (id) {
+      if (id === 'tai') return images.icon_tai;
+      if (id === 'negi') return images.icon_negi;
+      return null;
+    }
+  };
+
+  // ---------------------------------------------------------------
+  // 乱数（同じ種なら同じ並び）
+  // ---------------------------------------------------------------
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function hash(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+  OT.rng = rng;
+  OT.hash = hash;
+
+  // ---------------------------------------------------------------
+  // 仮の図形：食材のかけら（真上から見た小さなドット）
+  //   shape: chunk かたまり / blob とろっとしたもの / strand 千切り / ring 輪切り / dust 粉 / zest 皮の細切り
+  //   c: [明るい, ふつう, 暗い]、n: かけらの数、s: 大きさ（ドット）、h: 皮からの高さ
+  // ---------------------------------------------------------------
+  var LOOK = {
+    tortilla: { shape: 'blob', c: [P.corn2, P.corn, P.cornShade], n: 1, s: 8, h: 0 },
+    tai:      { shape: 'chunk', c: [P.white, P.white2, P.pink2], n: 8, s: 6, h: 0.05 },
+    kisu_ten: { shape: 'chunk', c: [P.corn2, P.brown4, P.brown2], n: 6, s: 7, h: 0.06 },
+    tako:     { shape: 'chunk', c: [P.pink1, P.pink2, P.pink3], n: 8, s: 5, h: 0.05 },
+    katsuo:   { shape: 'chunk', c: [P.pink2, P.red3, P.brown1], n: 7, s: 6, h: 0.05 },
+    shiraae:  { shape: 'blob', c: [P.white, P.white2, P.gray2], n: 3, s: 5, h: 0.08 },
+    sumiso:   { shape: 'blob', c: [P.corn2, P.brown4, P.brown2], n: 3, s: 4, h: 0.08 },
+    bainiku:  { shape: 'blob', c: [P.pink2, P.red2, P.red3], n: 4, s: 3, h: 0.09 },
+    irizake:  { shape: 'blob', c: [P.warm2, P.brown3, P.brown1], n: 5, s: 2, h: 0.07 },
+    daikon:   { shape: 'strand', c: [P.white, P.white2, P.gray1], n: 16, s: 4, h: 0.1 },
+    kyuri:    { shape: 'ring', c: [P.green1, P.green2, P.green3], n: 7, s: 3, h: 0.1 },
+    myoga:    { shape: 'strand', c: [P.pink1, P.pink2, P.pink3], n: 9, s: 3, h: 0.11 },
+    negi:     { shape: 'ring', c: [P.green1, P.green2, P.green3], n: 12, s: 2, h: 0.12 },
+    yuzu:     { shape: 'zest', c: [P.corn2, P.corn, P.brown4], n: 10, s: 2, h: 0.12 },
+    shichimi: { shape: 'dust', c: [P.red1, P.red2, P.brown3], n: 26, s: 1, h: 0.13 }
+  };
+  OT.art.look = function (id) { return LOOK[id] || { shape: 'blob', c: [P.gray1, P.gray2, P.gray3], n: 4, s: 3, h: 0.08 }; };
+
+  function px(ctx, x, y, c) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), 1, 1); }
+  function rect(ctx, x, y, w, h, c) { ctx.fillStyle = c; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+
+  /** かけら1つを (x, y) を中心に描く。squash は縦のつぶれ（折りたたみ用、1 = そのまま） */
+  function drawPiece(ctx, look, x, y, r, squash) {
+    var c = look.c, s = look.s;
+    var hs = Math.max(1, Math.round(s * squash));
+    switch (look.shape) {
+      case 'chunk': {
+        var w = s + Math.floor(r() * 3), h = Math.max(1, Math.round((s - 1 + Math.floor(r() * 2)) * squash));
+        rect(ctx, x - w / 2 - 1, y - h / 2, w + 2, h + 1, P.outline);   // 輪郭（ドット絵と同じ暗い線）
+        rect(ctx, x - w / 2, y - h / 2 - 1, w, h + 2, P.outline);
+        rect(ctx, x - w / 2, y - h / 2, w, h, c[1]);
+        rect(ctx, x - w / 2, y - h / 2, w - 1, 1, c[0]);
+        rect(ctx, x - w / 2 + 1, y + h / 2 - 1, w - 1, 1, c[2]);
+        rect(ctx, x + w / 2 - 1, y - h / 2 + 1, 1, h - 1, c[2]);
+        break;
+      }
+      case 'blob': {
+        for (var oy = -hs - 1; oy <= hs + 1; oy++) {
+          for (var ox = -s - 1; ox <= s + 1; ox++) {
+            if ((ox * ox) / ((s + 1) * (s + 1)) + (oy * oy) / ((hs + 1) * (hs + 1)) <= 1) px(ctx, x + ox, y + oy, P.outline);
+          }
+        }
+        for (var yy = -hs; yy <= hs; yy++) {
+          for (var xx = -s; xx <= s; xx++) {
+            var d = (xx * xx) / (s * s) + (yy * yy) / (hs * hs);
+            if (d <= 1) px(ctx, x + xx, y + yy, d < 0.3 && xx < 0 && yy < 0 ? c[0] : d > 0.7 && yy > 0 ? c[2] : c[1]);
+          }
+        }
+        break;
+      }
+      case 'strand': {
+        var dx = r() < 0.5 ? 1 : -1;
+        for (var k = 0; k < s; k++) px(ctx, x + k * dx * 0.7, y + (k - s / 2) * squash, k === 0 ? c[0] : c[1]);
+        break;
+      }
+      case 'ring': {
+        var rr = s;
+        for (var a = 0; a < 12; a++) {
+          var ang = a / 12 * Math.PI * 2;
+          px(ctx, x + Math.cos(ang) * rr, y + Math.sin(ang) * rr * squash, a < 6 ? c[1] : c[2]);
+        }
+        px(ctx, x - rr, y - 1, c[0]);
+        break;
+      }
+      case 'zest': {
+        rect(ctx, x, y, 2, 1, c[1]); px(ctx, x, y, c[0]);
+        break;
+      }
+      default: // dust
+        px(ctx, x, y, r() < 0.6 ? c[1] : r() < 0.5 ? c[0] : c[2]);
+    }
+  }
+
+  // ---------------------------------------------------------------
+  // タコスの上の具（真上）。fold = 折りたたみのコマ（0 = 開いたまま）
+  // ---------------------------------------------------------------
+  var F = function () { return global.OT_FOLD; };
+
+  /** 折りたたみの変形（art/blender/taco.py の fold_coords と同じ式） */
+  function foldY(y, h, frame) {
+    var fd = F(), t = frame / (fd.frames - 1), e = t * t * (3 - 2 * t);
+    var angle = e * fd.foldMaxAngle;
+    if (angle < 1e-5) return { y: y, squash: 1 };
+    var R = fd.foldBand / (angle / 2);
+    var th = Math.max(-angle / 2, Math.min(angle / 2, y / R));
+    var extra = y - th * R;
+    var sy = R * Math.sin(th) + extra * Math.cos(th) - h * Math.sin(th);
+    return { y: sy, squash: Math.max(0.35, Math.abs(Math.cos(th))) };
+  }
+
+  /** items の具を、128×128 のタコスの絵の上に描く */
+  OT.art.drawToppings = function (ctx, items, frame) {
+    var fd = F(), ppu = fd.size / fd.orthoScale, cx = fd.size / 2, cy = fd.size / 2;
+    items.forEach(function (id, layer) {
+      var look = OT.art.look(id);
+      var r = rng(hash(id) + layer * 97);
+      for (var i = 0; i < look.n; i++) {
+        // 背骨（横方向）に沿った楕円の中に散らす
+        var a = r() * Math.PI * 2, d = Math.sqrt(r());
+        var wx = 0.62 * d * Math.cos(a), wy = 0.3 * d * Math.sin(a);
+        var f = foldY(wy, look.h, frame || 0);
+        drawPiece(ctx, look, cx + wx * ppu, cy - f.y * ppu, r, f.squash);
+      }
+    });
+  };
+
+  /** 食材の箱に出す小さな絵（24×24）。本物のアイコンがあればそれを使う */
+  OT.art.drawIcon = function (canvas, id) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var real = OT.art.iconFor(id);
+    if (real && real.complete && real.naturalWidth) {
+      canvas.width = 32; canvas.height = 32;
+      ctx.drawImage(real, 0, 0);
+      return;
+    }
+    canvas.width = 24; canvas.height = 24;
+    var look = OT.art.look(id);
+    if (id === 'tortilla') {
+      // 丸いトルティーヤ
+      for (var y = -9; y <= 9; y++) for (var x = -10; x <= 10; x++) {
+        var d = (x * x) / 100 + (y * y) / 81;
+        if (d <= 1) px(ctx, 12 + x, 12 + y, d > 0.8 ? P.cornShade : ((x * 7 + y * 13) % 11 === 0 ? P.brown3 : P.corn));
+      }
+      return;
+    }
+    var r = rng(hash(id + 'icon'));
+    var n = look.shape === 'dust' ? 30 : Math.min(look.n, look.shape === 'strand' ? 14 : 6);
+    for (var i = 0; i < n; i++) {
+      var ang = r() * Math.PI * 2, dd = Math.sqrt(r()) * 7;
+      drawPiece(ctx, look, 12 + Math.cos(ang) * dd, 12 + Math.sin(ang) * dd * 0.8, r, 1);
+    }
+  };
+
+  // ---------------------------------------------------------------
+  // 仮の図形：客（屋台の前に立つ人）
+  // ---------------------------------------------------------------
+  var SKIN = '#f0c8a0', SKIN2 = '#d8a07a';  // 仮の肌色（第4段階でパレットに入れる）
+  var CLOTH = {
+    chonin: { body: P.brown3, band: P.brown1, hair: P.char },
+    shokunin: { body: P.ind2, band: P.white2, hair: P.char },
+    samurai: { body: P.ind4, band: P.gray2, hair: P.char }
+  };
+
+  /** mood: 'ok' | 'happy' | 'worry' | 'angry' / t: 時間（ゆらゆら動かす） */
+  OT.art.drawGuest = function (ctx, typeId, x, y, mood, t, selected) {
+    var cl = CLOTH[typeId] || CLOTH.chonin;
+    var bob = Math.round(Math.sin(t * 3 + x) * 0.6);
+    var yy = y + bob;
+    if (selected) {
+      ctx.fillStyle = 'rgba(255,230,176,0.25)';
+      ctx.fillRect(x - 15, yy - 40, 30, 48);
+    }
+    // 体（着物）
+    rect(ctx, x - 11, yy - 16, 22, 24, cl.body);
+    rect(ctx, x - 11, yy - 16, 22, 1, P.outline);
+    rect(ctx, x - 1, yy - 16, 2, 10, cl.band);      // 襟
+    rect(ctx, x - 11, yy - 6, 22, 3, cl.band);      // 帯
+    if (typeId === 'samurai') { rect(ctx, x - 14, yy - 16, 28, 3, cl.body); rect(ctx, x - 14, yy - 16, 28, 1, P.gray3); } // 肩衣
+    if (typeId === 'shokunin') { rect(ctx, x - 11, yy - 2, 22, 1, P.white2); }
+    // 頭
+    var face = mood === 'angry' ? '#e89070' : SKIN;
+    rect(ctx, x - 7, yy - 31, 14, 14, face);
+    rect(ctx, x - 7, yy - 18, 14, 1, SKIN2);
+    // 髪
+    rect(ctx, x - 7, yy - 32, 14, 4, cl.hair);
+    rect(ctx, x - 8, yy - 30, 2, 6, cl.hair);
+    rect(ctx, x + 6, yy - 30, 2, 6, cl.hair);
+    rect(ctx, x - 1, yy - 36, 3, 4, cl.hair);          // まげ
+    if (typeId === 'shokunin') { rect(ctx, x - 8, yy - 29, 16, 2, P.white2); } // はちまき
+    // 顔
+    var ey = yy - 25;
+    if (mood === 'happy') {
+      px(ctx, x - 4, ey, P.outline); px(ctx, x - 3, ey - 1, P.outline); px(ctx, x - 2, ey, P.outline);
+      px(ctx, x + 2, ey, P.outline); px(ctx, x + 3, ey - 1, P.outline); px(ctx, x + 4, ey, P.outline);
+      rect(ctx, x - 2, ey + 4, 5, 2, P.red3);
+    } else {
+      rect(ctx, x - 4, ey, 2, 2, P.outline); rect(ctx, x + 2, ey, 2, 2, P.outline);
+      if (mood === 'angry') {
+        px(ctx, x - 5, ey - 2, P.outline); px(ctx, x - 4, ey - 1, P.outline);
+        px(ctx, x + 4, ey - 2, P.outline); px(ctx, x + 3, ey - 1, P.outline);
+        rect(ctx, x - 2, ey + 5, 5, 1, P.outline);
+      } else if (mood === 'worry') {
+        rect(ctx, x - 1, ey + 5, 3, 1, P.outline);
+        rect(ctx, x + 7, ey - 3, 1, 2, P.ind1); // 汗
+      } else {
+        rect(ctx, x - 1, ey + 4, 3, 1, P.brown1);
+      }
+    }
+  };
+
+  // ---------------------------------------------------------------
+  // 仮の図形：夜の屋台（奥の町並み・提灯・カウンター）
+  // ---------------------------------------------------------------
+  OT.art.drawStall = function (ctx, w, h, t) {
+    var g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, P.ind5); g.addColorStop(1, P.night2);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+    // 月
+    rect(ctx, w - 30, 8, 8, 8, P.warm1); rect(ctx, w - 31, 10, 10, 4, P.warm1);
+    // 町並みの影
+    ctx.fillStyle = P.ind4;
+    for (var i = 0; i < 7; i++) {
+      var bx = i * 30 - 6, bh = 22 + ((i * 37) % 13);
+      ctx.fillRect(bx, h - 46 - bh, 28, bh);
+      ctx.fillStyle = P.ind5; ctx.fillRect(bx - 2, h - 48 - bh, 32, 3); ctx.fillStyle = P.ind4;
+    }
+    // 屋台の屋根
+    rect(ctx, 0, 0, w, 7, P.brown1); rect(ctx, 0, 7, w, 1, P.outline);
+    // 提灯
+    [22, w - 22].forEach(function (lx, k) {
+      var sway = Math.round(Math.sin(t * 1.5 + k) * 1);
+      var glow = ctx.createRadialGradient(lx + sway, 22, 2, lx + sway, 22, 30);
+      glow.addColorStop(0, 'rgba(255,200,120,0.35)'); glow.addColorStop(1, 'rgba(255,200,120,0)');
+      ctx.fillStyle = glow; ctx.fillRect(lx - 32, 0, 64, 60);
+      rect(ctx, lx - 1 + sway, 8, 2, 4, P.char);
+      rect(ctx, lx - 6 + sway, 12, 12, 18, P.red1);
+      rect(ctx, lx - 6 + sway, 12, 12, 2, P.char); rect(ctx, lx - 6 + sway, 28, 12, 2, P.char);
+      rect(ctx, lx - 5 + sway, 17, 10, 1, P.red2); rect(ctx, lx - 5 + sway, 22, 10, 1, P.red2);
+      rect(ctx, lx - 3 + sway, 14, 2, 12, P.warm2);
+    });
+  };
+
+  OT.art.drawCounter = function (ctx, w, h) {
+    rect(ctx, 0, h - 22, w, 22, P.brown2);
+    rect(ctx, 0, h - 22, w, 2, P.brown4);
+    rect(ctx, 0, h - 20, w, 1, P.brown3);
+    for (var x = 0; x < w; x += 23) rect(ctx, x, h - 18, 1, 18, P.brown1);
+    rect(ctx, 0, h - 1, w, 1, P.outline);
+  };
+
+  // ---------------------------------------------------------------
+  // 仮の図形：競りの魚
+  // ---------------------------------------------------------------
+  OT.art.drawFish = function (ctx, kind, w, h) {
+    ctx.clearRect(0, 0, w, h);
+    var cx = w / 2, cy = h / 2;
+    function ell(x0, y0, rx, ry, col, col2) {
+      for (var y = -ry; y <= ry; y++) for (var x = -rx; x <= rx; x++) {
+        var d = (x * x) / (rx * rx) + (y * y) / (ry * ry);
+        if (d <= 1) px(ctx, x0 + x, y0 + y, y > ry * 0.3 && col2 ? col2 : col);
+      }
+    }
+    if (kind === 'tako') {
+      for (var k = 0; k < 8; k++) {
+        var a = Math.PI * (0.15 + 0.7 * k / 7);
+        for (var s = 0; s < 22; s++) {
+          var xx = cx + Math.cos(a) * (8 + s) * 1.3 + Math.sin(s * 0.5 + k) * 2;
+          var yy = cy + 4 + Math.sin(a) * (s * 0.7);
+          px(ctx, xx, yy, P.pink2); px(ctx, xx, yy + 1, P.pink3);
+          if (s % 4 === 0) px(ctx, xx, yy + 1, P.pink1);
+        }
+      }
+      ell(cx, cy - 8, 12, 12, P.pink2, P.pink3);
+      rect(ctx, cx - 5, cy - 8, 3, 3, P.outline); rect(ctx, cx + 3, cy - 8, 3, 3, P.outline);
+      return;
+    }
+    var body = { tai: [P.pink2, P.pink1], kisu: [P.gray1, P.white], katsuo: [P.ind3, P.gray1] }[kind];
+    var L = kind === 'kisu' ? 22 : kind === 'katsuo' ? 26 : 24, H = kind === 'kisu' ? 6 : kind === 'katsuo' ? 10 : 12;
+    // 尾
+    for (var t2 = 0; t2 < 10; t2++) {
+      rect(ctx, cx + L - 2 + t2, cy - t2, 1, t2 * 2 + 1, body[0]);
+    }
+    ell(cx, cy, L, H, body[0], body[1]);
+    if (kind === 'katsuo') for (var st = -10; st < 16; st += 5) rect(ctx, cx + st, cy + 3, 3, 1, P.gray2);
+    if (kind === 'tai') { rect(ctx, cx - 8, cy - H - 3, 18, 3, P.pink2); }
+    rect(ctx, cx - L + 6, cy - 3, 3, 3, P.outline);
+    px(ctx, cx - L + 6, cy - 3, P.white);
+  };
+})(window);

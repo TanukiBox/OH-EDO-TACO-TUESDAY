@@ -1,0 +1,202 @@
+/* 多幸寿：見た目（夜の屋台。藍色と提灯の明かり） */
+:root {
+  --ink: #fffaf0;
+  --ink2: #d6ccb8;
+  --muted: #aaa292;
+  --night: #0d1830;
+  --night2: #172b58;
+  --panel: #1a2240;
+  --panel2: #243056;
+  --line: #34569a;
+  --lantern: #f5b860;
+  --lantern2: #ffe6b0;
+  --red: #f24a2a;
+  --green: #46b03a;
+  --wood: #8c5228;
+  --wood2: #5a3218;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; background: #070b18; color: var(--ink); }
+body {
+  font-family: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Yu Gothic UI", sans-serif;
+  font-weight: 500;
+  overflow: hidden;
+  touch-action: manipulation;
+  user-select: none; -webkit-user-select: none;
+}
+#app {
+  position: relative;
+  width: 100%; max-width: 480px; height: 100%; height: 100dvh;
+  margin: 0 auto;
+  background: radial-gradient(120% 60% at 50% 0%, #1d2a55 0%, var(--night) 60%, #081024 100%);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #1a2240, 0 0 60px rgba(0,0,0,.6);
+}
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; padding-top: var(--safe-t); }
+.screen.on { display: flex; }
+.screen.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(96px + var(--safe-b)); }
+#loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 48px; animation: spin 1.2s linear infinite; }
+body.ready #loading { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
+
+/* ボタン */
+.btn {
+  font: inherit; font-weight: 800; color: var(--ink);
+  background: var(--panel2); border: 2px solid var(--line); border-radius: 12px;
+  padding: 10px 16px; cursor: pointer; min-height: 44px;
+  box-shadow: 0 3px 0 #0a1026;
+  transition: transform .06s;
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #0a1026; }
+.btn:disabled { opacity: .45; }
+.btn.primary { background: linear-gradient(#f24a2a, #c42618); border-color: #ffb8a4; box-shadow: 0 3px 0 #7a1414; }
+.btn.big { font-size: 19px; padding: 14px 18px; width: 100%; }
+.btn.ghost { background: transparent; }
+.btn.small { font-size: 13px; padding: 6px 10px; min-height: 36px; }
+.btn.x { background: #000; border-color: #444; }
+
+/* 上の帯 */
+.hud {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  padding: 8px 12px; font-size: 14px; font-weight: 800;
+  background: rgba(7,11,24,.65); border-bottom: 1px solid #243056;
+}
+.hud-day { color: var(--lantern2); }
+.hud-timer { margin-left: auto; color: var(--lantern); font-variant-numeric: tabular-nums; }
+.scr-title { margin: 14px 16px 8px; font-size: 22px; font-weight: 800; }
+.lead { margin: 6px 16px; color: var(--ink2); }
+
+/* ポン吉 */
+.pon { display: flex; gap: 8px; margin: 6px 16px; padding: 10px; background: #2a2838; border: 1px solid #4a4658; border-radius: 12px; }
+.pon-face { font-size: 30px; line-height: 1; }
+.pon-text { display: flex; flex-direction: column; font-size: 14px; }
+.pon-text b { color: var(--lantern); font-size: 12px; }
+
+/* お知らせ */
+#tipbox { position: absolute; left: 0; right: 0; bottom: calc(150px + var(--safe-b)); display: flex; flex-direction: column; align-items: center; pointer-events: none; z-index: 50; }
+#toast { position: absolute; left: 0; right: 0; top: 30%; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; z-index: 50; }
+.toast { background: rgba(13,24,48,.92); border: 2px solid var(--lantern); border-radius: 12px; padding: 10px 16px; font-weight: 800; max-width: 88%; text-align: center; animation: pop .2s ease-out; transition: opacity .35s, transform .35s; }
+.toast.big { font-family: "Mochiy Pop One", sans-serif; font-size: 34px; color: var(--lantern2); border: none; background: none; text-shadow: 0 3px 0 #7a1414, 0 0 16px #f5b860; }
+.toast.tip { font-size: 14px; border-color: #4a4658; background: #2a2838; }
+.toast.out { opacity: 0; transform: translateY(-10px); }
+@keyframes pop { from { transform: scale(.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* タイトル */
+#scr-title { justify-content: space-between; padding-bottom: calc(18px + var(--safe-b)); }
+.title-top { display: flex; flex-direction: column; align-items: center; }
+.title-noren { width: 100%; height: auto; aspect-ratio: 3 / 2; }
+.logo { margin: 8px 0 0; text-align: center; display: flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.logo-en { font-family: "Mochiy Pop One", sans-serif; font-size: clamp(26px, 8.5vw, 38px); color: var(--lantern2); text-shadow: 0 3px 0 #c42618, 0 0 18px rgba(245,184,96,.6); letter-spacing: .01em; }
+.logo-ja { font-family: "Yuji Syuku", serif; font-size: clamp(40px, 13vw, 58px); color: var(--ink); text-shadow: 0 3px 0 #172b58; margin-top: 4px; }
+.tagline { color: var(--ink2); margin: 6px 0; }
+.title-btns { display: flex; flex-direction: column; gap: 10px; padding: 0 20px; }
+.title-foot { display: flex; gap: 8px; align-items: center; padding: 10px 20px 0; }
+.title-foot .by { margin-left: auto; color: var(--muted); font-size: 13px; }
+
+/* 朝：仕入れ先 */
+.suppliers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 16px; }
+.sup { font: inherit; color: var(--ink); text-align: left; background: var(--panel2); border: 2px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; min-height: 84px; }
+.sup.game { border-color: var(--lantern); }
+.sup.soon { opacity: .45; border-style: dashed; border-color: #4a4658; }
+.sup.blocked { opacity: .6; }
+.sup-kind { font-size: 11px; color: var(--lantern); }
+.sup.shop .sup-kind { color: #a8e05a; }
+.sup-name { font-weight: 800; font-size: 16px; }
+.sup-desc { font-size: 12px; color: var(--ink2); }
+.pantry { margin: 10px 16px; }
+.pantry h3 { font-size: 15px; margin: 6px 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: #172b58; border-radius: 999px; padding: 2px 10px 2px 4px; font-size: 13px; }
+.chip.zero { opacity: .45; }
+.chip-icon { width: 24px; height: 24px; }
+.sticky-bottom { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 480px; padding: 10px 16px calc(12px + var(--safe-b)); background: linear-gradient(transparent, #070b18 40%); z-index: 5; }
+
+/* 競り */
+.auc-intro { margin: 10px 16px; display: flex; flex-direction: column; gap: 16px; }
+.auc-intro p { line-height: 1.7; }
+.auc-time { height: 8px; margin: 4px 16px; background: #172b58; border-radius: 4px; overflow: hidden; }
+.auc-time i, .auc-lot i { display: block; height: 100%; background: var(--lantern); }
+.auc-panel { position: relative; margin: 10px 16px; padding: 14px; border-radius: 16px; background: linear-gradient(#5a3218, #2e1a12); border: 3px solid #8c5228; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; touch-action: none; }
+.auc-panel.won { border-color: var(--green); }
+.auc-panel.lost { border-color: #4a4658; }
+.auc-fish { width: 288px; max-width: 80%; height: auto; aspect-ratio: 3 / 2; }
+.auc-name { font-weight: 800; font-size: 18px; }
+.auc-market { font-size: 13px; color: var(--ink2); }
+.auc-price { font-family: "Mochiy Pop One", sans-serif; font-size: 56px; line-height: 1.1; color: var(--ink); background: #fffaf0; color: #1c1220; border-radius: 10px; padding: 0 18px; min-width: 60%; text-align: center; font-variant-numeric: tabular-nums; box-shadow: 0 4px 0 #b87838; }
+.auc-price.cheap { color: #1f6a2c; background: #eaf7d4; }
+.auc-price.pricey { color: #c42618; }
+.auc-price.poor { opacity: .55; }
+.auc-lot { width: 80%; height: 6px; background: #2e1a12; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+.auc-tap { margin-top: 6px; font-weight: 800; color: var(--lantern2); animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: .4; } }
+.auc-msg { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-family: "Mochiy Pop One", sans-serif; font-size: 26px; opacity: 0; pointer-events: none; transition: opacity .15s; }
+.auc-msg.show { opacity: 1; }
+.auc-msg.won { color: #a8e05a; text-shadow: 0 2px 0 #1f6a2c; }
+.auc-msg.lost { color: #d6ccb8; text-shadow: 0 2px 0 #1c1220; }
+.auc-log { margin: 6px 16px; padding-left: 20px; font-size: 14px; color: var(--ink2); }
+.auc-log.big { font-size: 17px; color: var(--ink); line-height: 1.9; }
+
+/* 夜：屋台 */
+#scr-night { background: #0d1830; }
+.stall { position: relative; width: 100%; aspect-ratio: 192 / 108; max-height: 34vh; margin: 0 auto; flex: none; }
+.stall-canvas { width: 100%; height: 100%; object-fit: contain; }
+.seat-hit { position: absolute; top: 18%; bottom: 0; z-index: 2; }
+.bubble { position: absolute; top: 4%; transform: translateX(-50%); width: 30%; display: none; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; z-index: 3; }
+.bubble.on { display: flex; }
+.bubble .b-line { background: #fffaf0; color: #1c1220; font-size: 11px; font-weight: 800; border-radius: 8px; padding: 3px 6px; line-height: 1.25; text-align: center; box-shadow: 0 2px 0 #aaa292; }
+.bubble .b-type { font-size: 10px; color: var(--lantern2); background: rgba(13,24,48,.8); border-radius: 6px; padding: 0 6px; }
+.bubble .b-order { background: #fffaf0; color: #c42618; font-size: 11.5px; font-weight: 800; border-radius: 8px; padding: 3px 6px; line-height: 1.2; text-align: center; border: 2px solid transparent; }
+.bubble.sel .b-order { border-color: var(--lantern); box-shadow: 0 0 10px #f5b860; }
+.bubble .b-bar { width: 70%; height: 5px; background: rgba(0,0,0,.5); border-radius: 3px; overflow: hidden; }
+.bubble .b-bar i { display: block; height: 100%; }
+.fx { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.floater { position: absolute; top: 40%; transform: translateX(-50%); font-weight: 800; font-size: 16px; white-space: nowrap; animation: floatUp 1.8s ease-out forwards; text-shadow: 0 2px 0 #1c1220; }
+.floater.s3 { color: #ffe6b0; font-size: 20px; }
+.floater.s2 { color: #fffaf0; }
+.floater.s1 { color: #aaa292; }
+.floater.angry { font-size: 28px; }
+@keyframes floatUp { 0% { transform: translate(-50%, 10px) scale(.6); opacity: 0; } 15% { transform: translate(-50%, 0) scale(1.15); opacity: 1; } 100% { transform: translate(-50%, -40px) scale(1); opacity: 0; } }
+
+/* 夜：調理台 */
+.kitchen { flex: 1; min-height: 0; display: flex; flex-direction: column; background: linear-gradient(#5a3218, #3a2010); border-top: 3px solid #8c5228; padding: 6px 10px calc(8px + var(--safe-b)); gap: 6px; }
+.board { position: relative; flex: 1 1 auto; min-height: 110px; display: flex; justify-content: center; align-items: center; }
+.board-canvas { height: 100%; max-height: 256px; width: auto; aspect-ratio: 1; }
+.dish-name { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 800; color: var(--lantern2); text-shadow: 0 2px 0 #1c1220; }
+.tabs { display: flex; gap: 4px; flex: none; }
+.tab { flex: 1; font: inherit; font-weight: 800; font-size: 14px; color: var(--ink2); background: #2e1a12; border: 2px solid #5a3218; border-radius: 10px 10px 4px 4px; padding: 6px 0; min-height: 38px; cursor: pointer; }
+.tab.on { color: #1c1220; background: var(--lantern2); border-color: var(--lantern); }
+.bins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; flex: none; max-height: 30vh; overflow-y: auto; }
+.bin { font: inherit; color: var(--ink); background: #2e1a12; border: 2px solid #8c5228; border-radius: 10px; padding: 4px; display: grid; grid-template-columns: 32px 1fr; grid-template-rows: auto auto; column-gap: 4px; align-items: center; text-align: left; cursor: pointer; min-height: 48px; }
+.bin canvas { grid-row: span 2; width: 32px; height: 32px; }
+.bin-name { font-size: 12px; font-weight: 800; line-height: 1.15; }
+.bin-count { font-size: 11px; color: var(--muted); }
+.bin.on { border-color: var(--lantern); background: #5a3218; box-shadow: 0 0 0 2px rgba(245,184,96,.4) inset; }
+.bin.empty { opacity: .4; }
+.actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; flex: none; }
+.actions .btn { min-height: 52px; font-size: 17px; }
+
+/* 結果 */
+.res-table { margin: 6px 16px; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; overflow: hidden; }
+.res-row { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 14px; border-bottom: 1px solid #243056; gap: 12px; }
+.res-row:last-child { border-bottom: none; }
+.res-row span { color: var(--ink2); font-size: 14px; }
+.res-row b { font-size: 16px; text-align: right; }
+.res-row.big b { font-family: "Mochiy Pop One", sans-serif; font-size: 30px; color: var(--lantern2); }
+.res-row.up b { color: #a8e05a; }
+.res-row.down b { color: #ffb8a4; }
+.res-btns { display: flex; flex-direction: column; gap: 10px; margin: 16px; }
+
+/* PC：まわりを夜の町の色に */
+@media (min-width: 520px) {
+  body { background: radial-gradient(circle at 50% 30%, #172b58, #070b18 70%); }
+  #app { border-left: 1px solid #243056; border-right: 1px solid #243056; }
+}
+@media (max-height: 640px) {
+  .stall { max-height: 30vh; }
+  .bins { max-height: 26vh; }
+  .actions .btn { min-height: 46px; }
+}
