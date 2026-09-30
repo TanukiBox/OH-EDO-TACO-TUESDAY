@@ -27,12 +27,19 @@
 | `js/game/main.js` | 起動と1日の流れ（朝→夜→結果→次の日） |
 | `js/game/screens.js` | タイトル・朝の仕入れ先・結果の画面 |
 | `js/game/auction.js` | ミニゲーム「魚河岸の競り」 |
+| `js/game/fishing.js` | ミニゲーム「江戸湾の一本釣り」 |
+| `js/game/forage.js` | ミニゲーム「田んぼと里山の採集」 |
+| `js/game/shop.js` | 町の店（青物市場・米屋・豆腐屋・鳥屋・薬研堀・ももんじや） |
+| `js/game/dex.js` | タコス図鑑（タコス・素タコス・食材） |
 | `js/game/night.js` | 夜の営業（客・料理・包む・評価） |
 | `js/game/art.js` | ドット絵の読み込みと、まだ絵のないものの仮の図形 |
 | `js/game/sfx.js` / `share.js` / `ui.js` | 効果音 / Xシェア / 画面の部品 |
 | `art/` | 絵の仕組み。`python art/build.py` で `art/output/` のドット絵を作り直す |
 | `story.md` | 物語（登場人物・あらすじ・章・エンディング） |
 | `LICENSES.md` | フォントなどのライセンス |
+
+## 更新がスマホに出ないとき
+ブラウザが前のファイルを覚えていることがあります。`index.html` の `?v=2` の数字をぜんぶ1つ上げる（`?v=3` など）と、新しいファイルが読み込まれます。
 
 ## 自分のパソコンで動かす
 このフォルダで PowerShell を開き、次を実行してから、ブラウザで http://localhost:8000 を開きます。

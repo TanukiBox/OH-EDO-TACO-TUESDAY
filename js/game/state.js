@@ -23,10 +23,20 @@
       phase: 'morning',       // 'morning' | 'night' | 'result'
       gamesToday: 0,          // 今日遊んだミニゲームの数
       lastResult: null,       // 最後の夜の結果（結果画面の表示用）
-      made: {},               // タコスごとの作った回数（第2段階で熟練度に使う）
-      seen: {},               // 手に入れたことのある食材（第2段階で図鑑に使う）
-      totals: { sales: 0, served: 0, stars: 0 }
+      made: {},               // タコスごとの出した回数（熟練度と図鑑に使う）
+      seen: {},               // 手に入れたことのある食材（図鑑に使う）
+      totals: { sales: 0, served: 0, stars: 0 },
+      rankSeen: 0,            // お知らせ済みの評判ランク
+      whaleDay: false,        // 今日は鯨組の大物が競りに入る日か
+      flags: {}               // 物語の進み具合など
     };
+  }
+
+  /** 古いセーブに、あとから増えた項目を足す */
+  function upgrade(s) {
+    var f = fresh();
+    Object.keys(f).forEach(function (k) { if (s[k] === undefined) s[k] = f[k]; });
+    return s;
   }
 
   var st = null;
@@ -43,7 +53,7 @@
     load: function () {
       var s = OT.store.get('save', null);
       if (!s || s.v !== OT.CFG.SAVE_VERSION) return null;
-      st = s;
+      st = upgrade(s);
       return st;
     },
     save: function () { if (st) OT.store.set('save', st); },
@@ -71,6 +81,12 @@
       return r;
     },
     /** 今の章（1〜6） */
-    chapter: function () { return OT.state.rank() + 1; }
+    //   一度上がったランクは、評判が少し下がっても戻らない（解禁したものは使い続けられる）
+    chapter: function () { return (st.flags.finale ? 6 : Math.max(OT.state.rank(), st.rankSeen) + 1); },
+    /** 今の季節 'spring' | 'summer' | 'autumn' | 'winter' */
+    season: function () {
+      var i = Math.floor((st.day - 1) / OT.CFG.SEASON_DAYS) % 4;
+      return ['spring', 'summer', 'autumn', 'winter'][i];
+    }
   };
 })(window);

@@ -13,7 +13,10 @@
   function st() { return OT.state.get(); }
 
   function pickFish() {
-    var f = cfg().fish, keys = Object.keys(f), sum = 0;
+    // 鯨組の大物が入った日は、3匹目に鯨が出る
+    if (st().whaleDay && !A.whaleShown && A.lots >= 2) { A.whaleShown = true; return 'kujira'; }
+    var ch = OT.state.chapter();
+    var f = cfg().fish, keys = Object.keys(f).filter(function (k) { return f[k].weight > 0 && f[k].chapter <= ch; }), sum = 0;
     keys.forEach(function (k) { sum += f[k].weight; });
     var r = Math.random() * sum;
     for (var i = 0; i < keys.length; i++) { r -= f[keys[i]].weight; if (r <= 0) return keys[i]; }
@@ -22,6 +25,8 @@
 
   function newLot() {
     var kind = pickFish();
+    A.lots = (A.lots || 0) + 1;
+    if (kind === 'kujira') setTimeout(function () { if (A) flash(OT.t('auc.whale'), 'won'); }, 50);
     A.lot = {
       kind: kind, info: cfg().fish[kind], t: 0,
       w: 1.7 + Math.random() * 1.6, ph: Math.random() * Math.PI * 2, w2: 3.1 + Math.random() * 2

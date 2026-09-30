@@ -200,3 +200,65 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
   .bins { max-height: 26vh; }
   .actions .btn { min-height: 46px; }
 }
+
+/* ---------- 第2段階 ---------- */
+.row-btns { display: flex; align-items: center; gap: 10px; margin: 4px 16px; }
+.chapter-name { margin-left: auto; font-size: 13px; color: var(--lantern2); border: 1px solid #4a4658; border-radius: 999px; padding: 2px 10px; }
+.kago-panel { display: flex; gap: 10px; align-items: center; margin: 10px 16px; padding: 10px; background: #2e1a12; border: 2px solid #8c5228; border-radius: 12px; }
+.kago-panel > div { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.kago-panel span { font-size: 12px; color: var(--ink2); }
+.actions.three { grid-template-columns: 1fr 1fr 1.6fr; }
+.actions.three .btn { font-size: 14px; padding: 8px 6px; }
+.btn.kago { background: #b87838; border-color: #fbe39a; font-size: 14px !important; }
+.toast.lv { color: #a8e05a; border-color: #46b03a; }
+.bubble .b-line.cmt { background: #ffe6b0; }
+
+/* 店 */
+.shop-list { display: flex; flex-direction: column; gap: 6px; margin: 6px 16px; }
+.shop-row { display: flex; align-items: center; gap: 10px; background: var(--panel2); border: 2px solid var(--line); border-radius: 12px; padding: 6px 10px; }
+.shop-row.off { opacity: .45; }
+.shop-icon { width: 32px; height: 32px; }
+.shop-info { flex: 1; display: flex; flex-direction: column; font-size: 12px; color: var(--ink2); }
+.shop-info b { color: var(--ink); font-size: 15px; }
+.btn.buy { min-width: 76px; background: linear-gradient(#46b03a, #1f6a2c); border-color: #a8e05a; }
+
+/* 一本釣り */
+.sea-panel { position: relative; margin: 8px 16px; border: 3px solid #34569a; border-radius: 14px; overflow: hidden; touch-action: none; cursor: pointer; }
+.sea-canvas { width: 100%; height: auto; aspect-ratio: 3 / 2; }
+.tension { position: absolute; right: 8px; top: 12%; bottom: 12%; width: 18px; background: rgba(13,24,48,.7); border: 2px solid #fffaf0; border-radius: 9px; overflow: hidden; display: flex; flex-direction: column-reverse; }
+.tension i { display: block; width: 100%; background: linear-gradient(#f24a2a, #f5b860 40%, #46b03a); transition: height .05s; }
+.tension span { position: absolute; top: -2px; left: 50%; transform: translate(-50%, -100%); font-size: 10px; }
+.tension.danger { border-color: #f24a2a; box-shadow: 0 0 12px #f24a2a; }
+.sea-help { position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-weight: 800; color: var(--lantern2); text-shadow: 0 2px 0 #0d1830; pointer-events: none; }
+.sea-help.warn { color: #f24a2a; font-size: 20px; animation: blink .3s infinite; }
+
+/* 採集 */
+.field-canvas { width: calc(100% - 32px); margin: 8px 16px; height: auto; aspect-ratio: 3 / 2; border: 3px solid #46b03a; border-radius: 14px; touch-action: none; cursor: pointer; }
+.forage-log { margin: 4px 16px; font-size: 14px; color: var(--ink2); min-height: 20px; }
+
+/* 図鑑 */
+.dex-tabs { display: flex; gap: 4px; margin: 0 16px 6px; }
+.dex-grid { display: grid; grid-template-columns: 1fr; gap: 6px; margin: 0 16px; }
+.dex-card { display: flex; gap: 10px; align-items: center; background: var(--panel2); border: 2px solid var(--line); border-radius: 12px; padding: 6px; }
+.dex-card.shadow { background: #121a33; border-color: #243056; color: var(--muted); }
+.dex-thumb { width: 72px; height: 72px; flex: none; }
+.dex-card.small .dex-thumb { width: 56px; height: 56px; }
+.dex-icon { width: 36px; height: 36px; flex: none; }
+.dex-info { display: flex; flex-direction: column; gap: 1px; font-size: 12px; color: var(--ink2); min-width: 0; flex: 1; }
+.dex-info b { color: var(--ink); font-size: 14px; }
+.dex-info .lv { color: var(--lantern); }
+.dex-info .need { font-size: 11px; }
+.dex-info .sudachi { color: #a8e05a; font-size: 11px; }
+.taste-bars { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px 8px; margin-top: 2px; }
+.taste-bars .tb { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+.taste-bars .tb span { width: 26px; }
+.taste-bars .tb i { display: block; height: 5px; background: var(--lantern); border-radius: 3px; min-width: 2px; }
+@media (min-width: 420px) { .dex-grid { grid-template-columns: 1fr 1fr; } }
+
+/* ランクアップ */
+.rankup { margin: 6px 16px 12px; padding: 14px; text-align: center; border-radius: 16px; background: radial-gradient(circle at 50% 0%, #5a3218, #2e1a12); border: 3px solid var(--lantern); box-shadow: 0 0 24px rgba(245,184,96,.5); animation: pop .4s ease-out; }
+.rankup-title { font-weight: 800; color: var(--lantern2); }
+.rankup-name { font-family: "Yuji Syuku", serif; font-size: 34px; margin: 4px 0; }
+.rankup p { margin: 6px 0 4px; font-size: 13px; color: var(--ink2); }
+.rankup ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+.rankup li { background: rgba(13,24,48,.6); border-radius: 999px; padding: 2px 10px; font-size: 12px; }

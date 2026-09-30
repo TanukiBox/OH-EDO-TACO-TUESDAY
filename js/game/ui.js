@@ -13,7 +13,15 @@
     return list[Math.floor(Math.random() * list.length)];
   };
   OT.ingName = function (id) { return OT.t('ing.' + id); };
-  OT.tacoName = function (id) { return id ? OT.t('taco.' + id) : OT.t('night.omakaseName'); };
+  /** タコスの名前。'su:食材' は素タコス、variant は部位 */
+  OT.tacoName = function (id, variant) {
+    if (!id) return OT.t('night.omakaseName');
+    if (id.slice(0, 3) === 'su:') return OT.t('taco.su', { name: OT.ingName(id.slice(3)) });
+    var n = OT.t('taco.' + id);
+    if (variant) n += OT.t('taco.variant', { part: OT.t('part.' + variant) });
+    return n;
+  };
+  OT.seasonMark = { spring: '🌸', summer: '🎐', autumn: '🍁', winter: '❄' };
 
   /** 要素を作る：el('div', { class: 'x', text: '...', onclick: fn }, [子...]) */
   OT.el = function (tag, attrs, kids) {
@@ -53,7 +61,7 @@
     hud: function (extra) {
       var s = OT.state.get();
       return OT.el('div', { class: 'hud' }, [
-        OT.el('span', { class: 'hud-day', text: OT.t('ui.day', { n: s.day }) }),
+        OT.el('span', { class: 'hud-day', text: OT.seasonMark[OT.state.season()] + ' ' + OT.t('ui.day', { n: s.day }) }),
         OT.el('span', { class: 'hud-money', text: '💰 ' + OT.t('ui.money', { n: s.money }) }),
         OT.el('span', { class: 'hud-rep', text: '⭐ ' + OT.t('ui.rep', { n: s.rep }) }),
         extra || null

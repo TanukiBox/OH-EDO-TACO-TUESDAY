@@ -11,6 +11,9 @@
     morning: function () { OT.morning.enter(); },
     supplier: function (sup) {
       if (sup.game === 'auction') OT.auction.enter();
+      else if (sup.game === 'fishing') OT.fishing.enter();
+      else if (sup.game === 'forage') OT.forage.enter();
+      else if (sup.kind === 'shop') OT.shop.enter(sup.id);
     },
     night: function () {
       var s = OT.state.get();
@@ -23,6 +26,9 @@
       var s = OT.state.get();
       s.day += 1;
       s.gamesToday = 0;
+      // 鯨組の大物が競りに入る日（第4章から、ときどき）
+      s.whaleDay = OT.state.chapter() >= 4 && Math.random() < OT.CFG.AUCTION.whaleChance;
+      if (s.stock.kujira) s.stock.kujira = 0;   // 鯨はその日のうちに使いきる
       s.phase = 'morning';
       OT.state.save();
       OT.morning.enter();

@@ -76,8 +76,13 @@
       root.innerHTML = '';
       root.appendChild(OT.ui.hud());
       root.appendChild(OT.el('h2', { class: 'scr-title', text: '☀ ' + OT.t('morning.title') }));
-      var tipKey = s.stock.tortilla <= 10 ? 'pon.morningLow' : 'pon.morning1';
+      var tipKey = s.day === 1 ? 'pon.morning1' : s.whaleDay ? 'pon.whale' : s.stock.tortilla <= 10 && s.stock.tortilla > 0 ? 'pon.morningLow' :
+        s.stock.tortilla <= 0 && OT.state.chapter() >= 2 ? 'pon.noTortilla' : 'pon.morning' + (1 + (s.day % 4));
       root.appendChild(OT.ui.pon(tipKey));
+      root.appendChild(OT.el('div', { class: 'row-btns' }, [
+        OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('morning'); }, 'small'),
+        OT.el('span', { class: 'chapter-name', text: OT.t('rank.' + OT.state.chapter()) })
+      ]));
 
       var left = OT.CFG.MAX_GAMES_PER_DAY - s.gamesToday;
       root.appendChild(OT.el('p', { class: 'lead', text: left > 0 ? OT.t('morning.left', { n: left }) : OT.t('morning.done') }));
@@ -85,6 +90,7 @@
       var list = OT.el('div', { class: 'suppliers' });
       OT.CFG.SUPPLIERS.forEach(function (sup) {
         var soon = sup.soon || sup.chapter > OT.state.chapter();
+        var locked = !sup.soon && sup.chapter > OT.state.chapter();
         var blocked = sup.kind === 'game' && left <= 0;
         var card = OT.el('button', {
           class: 'sup ' + sup.kind + (soon ? ' soon' : '') + (blocked && !soon ? ' blocked' : ''),
@@ -96,11 +102,14 @@
         }, [
           OT.el('span', { class: 'sup-kind', text: OT.t('morning.kind.' + sup.kind) }),
           OT.el('span', { class: 'sup-name', text: OT.t('sup.' + sup.id) }),
-          OT.el('span', { class: 'sup-desc', text: soon ? OT.t('morning.soon') : OT.t('sup.' + sup.id + '.desc') })
+          OT.el('span', { class: 'sup-desc', text: locked ? OT.t('morning.lockedCh', { n: sup.chapter }) : soon ? OT.t('morning.soon') : OT.t('sup.' + sup.id + '.desc') })
         ]);
         list.appendChild(card);
       });
       root.appendChild(list);
+
+      // 作り置き：かご蒸しタコスを蒸しておく
+      if (OT.state.chapter() >= OT.CFG.KAGO.chapter) root.appendChild(kagoPanel());
 
       // いまの在庫
       var pantry = OT.el('div', { class: 'pantry' }, [OT.el('h3', { text: OT.t('morning.stockTitle') })]);
@@ -121,9 +130,49 @@
     }
   };
 
+  function kagoPanel() {
+    var K = OT.CFG.KAGO, s = st();
+    var uses = K.uses.every(function (id) { return OT.state.stockOf(id) >= K.batch; }) ? K.uses :
+      K.alt.every(function (id) { return OT.state.stockOf(id) >= K.batch; }) ? K.alt : null;
+    var btn = OT.button(OT.t('kago.make', { n: K.batch }), function () {
+      if (!uses) { OT.sfx.denied(); OT.ui.toast(OT.t('kago.need')); return; }
+      uses.forEach(function (id) { OT.state.useStock(id, K.batch); });
+      OT.state.addStock('kagomushi', K.batch);
+      OT.state.save();
+      OT.sfx.wrap();
+      OT.morning.enter();
+    }, 'small');
+    if (!uses) btn.disabled = true;
+    return OT.el('div', { class: 'kago-panel' }, [
+      OT.el('div', {}, [
+        OT.el('b', { text: '🧺 ' + OT.t('kago.title') + '（' + OT.t('ui.stock', { n: OT.state.stockOf('kagomushi') }) + '）' }),
+        OT.el('span', { text: OT.t('kago.desc', { n: K.batch }) })
+      ]),
+      btn
+    ]);
+  }
+
   // ---------------------------------------------------------------
   // 結果
   // ---------------------------------------------------------------
+  /** ランクアップのお知らせと、解禁されたもの */
+  function rankUpPanel(ch) {
+    var C = OT.CFG, items = [];
+    Object.keys(C.TACOS).forEach(function (id) { if (C.TACOS[id].chapter === ch) items.push('🌮 ' + OT.tacoName(id)); });
+    Object.keys(C.CUSTOMERS).forEach(function (id) { if (C.CUSTOMERS[id].chapter === ch) items.push('👤 ' + OT.t('cust.' + id)); });
+    C.SUPPLIERS.forEach(function (sp) { if (sp.chapter === ch && !sp.soon) items.push('🗺 ' + OT.t('sup.' + sp.id)); });
+    Object.keys(C.SHOPS).forEach(function (shopId) {
+      C.SHOPS[shopId].forEach(function (it) { if (it.chapter === ch && C.INGREDIENTS[it.id].cat === 'skin') items.push('🫓 ' + OT.ingName(it.id)); });
+    });
+    OT.sfx.happy(3);
+    return OT.el('div', { class: 'rankup' }, [
+      OT.el('div', { class: 'rankup-title', text: OT.t('rank.up') }),
+      OT.el('div', { class: 'rankup-name', text: OT.t('rank.' + ch) }),
+      OT.el('p', { text: OT.t('rank.unlocked') }),
+      OT.el('ul', {}, items.map(function (x) { return OT.el('li', { text: x }); }))
+    ]);
+  }
+
   OT.result = {
     enter: function () {
       var s = st(), r = s.lastResult;
@@ -131,7 +180,8 @@
       root.innerHTML = '';
       root.appendChild(OT.ui.hud());
       root.appendChild(OT.el('h2', { class: 'scr-title', text: '🏮 ' + OT.t('res.title', { n: r.day }) }));
-      var bestName = r.best ? OT.tacoName(r.best) : r.bestIsOmakase ? OT.t('night.omakaseName') : OT.t('res.bestNone');
+      var bestName = r.best ? OT.tacoName(r.best, r.bestVariant) : r.bestIsOmakase ? OT.t('night.omakaseName') : OT.t('res.bestNone');
+      if (r.rankUp) root.appendChild(rankUpPanel(r.rankUp));
       var starsTxt = r.served ? r.avg.toFixed(1) + ' ' + '★'.repeat(Math.round(r.avg)) : '—';
       var rows = [
         [OT.t('res.sales'), OT.t('ui.money', { n: r.sales }), 'big'],
@@ -152,6 +202,7 @@
       var shareText = OT.t('share.text', { day: r.day, sales: r.sales, taco: bestName });
       root.appendChild(OT.el('div', { class: 'res-btns' }, [
         OT.button(OT.t('res.share'), function () { OT.shareOnX(shareText); }, 'x'),
+        OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('result'); }, 'ghost'),
         OT.button(OT.t('res.next'), function () { OT.flow.nextDay(); }, 'primary big')
       ]));
     }
