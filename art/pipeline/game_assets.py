@@ -208,8 +208,8 @@ def ogp_and_icons(out, root_out):
         if os.path.exists(p):
             sh = Image.open(p).convert("RGBA")
             canvas.alpha_composite(sh.crop((64 * (sh.width // 64 - 1) if key == "pon" else 0, 0, 64 * (sh.width // 64 - 1) + 64 if key == "pon" else 64, 80)), (x, 76))
-    canvas.alpha_composite(lg.resize((180, 99), Image.NEAREST), (60, 6))
-    canvas.alpha_composite(taco.resize((96, 96), Image.NEAREST), (102, 64))
+    canvas.alpha_composite(lg.resize((160, 88), Image.NEAREST), (70, 2))
+    canvas.alpha_composite(taco.resize((76, 76), Image.NEAREST), (112, 84))
     canvas.resize((1200, 632), Image.NEAREST).crop((0, 0, 1200, 630)).convert("RGB").save(os.path.join(out, "ogp.png"))
     icon = Image.new("RGBA", (64, 64), rgb("#172b58") + (255,))
     icon.alpha_composite(taco.resize((64, 64), Image.NEAREST), (0, 2))
