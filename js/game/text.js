@@ -378,7 +378,145 @@
       'taco.matsutake': '松茸タコス',
       'taco.uni': '雲丹タコス',
       'taco.isana': '勇魚タコス',
-      'taco.namiura': '浪裏タコス'
+      'taco.namiura': '浪裏タコス',
+      // ---------- 第3段階 ----------
+      'story.skip': 'スキップ ▶▶',
+      'night.tribute': '献上！',
+      'vip.odaiShort': 'お題',
+      'vip.win': 'お見事！ 勝負あり！',
+      'vip.lose': '……これは、お題と違うようだ',
+      'vip.rikishi.odai': 'お題：3枚重ねの皮に、猪・鹿・軍鶏。具は5つ以上！',
+      'vip.tojin.odai': 'お題：猪の唐揚げと甘酢のタコス',
+      'vip.raizo.odai': 'お題：鯛・梅肉・大根おろし・白和え衣で、赤と白の見得切り盛り',
+      'vip.oranda.odai': 'お題：パン生地の皮に、鯛とバター',
+      'vip.tribute.odai': 'お題：天下多幸寿（本物の皮・鯛・モレ・葱・紫蘇・茗荷・柚子）',
+      'vip.preview': '今夜の予告：{name}が来る！ {odai}',
+      'fest.hanami': '🌸 花見',
+      'fest.hanami.desc': '桜の花見タコスが売れる。お客さん多め',
+      'fest.hatsugatsuo': '🐟 初鰹',
+      'fest.hatsugatsuo.desc': '鰹のたたきタコスが倍の値で飛ぶように売れる',
+      'fest.kawabiraki': '🎆 両国の川開き',
+      'fest.kawabiraki.desc': '花火見物の客が殺到！ 具が2つまでの小さなタコスが喜ばれる',
+      'fest.doyo': '🍢 土用の丑',
+      'fest.doyo.desc': '蒲焼アドバーダの注文が集中する',
+      'fest.tsukimi': '🌕 月見',
+      'fest.tsukimi.desc': '里芋と卵黄の月見タコスが売れる',
+      'morning.festival': '今日は{name}の日！ {desc}',
+      'trav.osaka': '大坂の商人',
+      'trav.kyo': '京の公家侍',
+      'trav.ezo': '蝦夷帰りの船乗り',
+      'trav.satsuma': '薩摩の藩士',
+      'trav.nagasaki': '長崎の通詞',
+      'trav.osaka.hello': 'うちの昆布で、ひとつ頼んまっせ',
+      'trav.kyo.hello': '湯葉を持ってまいりました。はんなりとお願いしますえ',
+      'trav.ezo.hello': '蝦夷の鮭と昆布だ！ これで作ってくれ',
+      'trav.satsuma.hello': '薩摩の豚と芋でごわす。頼みもす',
+      'trav.nagasaki.hello': '唐柿と胡椒を持ってきました。異国風にお願いします',
+      'trav.brought': '{name}が{items}を持ってきた！',
+      'trav.3': 'ふるさとの味が、こんなふうになるとは！|土産話ができました！',
+      'trav.2': 'なかなかのお味で|ええ味です',
+      'trav.1': '……ちょっと違いますなあ|ふるさとの味とは、ちと違う',
+      'reg.yokichi.hello': 'よう、マテオ！ いつもの頼むぜ、急ぎでな！',
+      'reg.genpachi.hello': '源八だ！ 今日もぴりっと頼むぜ',
+      'reg.hotta.hello': '堀田でござる。本日も縁起のよいものを',
+      'reg.jonen.hello': '浄念でございます。本日も精進を',
+      'reg.ikazuchi.hello': '雷山でごわす！ 大盛りで！',
+      'reg.sessai.hello': '雪斎じゃ。今日は何を見せてくれる？',
+      'reg.yokichi.3': 'はやい！うまい！ さすがマテオだ！',
+      'reg.yokichi.2': 'うん、今日もいい味だ',
+      'reg.yokichi.1': 'あれ、今日はどうしたい？',
+      'reg.genpachi.3': 'かーっ！ これだよこれ！',
+      'reg.genpachi.2': 'うまいが、もう一声辛くてもいいな',
+      'reg.genpachi.1': '今日は物足りねえなあ',
+      'reg.hotta.3': 'お見事！ 拙者、感服いたした',
+      'reg.hotta.2': 'よいお味でござる',
+      'reg.hotta.1': 'む……本日はいまひとつ',
+      'reg.jonen.3': 'ありがたや……身にしみます',
+      'reg.jonen.2': 'よいお味です',
+      'reg.jonen.1': 'ふむ……',
+      'reg.ikazuchi.3': 'ごっつぁんです！ 最高でごわす！',
+      'reg.ikazuchi.2': 'うまいでごわす',
+      'reg.ikazuchi.1': '腹が満たんでごわす……',
+      'reg.sessai.3': '粋だねえ！ 参った！',
+      'reg.sessai.2': 'まあ、悪くない',
+      'reg.sessai.1': '野暮だねえ',
+      'hunt.title': '山の追い込み',
+      'hunt.howto': '猟師の熊蔵といっしょに、猪や鹿を上の罠の柵へ追い込もう。獲物の近くをスワイプすると、その向きに逃げていくよ。',
+      'hunt.start': '山へ入る',
+      'hunt.nushiAppear': '山の主だ！ 重いぞ、何度も追い込め！',
+      'hunt.shout': 'ホーイ！|そっちだ！|ほれほれ！',
+      'hunt.caught': '{name}をつかまえた！',
+      'hunt.boar': '猪',
+      'hunt.deer': '鹿',
+      'hunt.nushi': '山の主（大猪）',
+      'hunt.result': '追い込みの結果',
+      'hunt.none': '獲物はなかった',
+      'smug.title': '長崎の抜け荷',
+      'smug.howto': '押している間だけ歩く。船から左の荷車まで荷を運ぼう。役人の提灯の明かりに入ると見つかって、評判が下がるよ。明かりが通りすぎるのを待ってから進もう。',
+      'smug.start': '夜の港へ',
+      'smug.caught': '見つかった！ 荷を捨てて逃げろ！',
+      'smug.got': '{name}×{n} を運び出した！',
+      'smug.result': '抜け荷の結果',
+      'smug.none': '何も運び出せなかった',
+      'smug.caughtN': '役人に{n}回見つかった（評判 -{rep}）',
+      'real.title': '本物の皮（灰汁で煮たトウモロコシ）',
+      'real.desc': 'トウモロコシ1つから、本物の皮を{n}枚焼く（トウモロコシ：{have}）',
+      'real.bake': '皮を焼く',
+      'real.need': 'トウモロコシがない（長崎の抜け荷で手に入る）',
+      'tribute.title': '献上の料理勝負',
+      'tribute.desc': '天下多幸寿を上様に献上する。本物の皮・鯛・カカオのモレ・葱・紫蘇・茗荷・柚子をそろえて。',
+      'tribute.go': '献上の料理勝負へ',
+      'tribute.missing': 'まだ足りないもの：{items}',
+      'ending.title': 'Happy Taco Tuesday!',
+      'ending.sub': '火の曜日は、たこすの日。',
+      'ending.stats': '{days}日かけて、{served}人のお客さんにタコスを出した。',
+      'ending.continue': '屋台を続ける',
+      'ending.share': '江戸の屋台「多幸寿」で天下多幸寿を献上！ 火曜日はたこすの日になりました🌮 #OhEdoTacoTuesday #多幸寿',
+      'title.cleared': '🌮 天下多幸寿 献上済み',
+
+      'ing.kashira': '大猪の頭肉',
+      'ing.ino_karaage': '猪の唐揚げ',
+      'ing.amazu': '甘酢',
+      'ing.sanmai': '3枚重ねの皮',
+      'ing.pan': 'パン生地の皮',
+      'ing.sakura': '桜の塩漬け',
+      'ing.ranou': '卵黄',
+      'ing.konbu': '昆布',
+      'ing.yuba': '湯葉の皮',
+      'ing.sake': '鮭',
+      'ing.buta': '豚',
+      'ing.kosho': '胡椒',
+      'ing.nikkei': '肉桂',
+      'ing.choji': '丁子',
+      'ing.sato': '出島白（砂糖）',
+      'ing.pineapple': 'パイナップル',
+      'ing.gyuniku': '牛肉の煮込み',
+      'ing.cheese': 'チーズ',
+      'ing.butter': 'バター',
+      'ing.tomato': '唐柿（トマト）',
+      'ing.avocado': 'アボカド',
+      'ing.mole': 'カカオのモレ',
+      'ing.honba_chili': '本場の唐辛子',
+      'ing.corn': 'トウモロコシ',
+      'ing.real_tortilla': '本物の皮',
+
+      'taco.yamanushi': '山の主カベサ',
+      'taco.yokozuna': '横綱タコス',
+      'taco.tojin': '唐人甘酢タコス',
+      'taco.mie': '見得切りタコス',
+      'taco.oranda': '阿蘭陀タコス',
+      'taco.pastor': '本格アル・パストール',
+      'taco.quesabirria': '出島ケサビリア',
+      'taco.pico': '唐柿のピコ・デ・ガジョ添え',
+      'taco.guacamole': '天ぷらワカモレ',
+      'taco.tenka': '天下多幸寿',
+      'taco.hanami': '花見タコス',
+      'taco.tsukimi': '月見タコス',
+      'taco.osaka': '大坂出汁タコス',
+      'taco.kyo': '京の湯葉タコス',
+      'taco.ezo': '蝦夷の鮭昆布タコス',
+      'taco.satsuma': '薩摩の豚芋タコス',
+      'taco.nagasaki': '長崎の唐柿タコス'
     },
 
     en: {
@@ -730,7 +868,614 @@
       'taco.matsutake': 'Matsutake Taco',
       'taco.uni': 'Uni Taco',
       'taco.isana': 'Isana Whale Taco',
-      'taco.namiura': 'Great Wave Taco'
+      'taco.namiura': 'Great Wave Taco',
+      'story.skip': 'Skip ▶▶',
+      'night.tribute': 'The Offering!',
+      'vip.odaiShort': 'Challenge',
+      'vip.win': 'Splendid! You win!',
+      'vip.lose': '…This does not match the challenge.',
+      'vip.rikishi.odai': 'Challenge: triple shell with boar, deer and gamecock — 5+ toppings!',
+      'vip.tojin.odai': 'Challenge: fried boar with sweet-and-sour sauce',
+      'vip.raizo.odai': 'Challenge: red & white "mie" plating — sea bream, plum paste, grated daikon, tofu cream',
+      'vip.oranda.odai': 'Challenge: bread-dough shell with sea bream and butter',
+      'vip.tribute.odai': 'Challenge: Tenka Takosu (real shell, sea bream, mole, scallion, shiso, myoga, yuzu)',
+      'vip.preview': 'Tonight: {name} is coming! {odai}',
+      'fest.hanami': '🌸 Cherry Blossoms',
+      'fest.hanami.desc': 'Blossom tacos sell well. More customers.',
+      'fest.hatsugatsuo': '🐟 First Bonito',
+      'fest.hatsugatsuo.desc': 'Seared bonito tacos sell like mad at double price.',
+      'fest.kawabiraki': '🎆 Ryogoku River Festival',
+      'fest.kawabiraki.desc': 'Crowds of firework-watchers! Small tacos (2 toppings or fewer) are a hit.',
+      'fest.doyo': '🍢 Midsummer Eel Day',
+      'fest.doyo.desc': 'Everyone orders the Kabayaki Adobada.',
+      'fest.tsukimi': '🌕 Moon Viewing',
+      'fest.tsukimi.desc': 'Taro-and-yolk moon tacos sell well.',
+      'morning.festival': 'Today is {name}! {desc}',
+      'trav.osaka': 'Osaka merchant',
+      'trav.kyo': 'Kyoto courtier',
+      'trav.ezo': 'Sailor from Ezo',
+      'trav.satsuma': 'Satsuma samurai',
+      'trav.nagasaki': 'Nagasaki interpreter',
+      'trav.osaka.hello': 'One with our kombu, if you please.',
+      'trav.kyo.hello': 'I brought yuba. Something elegant, please.',
+      'trav.ezo.hello': 'Salmon and kombu from Ezo! Make me one!',
+      'trav.satsuma.hello': 'Satsuma pork and sweet potato. If you would.',
+      'trav.nagasaki.hello': 'I brought tomatoes and pepper. Foreign style, please.',
+      'trav.brought': '{name} brought {items}!',
+      'trav.3': 'My hometown flavor, transformed!|A story to tell back home!',
+      'trav.2': 'Quite tasty.|A fine flavor.',
+      'trav.1': "…Not quite right.|Not like home.",
+      'reg.yokichi.hello': 'Hey, Mateo! The usual — and quick!',
+      'reg.genpachi.hello': "Genpachi here! Make it spicy today too!",
+      'reg.hotta.hello': 'Hotta here. Something auspicious again, please.',
+      'reg.jonen.hello': 'Jonen here. Something vegetarian, please.',
+      'reg.ikazuchi.hello': "Ikazuchiyama! A big one!",
+      'reg.sessai.hello': 'Sessai. What will you show me today?',
+      'reg.yokichi.3': "Fast and tasty! That's Mateo!",
+      'reg.yokichi.2': 'Good as always.',
+      'reg.yokichi.1': "Huh, what's up today?",
+      'reg.genpachi.3': "Whoa! That's the stuff!",
+      'reg.genpachi.2': 'Tasty, but it could be hotter.',
+      'reg.genpachi.1': 'Not enough kick today.',
+      'reg.hotta.3': 'Magnificent! I am impressed.',
+      'reg.hotta.2': 'A fine flavor.',
+      'reg.hotta.1': 'Hmm… not today.',
+      'reg.jonen.3': 'What a blessing…',
+      'reg.jonen.2': 'A fine flavor.',
+      'reg.jonen.1': 'Hmm…',
+      'reg.ikazuchi.3': 'Thank you kindly! The best!',
+      'reg.ikazuchi.2': 'Tasty!',
+      'reg.ikazuchi.1': "I'm still hungry…",
+      'reg.sessai.3': 'How stylish! I am beaten!',
+      'reg.sessai.2': 'Not bad.',
+      'reg.sessai.1': 'How unrefined.',
+      'hunt.title': 'Mountain Drive',
+      'hunt.howto': 'With Kumazo the hunter, drive boar and deer into the trap fence at the top. Swipe near an animal and it runs in that direction.',
+      'hunt.start': 'Into the mountains',
+      'hunt.nushiAppear': 'The Lord of the Mountain! It\'s heavy — keep driving it!',
+      'hunt.shout': 'Hoi!|That way!|Go, go!',
+      'hunt.caught': 'Caught a {name}!',
+      'hunt.boar': 'boar',
+      'hunt.deer': 'deer',
+      'hunt.nushi': 'Lord of the Mountain (giant boar)',
+      'hunt.result': 'Drive results',
+      'hunt.none': 'No catch',
+      'smug.title': 'Nagasaki Smugglers',
+      'smug.howto': "You walk only while you hold. Carry goods from the ship to the cart on the left. Step into an official's lantern light and you're caught — your reputation drops. Wait for the light to pass, then go.",
+      'smug.start': 'To the night harbor',
+      'smug.caught': 'Spotted! Drop it and run!',
+      'smug.got': 'Smuggled out {name} x{n}!',
+      'smug.result': 'Smuggling results',
+      'smug.none': 'Nothing smuggled out',
+      'smug.caughtN': 'Spotted {n} times (reputation -{rep})',
+      'real.title': 'Real shells (corn cooked in lye)',
+      'real.desc': 'Bake {n} real shells from 1 corn (corn: {have})',
+      'real.bake': 'Bake shells',
+      'real.need': 'No corn (get it from the Nagasaki smugglers)',
+      'tribute.title': 'The Offering',
+      'tribute.desc': 'Present Tenka Takosu to His Highness. Gather a real shell, sea bream, cacao mole, scallion, shiso, myoga and yuzu.',
+      'tribute.go': 'To the Offering',
+      'tribute.missing': 'Still missing: {items}',
+      'ending.title': 'Happy Taco Tuesday!',
+      'ending.sub': 'The day of fire is the day of tacos.',
+      'ending.stats': 'In {days} days, you served tacos to {served} customers.',
+      'ending.continue': 'Keep the stall open',
+      'ending.share': 'I presented Tenka Takosu at my Edo taco stall — Tuesday is now Taco Day! 🌮 #OhEdoTacoTuesday',
+      'title.cleared': '🌮 Offering presented',
+
+      'ing.kashira': 'Giant boar head meat',
+      'ing.ino_karaage': 'Fried boar',
+      'ing.amazu': 'Sweet-and-sour sauce',
+      'ing.sanmai': 'Triple shell',
+      'ing.pan': 'Bread-dough shell',
+      'ing.sakura': 'Salted cherry blossoms',
+      'ing.ranou': 'Egg yolk',
+      'ing.konbu': 'Kombu',
+      'ing.yuba': 'Yuba sheet',
+      'ing.sake': 'Salmon',
+      'ing.buta': 'Pork',
+      'ing.kosho': 'Black pepper',
+      'ing.nikkei': 'Cinnamon',
+      'ing.choji': 'Clove',
+      'ing.sato': 'Dejima sugar',
+      'ing.pineapple': 'Pineapple',
+      'ing.gyuniku': 'Braised beef',
+      'ing.cheese': 'Cheese',
+      'ing.butter': 'Butter',
+      'ing.tomato': 'Tomato',
+      'ing.avocado': 'Avocado',
+      'ing.mole': 'Cacao mole',
+      'ing.honba_chili': 'Mexican chili',
+      'ing.corn': 'Corn',
+      'ing.real_tortilla': 'Real shell',
+
+      'taco.yamanushi': 'Lord of the Mountain Cabeza',
+      'taco.yokozuna': 'Yokozuna Taco',
+      'taco.tojin': 'Tojin Sweet-Sour Taco',
+      'taco.mie': 'Mie Pose Taco',
+      'taco.oranda': 'Oranda Taco',
+      'taco.pastor': 'True Al Pastor',
+      'taco.quesabirria': 'Dejima Quesabirria',
+      'taco.pico': 'Karagaki Pico de Gallo Taco',
+      'taco.guacamole': 'Tempura Guacamole',
+      'taco.tenka': 'Tenka Takosu',
+      'taco.hanami': 'Blossom Taco',
+      'taco.tsukimi': 'Moon-Viewing Taco',
+      'taco.osaka': 'Osaka Dashi Taco',
+      'taco.kyo': 'Kyoto Yuba Taco',
+      'taco.ezo': 'Ezo Salmon Kombu Taco',
+      'taco.satsuma': 'Satsuma Pork & Potato Taco',
+      'taco.nagasaki': 'Nagasaki Tomato Taco'
+    }
+  };
+
+  // ============================================================
+  //  物語の会話（日本語と英語）
+  //   ・1つの場面は [話す人, セリフ] の並び。話す人の名前は who にある（mateo = マテオ、pon = ポン吉 …）
+  //   ・セリフの ' ' の中だけを書きかえる。行を増やしたり消したりしてもかまわない
+  //   ・いつ、どの場面が出るかは js/game/config.js の EVENTS に書いてある
+  // ============================================================
+  OT.STORY = {
+    ja: {
+      who: {
+        mateo: 'マテオ', pon: 'ポン吉', tatsu: '辰五郎', yokichi: '与吉', genpachi: '源八', hotta: '堀田新之丞',
+        jonen: '浄念和尚', ikazuchi: '雷山', sessai: '雪斎', chin: '陳師傅', ransai: '葛西蘭斎', raizo: '花川戸雷蔵',
+        okane: 'おかね婆さん', kumazo: '熊蔵', gonta: '権太', genba: '膳部玄蕃', uesama: '上様', messenger: 'お城の使い',
+        narrator: '', traveler: '旅の客', crowd: '町の人々'
+      },
+      prologue: [
+        ['narrator', '東京・両国。火曜日の夜。'],
+        ['mateo', '本日の TACO TUESDAY、これで閉店……ん？ まだお客さんがいたのか'],
+        ['pon', '……それ、いいにおい。ひとつちょうだい'],
+        ['mateo', 'どうぞ、最後の一枚だ。¡Buen provecho!'],
+        ['pon', 'う、うまーい！！ こんなうまいもん、江戸にもあったらなあ……'],
+        ['pon', 'よし、決めた！ 頭に葉っぱをのせて……どろん！'],
+        ['narrator', '──気がつくと、そこは江戸・両国広小路。キッチンカーは木の屋台に、男の子は子だぬきに。'],
+        ['pon', 'ごめん！ 化け術、ちょっと強すぎた！ おいら、本所のポン吉。タコスを江戸のみんなに食べさせたくて……'],
+        ['mateo', '江戸……!? って、のれんに何か書いてある。「多幸寿」？'],
+        ['pon', 'タコスだから、多くの幸せと寿（ことぶき）で「多幸寿」！ いい名前でしょ'],
+        ['mateo', 'トウモロコシ粉は……袋の底に、あと少し。帰り方もわからない。……やるしかないか。¡Vamos!']
+      ],
+      day1: [
+        ['pon', 'おはよう、マテオ！ タコスには具が要るよね。まずは魚河岸の競りに行こう！'],
+        ['pon', '値札の数字は上がったり下がったり。安いと思ったらタップで競り落とすんだ'],
+        ['mateo', '江戸の魚か……鯛、鱚、蛸、鰹。タコスにしたら、きっとうまいぞ']
+      ],
+      first_night: [
+        ['pon', '開店だ！ お客さん、来るかなあ'],
+        ['yokichi', 'なんでえこりゃ。皮に魚をのせて、手で食うのかい？'],
+        ['mateo', 'タコスっていうんだ。ひとつ、どうだい？'],
+        ['yokichi', 'おう、棒手振りの与吉さまが味見してやらあ。急いでんだ、ちゃっちゃと頼むぜ！']
+      ],
+      rival_meet: [
+        ['tatsu', 'おう、隣の新入り。妙なもんを売ってるそうじゃねえか'],
+        ['mateo', 'タコスです。どうぞ、よかったら'],
+        ['tatsu', 'ふん。巻くなら海苔、のせるなら酢飯と決まってらぁ。鮨辰の辰五郎、江戸前の仕事を見せてやる'],
+        ['pon', '（こわい……でも、目はちょっとタコスを見てた）']
+      ],
+      ch2: [
+        ['yokichi', 'おう、マテオ！ おいらが町じゅうに言いふらしといたぜ。「両国に、うめえ異国の屋台がある」ってな！'],
+        ['pon', 'すごい！ 町の噂になってる！'],
+        ['mateo', 'うれしいけど……トルティーヤが残り少ない。江戸のもので皮を作れないかな'],
+        ['pon', '麩の焼き、油揚げ、海苔、そば粉……米屋や豆腐屋に行ってみようよ！'],
+        ['tatsu', 'へっ、噂になったくらいで浮かれるな。魚は自分で釣ってこそ一人前よ。江戸湾で一本釣りでもしてきやがれ']
+      ],
+      bozu_intro: [
+        ['jonen', 'ごめんください。拙僧は近くの寺の浄念と申します'],
+        ['jonen', '肉も魚も口にいたしませぬが……あなたの「たこす」を、ひとつ頂けますかな'],
+        ['mateo', 'もちろん。メキシコにも、肉を使わないタコスはたくさんあります'],
+        ['pon', '芋や豆腐、茄子で作ろう！ お坊さんには、肉・魚・卵はだめだよ']
+      ],
+      rikishi_intro: [
+        ['crowd', '見ろ、大関の雷山だ！'],
+        ['ikazuchi', 'ごっつぁんです。うわさの「たこす」、腹いっぱい食いにきたでごわす'],
+        ['ikazuchi', 'おいどんは大盛りが好きでごわす。具は、のせられるだけのせてくれ！'],
+        ['pon', '力士さんは、たくさんのせるほど喜ぶよ。そのぶん、いっぱい払ってくれる！']
+      ],
+      ch3: [
+        ['pon', 'マテオ、見て！ 屋台の前に行列ができてる！'],
+        ['mateo', '……本当だ。ありがたいなあ'],
+        ['pon', 'おいらの故郷の里山にも案内するよ。イナゴや蜂の子がとれるんだ'],
+        ['mateo', 'イナゴ……！ ばあちゃんのオアハカのチャプリネスと同じだ。バッタをタコスにするんだよ'],
+        ['kumazo', '（のっそり）……おめえが噂のたこす屋か。山の猪なら、おれが追い込んでやる'],
+        ['kumazo', '山の猟師、熊蔵だ。ももんじやに卸してる。「薬をくだせえ」と言えば、猪も鹿も売ってくれるぞ'],
+        ['pon', '「山の追い込み」と「ももんじや」に行けるようになったよ！']
+      ],
+      tsujin_intro: [
+        ['sessai', 'ほう、これが噂の屋台かね。わしは雪斎。江戸じゅうの料理屋を食べ歩いた隠居じゃ'],
+        ['sessai', 'ありきたりの味には、もう飽きた。珍しいものはあるかね？'],
+        ['mateo', 'マコモダケはどうでしょう。メキシコでは、トウモロコシの黒穂菌を「ウィトラコチェ」と呼んでごちそうにするんです'],
+        ['sessai', 'なんと！ マコモの黒穂と同じ仕組みではないか。……粋だねえ']
+      ],
+      hunt_nushi: [
+        ['kumazo', 'やったな！ こいつは山の主だ。この大猪の頭は、ひとつで大勢に出せるぞ'],
+        ['mateo', '頭肉……メキシコの「カベサ」だ！ 頬や舌を削いでタコスにするんだよ'],
+        ['pon', '「山の主カベサ」がメニューに加わったよ！']
+      ],
+      ch4: [
+        ['crowd', '瓦版だよ、瓦版！ 両国の名物、異国の屋台「多幸寿」！'],
+        ['pon', 'マテオ、江戸の名物になったんだって！'],
+        ['mateo', '花見、初鰹、川開き、土用の丑、月見……江戸の行事に、屋台で呼ばれるなんてなあ'],
+        ['pon', '遠くの国からの旅のお客さんも来るよ。ふるさとの名物を持ってきてくれるんだって']
+      ],
+      traveler_first: [
+        ['traveler', 'ごめんやす。大坂から来ましたんや。これ、うちの昆布。これで「たこす」とやら、こしらえてもらえまへんか'],
+        ['mateo', '名物を持ってきてくれたんですね。よろこんで！'],
+        ['pon', '旅のお客さんは、ふるさとのタコスを頼むよ。持ってきてくれた名物は在庫に入るんだ']
+      ],
+      rival_storm: [
+        ['narrator', '両国の川開きの夜。花火の下、多幸寿と鮨辰は売り上げを競っていた。'],
+        ['tatsu', '今夜こそ白黒つけてやる！'],
+        ['narrator', '──そのとき、急な夕立。屋台がぐらりと揺れる。'],
+        ['mateo', '辰五郎さん、屋根を押さえて！ お客さんを中へ！'],
+        ['tatsu', 'お、おう！'],
+        ['narrator', '……二人は並んで屋台を支え、客を雨から守りきった。'],
+        ['tatsu', '……てめえの皮、悪かねえ。魚河岸の雲丹と、鮪の目利きを教えてやる。……礼じゃねえぞ'],
+        ['mateo', 'ありがとう、辰五郎さん'],
+        ['pon', '（照れてる……）']
+      ],
+      ch5: [
+        ['messenger', '……（屋台の前を、身なりのよい侍が何度も行き来している）'],
+        ['pon', 'マテオ、城下のうわさが、とうとうお城まで届いたんだって！'],
+        ['ransai', 'やあ。わたしは蘭学者の葛西蘭斎。オランダ人はパンを毎食食べると聞いて、研究しておる'],
+        ['ransai', '君の「とるちいや」は何でできている？ ……トウモロコシ！ 長崎の出島には、異国の食材が入ってくるぞ'],
+        ['mateo', '本場の味に近づけるかもしれない……'],
+        ['pon', '夜の長崎なら、おいらの化け術でこっそり行けるよ！ 「長崎の抜け荷」が解禁！'],
+        ['pon', 'でも役人に見つかったら評判が下がるから、気をつけてね']
+      ],
+      smuggle_first: [
+        ['gonta', 'しっ……声がでけえ。抜け荷船の船頭、権太だ'],
+        ['gonta', '役人の提灯の明かりに入るんじゃねえぞ。止まってても、照らされたら見つかる'],
+        ['gonta', '胡椒、肉桂、パイナップル、牛肉……運び出せたら、おめえのもんだ'],
+        ['pon', '押している間だけ歩くよ。明かりが通りすぎるのを待ってから進もう！']
+      ],
+      summons: [
+        ['mateo', '……あれ？ トルティーヤの袋が、空っぽだ'],
+        ['pon', 'とうとう、持ってきた粉がなくなっちゃった……'],
+        ['messenger', '多幸寿のあるじはおるか！ 上様が「たこす」とやらをご所望である。近く、お城にて献上せよ'],
+        ['mateo', 'えっ……こんなときに！？'],
+        ['pon', 'どうしよう……もろこし粉の皮じゃ、ぽろぽろで上様に出せないよ'],
+        ['mateo', '抜け荷で手に入れた本場のトウモロコシの種はある。でも、粉にするだけじゃだめなんだ……'],
+        ['mateo', 'ばあちゃんは言ってた。「トウモロコシは、石灰の水で煮てから挽くんだよ」って']
+      ],
+      nixtamal: [
+        ['okane', 'なんだい、しけた顔して。蒟蒻屋のおかねだよ'],
+        ['mateo', 'トウモロコシを、アルカリの水で煮たいんです。石灰みたいな……'],
+        ['okane', 'あるかり？ ……ああ、灰汁のことかい。蒟蒻も、灰汁で固めるのさ'],
+        ['okane', 'ほら、かまどの灰を水に溶いて、上澄みをとる。これで煮てごらん'],
+        ['narrator', '灰汁で煮たトウモロコシを、石臼で挽く。練った生地は、しっとりとまとまった。'],
+        ['mateo', '……できた。本物の皮だ！ 江戸で、トルティーヤがよみがえった！'],
+        ['pon', '朝のうちに、トウモロコシから「本物の皮」を焼けるようになったよ！']
+      ],
+      tatsu_tai: [
+        ['tatsu', 'おう、マテオ。夜明けの魚河岸で、いちばんの鯛を競り落としてきた'],
+        ['tatsu', 'めでてえ席だ。鯛がなくっちゃ始まらねえ。……持ってけ'],
+        ['mateo', '辰五郎さん……！'],
+        ['tatsu', '江戸前の意地を、てめえのたこすに乗せてこい'],
+        ['pon', '本物の皮に、鯛、カカオのモレ、江戸の薬味。献上の一皿「天下多幸寿」を作ろう！'],
+        ['pon', '準備ができたら、朝の画面の「献上の料理勝負へ」を押してね']
+      ],
+      vip_rikishi_intro: [
+        ['ikazuchi', 'マテオどん、頼みがあるでごわす。明日は横綱をかけた大事な場所'],
+        ['ikazuchi', '皮を3枚重ねた、特大のたこすを食わせてくれ！ 猪・鹿・軍鶏、具は5つ以上！'],
+        ['pon', '大食い対決だ！ 皮のところに「3枚重ねの皮」が出てるよ。時間内に出そう！']
+      ],
+      vip_rikishi_win: [
+        ['ikazuchi', 'ごっつぁんです！！ これで横綱は、おいどんのもんでごわす！'],
+        ['pon', '「横綱タコス」がメニューに加わったよ！']
+      ],
+      vip_tojin_intro: [
+        ['chin', '我、長崎の唐人屋敷から来た料理人、陳。甘酢の味なら、誰にも負けない'],
+        ['chin', 'お題は「猪の唐揚げと甘酢」。君の皮で、勝負だ'],
+        ['pon', '甘酢対決だ！ 猪の唐揚げはももんじや、甘酢は米屋にあるよ']
+      ],
+      vip_tojin_win: [
+        ['chin', '……好！ 皮と甘酢が、こんなに合うとは。我の負けだ'],
+        ['pon', '「唐人甘酢タコス」がメニューに加わったよ！']
+      ],
+      vip_raizo_intro: [
+        ['raizo', 'いよっ、多幸寿！ ……花川戸雷蔵、見参！（見得を切る）'],
+        ['raizo', '隈取のように、赤と白で盛った一皿を所望する！ 鯛、梅肉、大根おろし、白和え衣だ！'],
+        ['pon', '歌舞伎役者さんの来店だ！ 赤と白で、きれいに盛ろう']
+      ],
+      vip_raizo_win: [
+        ['raizo', 'よっ、日本一！ ……いや、江戸一の「たこす」じゃ！'],
+        ['pon', '「見得切りタコス」がメニューに加わったよ！']
+      ],
+      vip_oranda_intro: [
+        ['ransai', 'マテオ君、ひとつ試させてくれ。オランダ人が毎食食べるパン……その生地の皮に'],
+        ['ransai', 'バターで焼いた白身魚をのせる。お題は「阿蘭陀たこす」だ'],
+        ['pon', 'パン生地の皮は米屋、バターは長崎の抜け荷だよ！']
+      ],
+      vip_oranda_win: [
+        ['ransai', 'おお……！ 西と東と、新大陸が、ひとつの皮の上で出会った！'],
+        ['pon', '「阿蘭陀タコス」がメニューに加わったよ！']
+      ],
+      vip_tribute_intro: [
+        ['narrator', '江戸城、御膳所。'],
+        ['genba', '御膳所の料理番、膳部玄蕃である。上様のお口に入れるもの、わしが見定める'],
+        ['uesama', '……そちが「たこす」の職人か。面を上げい。さあ、見せてみよ'],
+        ['pon', '天下多幸寿！ 本物の皮に、鯛、カカオのモレ、葱・紫蘇・茗荷・柚子！']
+      ],
+      vip_lose: [
+        ['pon', 'うう……今回はだめだった。お題をよく読んで、また挑戦しよう！']
+      ],
+      ending: [
+        ['narrator', '上様が、天下多幸寿をひと口。……しばしの沈黙。'],
+        ['uesama', '…………'],
+        ['uesama', '（扇子を、ぱちり）'],
+        ['uesama', '西の国には、七つの曜で日を数える暦があると聞く'],
+        ['uesama', '……火の曜日を、「たこすの日」とせよ'],
+        ['genba', 'ははーっ！'],
+        ['narrator', '御触れは高札に貼り出され、日本中が「ハッピー・タコ・チューズデー」になった。'],
+        ['yokichi', 'おーい！ 火曜日はたこすの日だってよー！'],
+        ['genpachi', '七味、山盛りで頼むぜ！'],
+        ['hotta', '紅白……めでたい……（涙）'],
+        ['jonen', 'ありがたや……'],
+        ['ikazuchi', '20皿でごわす！'],
+        ['sessai', '粋だねえ'],
+        ['tatsu', '……おまけだ。（寿司を一貫、そっと置く）'],
+        ['pon', 'マテオ……帰れるよ。おいらの化け術、今度はちゃんと戻せる。……帰る？'],
+        ['mateo', '（のれんを見上げて、笑う）……火曜日は、まだ営業中だ'],
+        ['narrator', '─ おしまい ─　　……屋台は、これからも営業中。']
+      ],
+      reg_yokichi: [
+        ['yokichi', 'マテオ、おいらの長屋の連中をみんな連れてきたぜ！ 今夜はにぎやかになるぞ！'],
+        ['pon', '与吉さんのおかげで、評判が上がったよ！']
+      ],
+      reg_genpachi: [
+        ['genpachi', 'マテオ、礼だ。薬研堀で、おいら好みに調合させた七味だ。持ってけ！'],
+        ['pon', '七味をたくさんもらったよ！']
+      ],
+      reg_hotta: [
+        ['hotta', 'マテオ殿。拙者、紅白のたこすのおかげで、お役目の祝いの席をしくじらずに済み申した'],
+        ['hotta', 'これは御礼。わずかばかりだが、受け取られよ'],
+        ['pon', '堀田さんからお礼のお金をもらったよ！']
+      ],
+      reg_jonen: [
+        ['jonen', '精進は、我慢ではなく工夫。あなたの皮の上で、それがよくわかりました'],
+        ['jonen', '寺の畑の芋です。どうぞ、お使いなされ'],
+        ['pon', '薩摩芋と里芋をもらったよ！']
+      ],
+      reg_ikazuchi: [
+        ['ikazuchi', '部屋の力士たちに言ったら、みんな来たがってるでごわす！'],
+        ['pon', '雷山さんのおかげで、評判が上がったよ！']
+      ],
+      reg_sessai: [
+        ['sessai', 'わしの食べ歩きの帳面に、「多幸寿」を一番に書いておいた。これで江戸の通人は、みな来るじゃろう'],
+        ['pon', '雪斎さんのおかげで、評判が上がったよ！']
+      ]
+    },
+
+    en: {
+      who: {
+        mateo: 'Mateo', pon: 'Ponkichi', tatsu: 'Tatsugoro', yokichi: 'Yokichi', genpachi: 'Genpachi', hotta: 'Hotta Shinnojo',
+        jonen: 'Priest Jonen', ikazuchi: 'Ikazuchiyama', sessai: 'Sessai', chin: 'Master Chin', ransai: 'Kasai Ransai', raizo: 'Hanakawado Raizo',
+        okane: 'Granny Okane', kumazo: 'Kumazo', gonta: 'Gonta', genba: 'Zenbu Genba', uesama: 'His Highness', messenger: 'Castle envoy',
+        narrator: '', traveler: 'Traveler', crowd: 'Townsfolk'
+      },
+      prologue: [
+        ['narrator', 'Ryogoku, Tokyo. A Tuesday night.'],
+        ['mateo', "That's a wrap for TACO TUESDAY… Huh? Still a customer?"],
+        ['pon', '…That smells amazing. Can I have one?'],
+        ['mateo', "Sure, it's the last one. ¡Buen provecho!"],
+        ['pon', "S-so good!! If only Edo had food like this…"],
+        ['pon', 'Okay, decided! A leaf on my head, and… poof!'],
+        ['narrator', '— When the smoke cleared, it was Ryogoku Hirokoji in old Edo. The food truck had become a wooden stall, and the boy a little tanuki.'],
+        ['pon', "Sorry! My transformation magic was a bit too strong! I'm Ponkichi from Honjo. I just wanted everyone in Edo to taste tacos…"],
+        ['mateo', 'E-Edo!? And what does the curtain say? 多幸寿… "Takosu"?'],
+        ['pon', '"Much happiness and long life" — Ta-ko-su! Tacos! Good name, right?'],
+        ['mateo', "There's just a little corn flour left… and no idea how to get home. Well, only one thing to do. ¡Vamos!"]
+      ],
+      day1: [
+        ['pon', "Morning, Mateo! Tacos need fillings. Let's hit the fish market auction!"],
+        ['pon', 'The price tag goes up and down. Tap when it looks cheap!'],
+        ['mateo', 'Edo fish… sea bream, whiting, octopus, bonito. They would make great tacos.']
+      ],
+      first_night: [
+        ['pon', "We're open! Will anyone come?"],
+        ['yokichi', "What's this? Fish on a flatbread, eaten with your hands?"],
+        ['mateo', "It's called a taco. Want to try one?"],
+        ['yokichi', "Yokichi the peddler will be the judge! I'm in a hurry, so make it snappy!"]
+      ],
+      rival_meet: [
+        ['tatsu', "Hey, newcomer next door. Heard you're selling something odd."],
+        ['mateo', "Tacos. Please, have one."],
+        ['tatsu', "Hmph. You wrap with nori and top with sushi rice. That's the rule. I'm Tatsugoro of Sushi-Tatsu — watch how Edo does it."],
+        ['pon', "(Scary… but his eyes kept drifting to the tacos.)"]
+      ],
+      ch2: [
+        ['yokichi', 'Hey, Mateo! I told the whole town: "There\'s a tasty foreign stall in Ryogoku!"'],
+        ['pon', "Amazing! We're the talk of the town!"],
+        ['mateo', "Great… but we're low on tortillas. Could we make shells from Edo ingredients?"],
+        ['pon', "Fu-no-yaki crepes, fried tofu, nori, buckwheat… let's try the rice shop and the tofu shop!"],
+        ['tatsu', "Don't get cocky over a little gossip. A real cook catches his own fish. Go line-fish in Edo Bay."]
+      ],
+      bozu_intro: [
+        ['jonen', 'Excuse me. I am Jonen, from the temple nearby.'],
+        ['jonen', 'I eat neither meat nor fish… but might I have one of your "tacos"?'],
+        ['mateo', 'Of course. Mexico has plenty of meatless tacos.'],
+        ['pon', "Let's use potatoes, tofu, eggplant! No meat, fish or egg for monks."]
+      ],
+      rikishi_intro: [
+        ['crowd', "Look, it's Ikazuchiyama, the ozeki!"],
+        ['ikazuchi', 'Thank you kindly. I came to eat my fill of these famous tacos.'],
+        ['ikazuchi', 'I like them big. Pile on as much as you can!'],
+        ['pon', 'Sumo wrestlers love big tacos — and they pay a lot for them!']
+      ],
+      ch3: [
+        ['pon', "Mateo, look! There's a line in front of the stall!"],
+        ['mateo', '…There really is. How wonderful.'],
+        ['pon', "I'll take you to my home in the hills. We can catch locusts and bee larvae!"],
+        ['mateo', "Locusts…! Just like Grandma's chapulines in Oaxaca. We make tacos with grasshoppers."],
+        ['kumazo', "(lumbering in) …So you're the taco cook. I'll drive the mountain boar for you."],
+        ['kumazo', 'Kumazo, mountain hunter. I sell to the Momonjiya. Say "some medicine, please" and they\'ll sell you boar and deer.'],
+        ['pon', 'Mountain Drive and the Momonjiya are open now!']
+      ],
+      tsujin_intro: [
+        ['sessai', "So this is the famous stall. I am Sessai, a retiree who has eaten at every restaurant in Edo."],
+        ['sessai', 'I am tired of the ordinary. Have you anything unusual?'],
+        ['mateo', 'How about water bamboo? In Mexico, the corn smut fungus is a delicacy called huitlacoche.'],
+        ['sessai', 'Remarkable! The same as the smut on water bamboo… How stylish.']
+      ],
+      hunt_nushi: [
+        ['kumazo', "You did it! That's the Lord of the Mountain. One head of that giant boar can feed a crowd."],
+        ['mateo', 'Head meat… that\'s "cabeza" in Mexico! We shave the cheeks and tongue for tacos.'],
+        ['pon', '"Lord of the Mountain Cabeza" is on the menu!']
+      ],
+      ch4: [
+        ['crowd', 'Broadsheet! Get your broadsheet! The pride of Ryogoku: the foreign stall "Takosu"!'],
+        ['pon', "Mateo, we're the pride of Edo now!"],
+        ['mateo', 'Cherry blossoms, first bonito, the river festival, eel day, moon viewing… invited to all of Edo\'s festivals!'],
+        ['pon', 'Travelers from far away will come too. They bring their hometown specialties!']
+      ],
+      traveler_first: [
+        ['traveler', "Pardon me. I've come from Osaka. Here's our kombu. Could you make one of these \"tacos\" with it?"],
+        ['mateo', 'You brought your local specialty! Gladly!'],
+        ['pon', 'Travelers order their hometown taco. What they bring goes into our pantry.']
+      ],
+      rival_storm: [
+        ['narrator', 'The night of the Ryogoku river festival. Under the fireworks, Takosu and Sushi-Tatsu competed for sales.'],
+        ['tatsu', "Tonight we settle this!"],
+        ['narrator', '— Then, a sudden downpour. The stalls began to sway.'],
+        ['mateo', 'Tatsugoro, hold the roof! Get the customers inside!'],
+        ['tatsu', 'R-right!'],
+        ['narrator', '…Side by side, the two held up the stalls and kept every customer dry.'],
+        ['tatsu', "…Your shells aren't half bad. I'll teach you to pick sea urchin and tuna at the market. …It's not a thank-you."],
+        ['mateo', 'Thank you, Tatsugoro.'],
+        ['pon', '(He\'s blushing…)']
+      ],
+      ch5: [
+        ['messenger', '…(A well-dressed samurai keeps walking back and forth past the stall.)'],
+        ['pon', 'Mateo, the rumors have finally reached the castle!'],
+        ['ransai', 'Hello. I am Kasai Ransai, a scholar of Dutch learning. I hear the Dutch eat bread at every meal.'],
+        ['ransai', 'What is your "tortilla" made of? …Corn! Foreign goods come in through Dejima in Nagasaki, you know.'],
+        ['mateo', 'Maybe we can get closer to the real thing…'],
+        ['pon', 'With my magic we can sneak into Nagasaki at night! "Nagasaki Smugglers" is open!'],
+        ['pon', "But if the officials catch us, our reputation drops. Be careful!"]
+      ],
+      smuggle_first: [
+        ['gonta', "Shh… keep it down. I'm Gonta, captain of the smuggling boat."],
+        ['gonta', "Stay out of the officials' lantern light. Even standing still, if they shine on you, you're caught."],
+        ['gonta', 'Pepper, cinnamon, pineapple, beef… whatever you carry out is yours.'],
+        ['pon', "You only walk while you hold. Wait for the light to pass, then go!"]
+      ],
+      summons: [
+        ['mateo', '…Huh? The tortilla bag is empty.'],
+        ['pon', "We've finally run out of the flour you brought…"],
+        ['messenger', 'Is the master of Takosu here? His Highness wishes to taste these "tacos". You shall present them at the castle.'],
+        ['mateo', 'What… now of all times!?'],
+        ['pon', "What do we do? The corn-flour shells crumble — we can't serve those to His Highness!"],
+        ['mateo', "We have real corn seeds from the smugglers. But just grinding them isn't enough…"],
+        ['mateo', 'Grandma always said: "Cook the corn in lime water before you grind it."']
+      ],
+      nixtamal: [
+        ['okane', "What's with the long face? I'm Okane, from the konnyaku shop."],
+        ['mateo', "I need to cook corn in alkaline water. Something like lime…"],
+        ['okane', 'Alkaline? …Oh, you mean lye. We set konnyaku with lye, you know.'],
+        ['okane', 'Dissolve hearth ash in water and take the clear part on top. Cook it in that.'],
+        ['narrator', 'The corn, cooked in lye, was ground on a stone mill. The dough came together, soft and supple.'],
+        ['mateo', "…It worked. A real shell! The tortilla is reborn in Edo!"],
+        ['pon', 'Now you can bake real shells from corn every morning!']
+      ],
+      tatsu_tai: [
+        ['tatsu', 'Oi, Mateo. I won the finest sea bream at the dawn auction.'],
+        ['tatsu', "A celebration needs sea bream. …Take it."],
+        ['mateo', 'Tatsugoro…!'],
+        ['tatsu', "Put some Edo pride on that taco of yours."],
+        ['pon', 'Real shell, sea bream, cacao mole and Edo garnish — let\'s make the offering, "Tenka Takosu"!'],
+        ['pon', 'When you\'re ready, press "To the Offering" on the morning screen.']
+      ],
+      vip_rikishi_intro: [
+        ['ikazuchi', 'Mateo, I have a favor to ask. Tomorrow is the bout that decides yokozuna.'],
+        ['ikazuchi', 'Feed me a giant taco on a triple-layer shell! Boar, deer, gamecock — five toppings or more!'],
+        ['pon', 'An eating challenge! "Triple shell" is in the Shell tab. Serve it before time runs out!']
+      ],
+      vip_rikishi_win: [
+        ['ikazuchi', 'Thank you kindly!! Now the yokozuna rank is mine!'],
+        ['pon', '"Yokozuna Taco" is on the menu!']
+      ],
+      vip_tojin_intro: [
+        ['chin', 'I am Chin, a cook from the Chinese quarter in Nagasaki. No one beats me at sweet and sour.'],
+        ['chin', 'The theme: "fried boar with sweet-and-sour sauce". Your shell against my skill.'],
+        ['pon', 'A sweet-and-sour showdown! Fried boar at the Momonjiya, sweet-and-sour sauce at the Rice Shop.']
+      ],
+      vip_tojin_win: [
+        ['chin', '…Hao! Who knew shells and sweet-and-sour went so well? I concede.'],
+        ['pon', '"Tojin Sweet-Sour Taco" is on the menu!']
+      ],
+      vip_raizo_intro: [
+        ['raizo', 'Bravo, Takosu! …Hanakawado Raizo has arrived! (strikes a pose)'],
+        ['raizo', 'I desire a dish arranged in red and white, like kumadori makeup! Sea bream, plum paste, grated daikon, tofu cream!'],
+        ['pon', "A kabuki star is here! Let's plate it beautifully in red and white."]
+      ],
+      vip_raizo_win: [
+        ['raizo', "Bravo! The best in Japan! …No, the best taco in Edo!"],
+        ['pon', '"Mie Pose Taco" is on the menu!']
+      ],
+      vip_oranda_intro: [
+        ['ransai', "Mateo, let me try something. The bread the Dutch eat every meal… a shell of that dough,"],
+        ['ransai', 'topped with white fish cooked in butter. The theme is "the Dutch taco".'],
+        ['pon', 'Bread-dough shells are at the Rice Shop; butter comes from the Nagasaki smugglers!']
+      ],
+      vip_oranda_win: [
+        ['ransai', 'Oh…! West, East and the New World, meeting on a single shell!'],
+        ['pon', '"Oranda Taco" is on the menu!']
+      ],
+      vip_tribute_intro: [
+        ['narrator', 'Edo Castle, the shogun\'s kitchen.'],
+        ['genba', 'I am Zenbu Genba, head cook. I judge all that passes His Highness\'s lips.'],
+        ['uesama', '…So you are the taco artisan. Raise your head. Now, show me.'],
+        ['pon', 'Tenka Takosu! Real shell, sea bream, cacao mole, scallion, shiso, myoga and yuzu!']
+      ],
+      vip_lose: [
+        ['pon', "Oh no… not this time. Read the challenge carefully and try again!"]
+      ],
+      ending: [
+        ['narrator', 'His Highness takes a bite of Tenka Takosu. …A long silence.'],
+        ['uesama', '…………'],
+        ['uesama', '(snaps his fan shut)'],
+        ['uesama', 'I hear that in the western lands there is a calendar that counts the days by seven.'],
+        ['uesama', '…Let the day of fire, Tuesday, be the Day of Tacos.'],
+        ['genba', 'As you command!'],
+        ['narrator', 'The decree was posted on every notice board, and all of Japan celebrated "Happy Taco Tuesday".'],
+        ['yokichi', 'Heyyy! Tuesdays are taco day!'],
+        ['genpachi', 'Heap on the shichimi!'],
+        ['hotta', 'Red and white… so auspicious… (tears)'],
+        ['jonen', 'What a blessing…'],
+        ['ikazuchi', 'Twenty plates, please!'],
+        ['sessai', 'How stylish.'],
+        ['tatsu', "…On the house. (quietly sets down a piece of sushi)"],
+        ['pon', 'Mateo… you can go home now. This time I can undo the magic properly. …Will you go?'],
+        ['mateo', '(looks up at the noren and smiles) …On Tuesdays, we\'re still open.'],
+        ['narrator', '— The End —　…and the stall stays open.']
+      ],
+      reg_yokichi: [
+        ['yokichi', "Mateo, I brought everyone from my tenement! It'll be a lively night!"],
+        ['pon', 'Thanks to Yokichi, our reputation went up!']
+      ],
+      reg_genpachi: [
+        ['genpachi', 'Mateo, a thank-you. Shichimi blended to my taste at Yagenbori. Take it!'],
+        ['pon', 'We got lots of shichimi!']
+      ],
+      reg_hotta: [
+        ['hotta', 'Mateo. Thanks to your red-and-white taco, my celebration banquet went perfectly.'],
+        ['hotta', 'A token of my gratitude. Please accept it.'],
+        ['pon', 'Hotta gave us a thank-you gift of money!']
+      ],
+      reg_jonen: [
+        ['jonen', 'Vegetarian cooking is not about restraint, but ingenuity. Your shells taught me that.'],
+        ['jonen', 'Potatoes from the temple garden. Please use them.'],
+        ['pon', 'We got sweet potatoes and taro!']
+      ],
+      reg_ikazuchi: [
+        ['ikazuchi', 'I told the wrestlers in my stable — they all want to come!'],
+        ['pon', 'Thanks to Ikazuchiyama, our reputation went up!']
+      ],
+      reg_sessai: [
+        ['sessai', 'I wrote "Takosu" at the top of my dining notebook. Every gourmet in Edo will come now.'],
+        ['pon', 'Thanks to Sessai, our reputation went up!']
+      ]
     }
   };
 })(window);

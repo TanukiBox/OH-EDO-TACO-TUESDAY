@@ -104,6 +104,7 @@
     if (t.fastBonus && waited <= t.fastSeconds) bonus += t.fastBonus;
     if (t.looksBonus && tags.red && tags.white) bonus += t.looksBonus;
     if (t.bigBonus && served.items.length >= t.bigItems) bonus += t.bigBonus;
+    if (guest.smallBonus && served.items.length <= 2) bonus += guest.smallBonus;   // 川開き：小さなタコスが売れる
     if (t.rareBonus && tags.rare) bonus += t.rareBonus;
     if (t.plainPenalty && !tags.rare) bonus -= t.plainPenalty;
     if (t.tagBonus) Object.keys(t.tagBonus).forEach(function (tag) { if (tags[tag]) bonus += t.tagBonus[tag]; });
@@ -137,6 +138,7 @@
       score = p.pref + p.bonus;   // おまかせ：好みだけで決まる
     }
     if (p.forbidden) cap = 1;
+    if (guest.fav && got && got.id === guest.fav) score += cfg().REGULARS.favBonus;   // 常連の好物
     score = Math.max(0, Math.min(1, score));
 
     // 値段と、タコスごとの星の上限（熟練度）

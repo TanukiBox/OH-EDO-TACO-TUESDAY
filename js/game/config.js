@@ -3,7 +3,7 @@
  *  多幸寿 設定ファイル（数値はすべてここ）
  * ============================================================
  *  値段・味・客の好み・時間などの数字を変えたいときは、このファイルだけを書きかえます。
- *  名前やセリフ（日本語・英語）は js/game/text.js にあります。
+ *  名前やセリフ・物語の会話（日本語・英語）は js/game/text.js にあります。
  *
  *  書きかえるときの注意
  *   ・数字だけを変えてください。 , （カンマ）や ' （引用符）や { } [ ] は消さないように。
@@ -143,7 +143,36 @@
       wasabi:      { cat: 'herb', taste: [4, 0, 0, 4, 0], value: 3, tags: [] },
       sansho:      { cat: 'herb', taste: [3, 0, 0, 5, 0], value: 2, tags: [] },
       shichimi:    { cat: 'herb', taste: [5, 0, 0, 3, 0], value: 1, tags: ['red'] },
-      togarashi:   { cat: 'herb', taste: [6, 0, 0, 2, 1], value: 1, tags: ['red'] }
+      togarashi:   { cat: 'herb', taste: [6, 0, 0, 2, 1], value: 1, tags: ['red'] },
+
+      // ----- 第3段階：山・対決・行事・旅の客 -----
+      kashira:     { cat: 'main', taste: [0, 0, 6, 2, 3], value: 20, tags: ['meat', 'rare'] },
+      ino_karaage: { cat: 'main', taste: [0, 0, 5, 2, 4], value: 14, tags: ['meat'] },
+      amazu:       { cat: 'salsa', taste: [0, 4, 2, 1, 0], value: 3, tags: ['red'] },
+      sanmai:      { cat: 'skin', taste: [0, 0, 3, 5, 5], value: 12, tags: [], virtual: true },
+      pan:         { cat: 'skin', taste: [0, 0, 2, 3, 2], value: 6, tags: [] },
+      sakura:      { cat: 'herb', taste: [0, 2, 0, 5, 0], value: 3, tags: ['red'] },
+      ranou:       { cat: 'salsa', taste: [0, 0, 5, 1, 0], value: 4, tags: ['egg'] },
+      konbu:       { cat: 'herb', taste: [0, 0, 4, 2, 1], value: 2, tags: [] },
+      yuba:        { cat: 'skin', taste: [0, 0, 3, 2, 1], value: 8, tags: ['white'] },
+      sake:        { cat: 'main', taste: [0, 0, 5, 2, 1], value: 14, tags: ['fish', 'red'] },
+      buta:        { cat: 'main', taste: [0, 0, 6, 2, 2], value: 14, tags: ['meat'] },
+      // ----- 第3段階：長崎の抜け荷（本場の食材） -----
+      kosho:       { cat: 'herb', taste: [4, 0, 0, 4, 0], value: 4, tags: ['rare'] },
+      nikkei:      { cat: 'herb', taste: [0, 0, 1, 6, 0], value: 4, tags: ['rare'] },
+      choji:       { cat: 'herb', taste: [1, 0, 1, 6, 0], value: 4, tags: ['rare'] },
+      sato:        { cat: 'salsa', taste: [0, 0, 2, 1, 0], value: 4, tags: ['white'] },
+      pineapple:   { cat: 'main', taste: [0, 4, 2, 4, 3], value: 12, tags: ['rare'] },
+      gyuniku:     { cat: 'main', taste: [0, 0, 7, 2, 2], value: 22, tags: ['meat', 'rare'] },
+      cheese:      { cat: 'main', taste: [0, 1, 5, 2, 1], value: 14, tags: ['rare', 'white'] },
+      butter:      { cat: 'salsa', taste: [0, 0, 4, 3, 0], value: 8, tags: ['rare'] },
+      tomato:      { cat: 'main', taste: [0, 4, 3, 2, 2], value: 10, tags: ['rare', 'red'] },
+      avocado:     { cat: 'main', taste: [0, 0, 4, 2, 1], value: 14, tags: ['rare'] },
+      mole:        { cat: 'salsa', taste: [2, 0, 6, 6, 0], value: 20, tags: ['rare'] },
+      honba_chili: { cat: 'herb', taste: [7, 0, 1, 4, 0], value: 4, tags: ['red', 'rare'] },
+      corn:        { cat: 'raw', taste: [0, 0, 0, 0, 0], value: 4, tags: [] },
+      // ----- 最終章：灰汁で煮て挽いた、本物のトウモロコシの皮 -----
+      real_tortilla: { cat: 'skin', taste: [0, 0, 2, 3, 3], value: 6, tags: [], as: 'tortilla' }
     },
 
     // ---------------------------------------------------------
@@ -193,7 +222,27 @@
       matsutake: { skin: 'funoyaki', need: ['matsutake', 'kamo', 'yuzu'], price: 78, chapter: 4, season: 'autumn' },
       uni:       { skin: 'nori', need: ['uni', 'wasabi'], price: 70, chapter: 4, light: true },
       isana:     { skin: 'tortilla', need: ['kujira'], price: 60, chapter: 4 },
-      namiura:   { skin: 'aigawa', need: ['oroshi'], price: 40, chapter: 4, light: true }
+      namiura:   { skin: 'aigawa', need: ['oroshi'], price: 40, chapter: 4, light: true },
+      // 第3段階（needFlag = 物語やミニゲームで解禁されるまでメニューに出ない）
+      yamanushi: { skin: 'tortilla', need: ['kashira', 'shiraganegi', 'yuzu'], price: 58, chapter: 3, needFlag: 'gotNushi' },
+      yokozuna:  { skin: 'sanmai', need: ['inoshishi', 'shika', 'shamo'], price: 90, chapter: 3, needFlag: 'win_rikishi' },
+      tojin:     { skin: 'tortilla', need: ['ino_karaage', 'amazu'], price: 54, chapter: 4, needFlag: 'win_tojin' },
+      mie:       { skin: 'tortilla', need: ['tai', 'bainiku', 'oroshi', 'shiraae'], price: 64, chapter: 4, needFlag: 'win_raizo', light: true },
+      oranda:    { skin: 'pan', need: ['tai', 'butter'], price: 60, chapter: 5, needFlag: 'win_oranda' },
+      pastor:    { skin: 'tortilla', need: ['inoshishi', 'choji', 'nikkei', 'honba_chili', 'pineapple'], price: 96, chapter: 5 },
+      quesabirria: { skin: 'tortilla', need: ['gyuniku', 'cheese'], price: 88, chapter: 5 },
+      pico:      { skin: 'tortilla', need: ['tomato', 'negi', 'mitsuba', 'yuzu'], price: 58, chapter: 5, light: true },
+      guacamole: { skin: 'tortilla', need: ['kisu_ten', 'avocado', 'yuzu'], price: 72, chapter: 5 },
+      tenka:     { skin: 'real_tortilla', need: ['tai', 'mole', 'negi', 'shiso', 'myoga', 'yuzu'], price: 160, chapter: 6 },
+      // 年中行事の限定（festival = その行事の日だけ）
+      hanami:    { skin: 'tortilla', need: ['sakura', 'tai', 'shiraae'], price: 50, chapter: 4, festival: 'hanami', light: true },
+      tsukimi:   { skin: 'tortilla', need: ['satoimo', 'ranou', 'dashi'], price: 46, chapter: 4, festival: 'tsukimi' },
+      // 旅の客の、ふるさとのタコス（traveler = その地方の客だけが頼む）
+      osaka:     { skin: 'tortilla', need: ['konbu', 'dashi', 'yakidofu'], price: 48, chapter: 4, traveler: 'osaka' },
+      kyo:       { skin: 'yuba', need: ['tofu_soboro', 'mitsuba'], price: 52, chapter: 4, traveler: 'kyo', light: true },
+      ezo:       { skin: 'tortilla', need: ['sake', 'konbu'], price: 50, chapter: 4, traveler: 'ezo' },
+      satsuma:   { skin: 'tortilla', need: ['buta', 'satsumaimo'], price: 50, chapter: 4, traveler: 'satsuma' },
+      nagasaki:  { skin: 'tortilla', need: ['tomato', 'kosho', 'negi'], price: 56, chapter: 4, traveler: 'nagasaki' }
     },
 
     // 素タコス（食材1つだけのタコス）：食材を初めて手に入れると図鑑に加わる
@@ -284,13 +333,17 @@
 
     // 評判の増減
     REP: {
-      perStar: [0, -1, 1, 3],   // 星1〜3の客1人ごと
-      angry: -3                 // 怒って帰った客1人ごと
+      perStar: [0, 0, 2, 4],    // 星1〜3の客1人ごと（星1では減らない）
+      angry: -2,                // 怒って帰った客1人ごと
+      vipWin: 20,               // VIP対決に勝ったとき
+      vipLose: -4               // VIP対決に負けたとき
     },
 
     // 評判ランク：rep がこの値以上でそのランク（= 章）。
     //   1 名もなき屋台 / 2 町の噂 / 3 行列の屋台 / 4 江戸の名物 / 5 将軍の耳に届く
-    RANKS: [0, 40, 110, 230, 400],
+    //   はじめての人が約1時間（11日目ごろ）で「江戸の名物」、約3時間でエンディングに届くように調整
+    //   （1日 = 仕入れ＋3分の営業＋結果 でおよそ5〜6分として計算）
+    RANKS: [0, 25, 85, 210, 420],
 
     // ---------------------------------------------------------
     // 仕入れ先
@@ -301,8 +354,8 @@
       { id: 'uogashi', kind: 'game', game: 'auction', chapter: 1 },
       { id: 'ipponzuri', kind: 'game', game: 'fishing', chapter: 2 },
       { id: 'satoyama', kind: 'game', game: 'forage', chapter: 3 },
-      { id: 'yama', kind: 'game', chapter: 3, soon: true },
-      { id: 'nagasaki', kind: 'game', chapter: 5, soon: true },
+      { id: 'yama', kind: 'game', game: 'hunt', chapter: 3, needFlag: 'metKumazo' },
+      { id: 'nagasaki', kind: 'game', game: 'smuggle', chapter: 5 },
       { id: 'aomono', kind: 'shop', chapter: 1 },
       { id: 'komeya', kind: 'shop', chapter: 1 },
       { id: 'tofuya', kind: 'shop', chapter: 2 },
@@ -336,7 +389,8 @@
         { id: 'nasu', n: 4, price: 16, chapter: 3 },
         { id: 'amazu_myoga', n: 5, price: 18, chapter: 3 },
         { id: 'oroshi', n: 6, price: 12, chapter: 4 },
-        { id: 'matsutake', n: 3, price: 90, chapter: 4, season: 'autumn' }
+        { id: 'matsutake', n: 3, price: 90, chapter: 4, season: 'autumn' },
+        { id: 'sakura', n: 5, price: 20, chapter: 4, season: 'spring' }
       ],
       komeya: [
         { id: 'irizake', n: 10, price: 15, chapter: 1 },
@@ -353,7 +407,11 @@
         { id: 'dashi', n: 8, price: 20, chapter: 2 },
         { id: 'goma', n: 10, price: 12, chapter: 2 },
         { id: 'kizaminori', n: 10, price: 15, chapter: 2 },
-        { id: 'aigawa', n: 8, price: 40, chapter: 4 }
+        { id: 'aigawa', n: 8, price: 40, chapter: 4 },
+        { id: 'amazu', n: 8, price: 24, chapter: 4 },
+        { id: 'pan', n: 6, price: 48, chapter: 5 },
+        // エンディングのあとは、江戸で育てたトウモロコシが米屋に並ぶ
+        { id: 'corn', n: 5, price: 40, chapter: 6, needFlag: 'cleared' }
       ],
       tofuya: [
         { id: 'shiraae', n: 8, price: 16, chapter: 1 },
@@ -365,7 +423,8 @@
         { id: 'shamo', n: 4, price: 60, chapter: 2 },
         { id: 'kamo', n: 4, price: 70, chapter: 2 },
         { id: 'atsuyaki', n: 5, price: 30, chapter: 2 },
-        { id: 'usuyaki', n: 8, price: 28, chapter: 2 }
+        { id: 'usuyaki', n: 8, price: 28, chapter: 2 },
+        { id: 'ranou', n: 6, price: 30, chapter: 4 }
       ],
       yagenbori: [
         { id: 'shichimi', n: 15, price: 20, chapter: 1 },
@@ -377,7 +436,8 @@
         { id: 'ino_bara', n: 4, price: 70, chapter: 3 },
         { id: 'ino_shita', n: 3, price: 60, chapter: 3 },
         { id: 'ino_mimi', n: 4, price: 40, chapter: 3 },
-        { id: 'shika', n: 4, price: 85, chapter: 3 }
+        { id: 'shika', n: 4, price: 85, chapter: 3 },
+        { id: 'ino_karaage', n: 5, price: 80, chapter: 4 }
       ]
     },
 
@@ -429,6 +489,160 @@
     // ---------------------------------------------------------
     // ミニゲーム「田んぼと里山の採集」
     // ---------------------------------------------------------
+    // ---------------------------------------------------------
+    // ミニゲーム「山の追い込み」（猟師の熊蔵と、スワイプで獲物を罠の柵へ追い込む）
+    // ---------------------------------------------------------
+    HUNT: {
+      seconds: 40,
+      push: 170,             // スワイプ1回で獲物を押す強さ
+      reach: 34,             // スワイプの線から、この距離までの獲物を押せる（ドット）
+      nushiChance: 0.12,     // 山の主（大猪）が出る確率
+      // speed: うろつく速さ、hits: 何回押せば罠に向かうか（大きいほど重い）
+      animals: {
+        boar:  { speed: 26, weight: 3, gives: { inoshishi: 3, ino_bara: 2, ino_shita: 1, ino_mimi: 2 } },
+        deer:  { speed: 40, weight: 2, gives: { shika: 4 } },
+        nushi: { speed: 20, weight: 0, heavy: 2.4, gives: { kashira: 10, inoshishi: 4, ino_bara: 3 } }
+      }
+    },
+
+    // ---------------------------------------------------------
+    // ミニゲーム「長崎の抜け荷」（夜。押している間だけ歩く。役人の提灯の明かりに入ると見つかる）
+    // ---------------------------------------------------------
+    SMUGGLE: {
+      seconds: 45,
+      walkSpeed: 34,         // 1秒に進むドット数
+      pathLength: 150,       // 船から屋台の荷車までの道の長さ（ドット）
+      spotTime: 0.35,        // 明かりの中にこの秒数いると見つかる（止まっていても）
+      caughtRep: -6,         // 見つかったときの評判
+      lanterns: 3,           // 見回りの役人の数
+      // 1回運ぶごとに、この中から1つ手に入る（weight = 出やすさ、n = 何人前）
+      goods: {
+        kosho: { weight: 3, n: 6 }, nikkei: { weight: 2, n: 6 }, choji: { weight: 2, n: 6 },
+        sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4 }, gyuniku: { weight: 2, n: 4 },
+        cheese: { weight: 2, n: 4 }, butter: { weight: 2, n: 5 }, tomato: { weight: 2, n: 4 },
+        avocado: { weight: 1.5, n: 4 }, mole: { weight: 1, n: 4 }, honba_chili: { weight: 2, n: 6 },
+        corn: { weight: 1, n: 6 }
+      },
+      cornGuaranteeAfter: 3  // 第5章で、トウモロコシの種がまだなら、この回数運んだら必ず出る
+    },
+
+    // ---------------------------------------------------------
+    // 常連（客の種類ごとに1人）。chance = その夜に常連が1人来る確率
+    //   fav = 好物（頼みやすい・出すと喜ぶ）、eventAfter = 星3を何回出すと、その常連の話が起きる
+    // ---------------------------------------------------------
+    REGULARS: {
+      chance: 0.5,
+      favBonus: 0.08,
+      eventAfter: 3,
+      list: {
+        chonin: { id: 'yokichi', fav: 'takotaco' },
+        shokunin: { id: 'genpachi', fav: 'katsuo_tataki' },
+        samurai: { id: 'hotta', fav: 'kohaku' },
+        bozu: { id: 'jonen', fav: 'shojin' },
+        rikishi: { id: 'ikazuchi', fav: 'campechano' },
+        tsujin: { id: 'sessai', fav: 'huitlacoche' }
+      }
+    },
+
+    // ---------------------------------------------------------
+    // VIP料理対決・特別な来店。お題のタコスを、時間内に点数 minScore 以上で出せば勝ち
+    //   chapter = その章で、chapterDay 日目以降の夜に来る（勝つまで何度でも来る）
+    // ---------------------------------------------------------
+    VIPS: {
+      rikishi: { chapter: 3, chapterDay: 3, guest: 'ikazuchi', type: 'rikishi', recipe: 'yokozuna', time: 75, minScore: 0.7, win: 'win_rikishi', minItems: 5 },
+      tojin:   { chapter: 4, chapterDay: 2, guest: 'chin', type: 'tsujin', recipe: 'tojin', time: 70, minScore: 0.72, win: 'win_tojin' },
+      raizo:   { chapter: 4, chapterDay: 4, guest: 'raizo', type: 'samurai', recipe: 'mie', time: 80, minScore: 0.7, win: 'win_raizo', visit: true },
+      oranda:  { chapter: 5, chapterDay: 2, guest: 'ransai', type: 'tsujin', recipe: 'oranda', time: 70, minScore: 0.72, win: 'win_oranda' },
+      tribute: { chapter: 6, chapterDay: 1, guest: 'uesama', type: 'samurai', recipe: 'tenka', time: 90, minScore: 0.8, win: 'cleared', needFlag: 'tributeReady' }
+    },
+    // VIP の好みの味（お題のタコスに合うように）
+    VIP_WANT: {
+      ikazuchi: [2, 2, 14, 8, 12],
+      chin: [1, 5, 8, 6, 6],
+      raizo: [1, 5, 9, 8, 5],
+      ransai: [0, 2, 8, 7, 4],
+      uesama: [2, 3, 12, 20, 6]
+    },
+
+    // ---------------------------------------------------------
+    // 江戸の年中行事（第4章から）。季節の何日目か（1〜SEASON_DAYS）
+    //   busier: 客の来る間隔の倍率 / order: 頼まれやすくなるタコスとその倍率
+    //   priceMul: そのタコスの値段の倍率 / smallBonus: 具が2つ以下の小さなタコスへの上乗せ
+    // ---------------------------------------------------------
+    FESTIVALS: {
+      chapter: 4,
+      list: {
+        hanami:    { season: 'spring', day: 4, busier: 0.75, order: { hanami: 6 }, patienceMul: 1.3 },
+        hatsugatsuo: { season: 'summer', day: 1, busier: 0.9, order: { katsuo_tataki: 8 }, priceMul: { katsuo_tataki: 2 } },
+        kawabiraki: { season: 'summer', day: 3, busier: 0.55, patienceMul: 0.8, smallBonus: 0.15 },
+        doyo:      { season: 'summer', day: 6, busier: 0.9, order: { adobada: 8 }, priceMul: { adobada: 1.3 } },
+        tsukimi:   { season: 'autumn', day: 4, busier: 0.85, order: { tsukimi: 6 } }
+      }
+    },
+
+    // ---------------------------------------------------------
+    // 旅の客（第4章から）。ふるさとの名物を持ってきて、それでタコスを頼む
+    //   bring = 来たときに在庫に足される名物
+    // ---------------------------------------------------------
+    TRAVELERS: {
+      chapter: 4,
+      chance: 0.12,          // 客1人ごとに、旅の客である確率
+      list: {
+        osaka:    { recipe: 'osaka', bring: { konbu: 2 }, pay: 1.4 },
+        kyo:      { recipe: 'kyo', bring: { yuba: 2 }, pay: 1.5 },
+        ezo:      { recipe: 'ezo', bring: { sake: 2, konbu: 1 }, pay: 1.3 },
+        satsuma:  { recipe: 'satsuma', bring: { buta: 2 }, pay: 1.3 },
+        nagasaki: { recipe: 'nagasaki', bring: { tomato: 1, kosho: 1 }, pay: 1.4 }
+      }
+    },
+
+    // ---------------------------------------------------------
+    // 最終章
+    //   第5章になって summonsAfterDays 日たち、トウモロコシ（抜け荷）を手に入れていると、お城から使いが来る
+    //   灰汁の知恵を借りたあと、朝に「本物の皮」を焼ける（corn 1 → real_tortilla perCorn 枚）
+    // ---------------------------------------------------------
+    FINALE: {
+      summonsAfterDays: 4,
+      perCorn: 3,
+      tatsuTai: 6            // 辰五郎が届けてくれる鯛の数
+    },
+
+    // ---------------------------------------------------------
+    // 物語の場面（会話は text.js の STORY）。どの場面を、いつ出すか
+    //   at     : 'newgame' はじめたとき / 'morning' 朝 / 'night' 夜の開店前 / 'result' 結果のあと
+    //            'rankup' ランクアップしたとき / 'regular' 常連に星3を何回も出したとき / ほか特別なとき
+    //   day    : その日 / chapter : その章 / chapterDay : その章になって何日目から
+    //   set    : 起きたら立てる目印 / give : もらえる食材 / rep : 評判 / money : お金
+    //   regular: その夜の最初の客として来る常連（客の種類）
+    // ---------------------------------------------------------
+    EVENTS: [
+      { id: 'prologue', at: 'newgame' },
+      { id: 'day1', at: 'morning', day: 1 },
+      { id: 'first_night', at: 'night', day: 1, regular: 'chonin' },
+      { id: 'rival_meet', at: 'night', day: 2 },
+      { id: 'ch2', at: 'rankup', chapter: 2 },
+      { id: 'bozu_intro', at: 'night', chapter: 2, chapterDay: 1, regular: 'bozu' },
+      { id: 'rikishi_intro', at: 'night', chapter: 2, chapterDay: 2, regular: 'rikishi' },
+      { id: 'ch3', at: 'rankup', chapter: 3, set: 'metKumazo' },
+      { id: 'tsujin_intro', at: 'night', chapter: 3, chapterDay: 1, regular: 'tsujin' },
+      { id: 'hunt_nushi', at: 'hunt_nushi', set: 'gotNushi' },
+      { id: 'ch4', at: 'rankup', chapter: 4 },
+      { id: 'traveler_first', at: 'traveler' },
+      { id: 'rival_storm', at: 'result', chapter: 4, chapterDay: 5 },
+      { id: 'ch5', at: 'rankup', chapter: 5 },
+      { id: 'smuggle_first', at: 'smuggle' },
+      { id: 'summons', at: 'morning', chapter: 5, chapterDay: 5, needStock: 'corn', set: 'finale', setStock: { tortilla: 0 }, next: 'nixtamal' },
+      { id: 'nixtamal', at: 'chain', set: 'nixtamal' },
+      { id: 'tatsu_tai', at: 'morning', needFlag: 'madeReal', set: 'tributeReady', give: { tai: 6 } },
+      { id: 'ending', at: 'ending', set: 'cleared' },
+      { id: 'reg_yokichi', at: 'regular', regular: 'yokichi', rep: 12 },
+      { id: 'reg_genpachi', at: 'regular', regular: 'genpachi', give: { shichimi: 20, togarashi: 8 } },
+      { id: 'reg_hotta', at: 'regular', regular: 'hotta', money: 200 },
+      { id: 'reg_jonen', at: 'regular', regular: 'jonen', give: { satsumaimo: 6, satoimo: 6 } },
+      { id: 'reg_ikazuchi', at: 'regular', regular: 'ikazuchi', rep: 12 },
+      { id: 'reg_sessai', at: 'regular', regular: 'sessai', rep: 15 }
+    ],
+
     FORAGE: {
       seconds: 30,
       maxOnField: 5,         // 画面に同時に出る数

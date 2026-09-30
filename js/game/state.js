@@ -28,7 +28,10 @@
       totals: { sales: 0, served: 0, stars: 0 },
       rankSeen: 0,            // お知らせ済みの評判ランク
       whaleDay: false,        // 今日は鯨組の大物が競りに入る日か
-      flags: {}               // 物語の進み具合など
+      flags: {},              // 物語の進み具合など
+      chStart: { 1: 1 },      // 各章になった日
+      regulars: {},           // 常連ごとの、星3を出した回数
+      vipLast: 0              // 最後に VIP が来た日
     };
   }
 
@@ -62,13 +65,31 @@
     replace: function (s) { st = s; },
     wipe: function () { OT.store.remove('save'); st = null; },
 
-    stockOf: function (id) { return (st.stock[id] || 0); },
+    stockOf: function (id) {
+      if (id === 'sanmai') return Math.floor(OT.state.cornSkins() / 3);   // 3枚重ねの皮
+      return (st.stock[id] || 0);
+    },
+    /** トルティーヤの代わりになる皮の合計 */
+    cornSkins: function () {
+      var n = 0;
+      Object.keys(OT.CFG.INGREDIENTS).forEach(function (id) { if (id === 'tortilla' || OT.CFG.INGREDIENTS[id].as === 'tortilla') n += st.stock[id] || 0; });
+      return n;
+    },
     addStock: function (id, n) {
       st.stock[id] = (st.stock[id] || 0) + n;
       st.seen[id] = 1;
     },
     useStock: function (id, n) {
       n = n || 1;
+      if (id === 'sanmai') {
+        // 3枚重ね：多く持っているトウモロコシの皮から3枚ずつ使う
+        var need = 3 * n;
+        if (OT.state.cornSkins() < need) return false;
+        var ids = Object.keys(OT.CFG.INGREDIENTS).filter(function (k) { return k === 'tortilla' || OT.CFG.INGREDIENTS[k].as === 'tortilla'; });
+        ids.sort(function (a, b) { return (st.stock[b] || 0) - (st.stock[a] || 0); });
+        ids.forEach(function (k) { var take = Math.min(need, st.stock[k] || 0); st.stock[k] = (st.stock[k] || 0) - take; need -= take; });
+        return true;
+      }
       if ((st.stock[id] || 0) < n) return false;
       st.stock[id] -= n;
       return true;

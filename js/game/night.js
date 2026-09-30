@@ -29,6 +29,9 @@
       var r = cfg().TACOS[id];
       if (r.chapter > ch || r.onlyWhenOut) return false;
       if (r.season && r.season !== season) return false;
+      if (r.needFlag && !st().flags[r.needFlag]) return false;              // 物語で解禁されるまで出ない
+      if (r.festival && (!N || N.festival !== r.festival)) return false;    // 行事の日だけ
+      if (r.traveler) return false;                                          // 旅の客だけが頼む
       if (id === 'isana' && OT.state.stockOf('kujira') <= 0) return false;   // 鯨は入った日だけ
       return true;
     });
@@ -73,6 +76,8 @@
       var rank = type.likes.indexOf(id);
       var w = rank < 0 ? 1 : (type.likes.length - rank) + 1;
       if (id === 'chazuke' && late) w *= 4;              // 夜ふけは〆の茶漬け
+      var fest = N && N.fest;
+      if (fest && fest.order && fest.order[id]) w *= fest.order[id];   // 行事の日に頼まれやすいタコス
       return canMake(id) ? w : w * 0.12;                  // 作れないものは頼まれにくい
     });
     var r = cfg().TACOS[order], variant = null;
@@ -83,29 +88,124 @@
     return { order: order, variant: variant };
   }
 
-  function makeGuest(seat) {
-    var types = unlockedTypes();
-    var typeId = pickWeighted(types, function (id) { return cfg().CUSTOMER_MIX[id] || 1; });
+  function baseGuest(seat, typeId) {
     var type = cfg().CUSTOMERS[typeId];
     var j = cfg().CUSTOMER_JITTER;
     var want = type.want.map(function (v) { return Math.max(0, v + Math.round((Math.random() * 2 - 1) * j)); });
-    var o = chooseOrder(type);
+    var pm = (N.fest && N.fest.patienceMul) || 1;
     return {
-      typeId: typeId, type: type, want: want, order: o.order, variant: o.variant, seat: seat,
+      typeId: typeId, type: type, want: want, order: null, variant: null, seat: seat,
       x: seat < 1 ? -20 : W + 20, state: 'in', t: 0,
-      patience: type.patience, patienceMax: type.patience, waited: 0,
-      line: OT.say('cust.' + typeId + '.hello'), lineT: 2.5, mood: 'ok'
+      patience: type.patience * pm, patienceMax: type.patience * pm, waited: 0,
+      line: OT.say('cust.' + typeId + '.hello'), lineT: 2.5, mood: 'ok',
+      smallBonus: N.fest && N.fest.smallBonus
     };
   }
+
+  function makeGuest(seat) {
+    // 物語の場面や VIP で決まっている客が先
+    if (N.queue.length) return N.queue.shift()(seat);
+    var ch = OT.state.chapter();
+    // 旅の客（第4章から）
+    var T = cfg().TRAVELERS;
+    if (ch >= T.chapter && Math.random() < T.chance) return makeTraveler(seat);
+    var types = unlockedTypes();
+    var typeId = pickWeighted(types, function (id) { return cfg().CUSTOMER_MIX[id] || 1; });
+    var g = baseGuest(seat, typeId);
+    var o = chooseOrder(g.type);
+    g.order = o.order; g.variant = o.variant;
+    return g;
+  }
+
+  /** 常連（名前のある客）。好物を頼みやすい */
+  function makeRegular(seat, typeId) {
+    var R = cfg().REGULARS.list[typeId];
+    var g = baseGuest(seat, typeId);
+    g.regular = R.id;
+    g.name = OT.STORY[OT.i18n.lang].who[R.id];
+    g.fav = R.fav;
+    g.line = OT.say('reg.' + R.id + '.hello');
+    var favOk = menu().indexOf(R.fav) >= 0;
+    if (favOk && Math.random() < 0.6) { g.order = R.fav; }
+    else { var o = chooseOrder(g.type); g.order = o.order; g.variant = o.variant; }
+    return g;
+  }
+
+  /** 旅の客：ふるさとの名物を持ってきて、それでタコスを頼む */
+  function makeTraveler(seat) {
+    var T = cfg().TRAVELERS.list, keys = Object.keys(T);
+    var from = keys[Math.floor(Math.random() * keys.length)], info = T[from];
+    var g = baseGuest(seat, 'chonin');
+    g.traveler = from;
+    g.skin = 'tabibito';
+    g.type = Object.assign({}, g.type, { pay: info.pay, omakase: 0, fastBonus: 0 });
+    g.order = info.recipe;
+    g.line = OT.say('trav.' + from + '.hello');
+    g.name = OT.t('trav.' + from);
+    Object.keys(info.bring).forEach(function (id) { OT.state.addStock(id, info.bring[id]); });
+    setTimeout(function () {
+      if (!N) return;
+      OT.ui.toast(OT.t('trav.brought', { name: g.name, items: Object.keys(info.bring).map(OT.ingName).join('・') }), 'tip');
+      renderBins();
+      if (!OT.story.seen('traveler_first')) { N.pause = true; OT.story.check('traveler', null, function () { if (N) N.pause = false; }); }
+    }, 900);
+    return g;
+  }
+
+  /** VIP（料理対決・特別な来店） */
+  function makeVip(seat, vipId) {
+    var V = cfg().VIPS[vipId];
+    var g = baseGuest(seat, V.type);
+    g.vip = vipId;
+    g.name = OT.STORY[OT.i18n.lang].who[V.guest];
+    g.skin = V.guest;
+    g.want = cfg().VIP_WANT[V.guest].concat();
+    g.type = Object.assign({}, g.type, { omakase: 0, fastBonus: 0, looksBonus: V.guest === 'raizo' ? 0.15 : 0, forbid: null, plainPenalty: 0, rareBonus: 0, bigBonus: 0 });
+    g.order = V.recipe;
+    g.patience = g.patienceMax = V.time;
+    g.line = OT.t('vip.' + vipId + '.odai');
+    g.lineT = 5;
+    return g;
+  }
+
+  /** 今夜来る VIP（章・日数・目印で決まる。勝つまで2日おきに来る） */
+  function pickVip() {
+    var s = st(), ch = OT.state.chapter(), V = cfg().VIPS;
+    var ids = Object.keys(V).filter(function (id) {
+      var v = V[id];
+      if (id === 'tribute') return false;
+      if (s.flags[v.win]) return false;
+      if (ch < v.chapter) return false;
+      if (ch === v.chapter && OT.daysInChapter(ch) < v.chapterDay) return false;
+      if (v.needFlag && !s.flags[v.needFlag]) return false;
+      return s.day - (s.vipLast || 0) >= 2;
+    });
+    return ids.length ? ids[0] : null;
+  }
+
+  /** 今日の年中行事（第4章から） */
+  function todayFestival() {
+    var F = cfg().FESTIVALS;
+    if (OT.state.chapter() < F.chapter) return null;
+    var dayIn = ((st().day - 1) % cfg().SEASON_DAYS) + 1, season = OT.state.season();
+    var hit = null;
+    Object.keys(F.list).forEach(function (id) { var f = F.list[id]; if (f.season === season && f.day === dayIn) hit = id; });
+    return hit;
+  }
+  OT.todayFestival = function () { return OT.state.get() ? todayFestival() : null; };
 
   // ---------------------------------------------------------------
   // 画面
   // ---------------------------------------------------------------
   OT.night = {
-    enter: function () {
+    enter: function (opts) {
+      opts = opts || {};
       var root = OT.ui.screen('night');
       root.innerHTML = '';
+      var festival = opts.tribute ? null : todayFestival();
       N = {
+        tribute: !!opts.tribute, festival: festival, fest: festival ? cfg().FESTIVALS.list[festival] : null,
+        queue: [], vip: null, vipResult: null, regularsServed: [],
         time: 0, open: true, closed: false, nextGuest: cfg().DAY.firstGuestAfter,
         guests: [null, null, null], selected: -1,
         dish: { skin: null, items: [] }, tab: 'skin',
@@ -170,16 +270,39 @@
       kitchen.appendChild(actions);
       root.appendChild(kitchen);
 
+      // 今夜の特別な客
+      var forced = OT.story.nightRegular();
+      if (forced) N.queue.push(function (seat) { return makeRegular(seat, forced); });
+      if (N.tribute) {
+        N.vip = 'tribute';
+        N.queue = [function (seat) { return makeVip(seat, 'tribute'); }];
+        N.nextGuest = 1.2;
+      } else {
+        var vip = opts.vip;
+        if (vip) {
+          N.vip = vip;
+          st().vipLast = st().day;
+          N.queue.unshift(function (seat) { return makeVip(seat, vip); });
+        }
+        // 常連がふらりと来る
+        var types = unlockedTypes();
+        if (!forced && Math.random() < cfg().REGULARS.chance) {
+          var rt = types[Math.floor(Math.random() * types.length)];
+          N.queue.push(function (seat) { return makeRegular(seat, rt); });
+        }
+      }
       renderBins();
       drawBoard();
       OT.sfx.clack(2);
-      OT.ui.toast(OT.t('night.open'), 'big');
+      OT.ui.toast(N.tribute ? OT.t('night.tribute') : OT.t('night.open'), 'big');
+      if (N.festival) setTimeout(function () { if (N) OT.ui.toast(OT.t('fest.' + N.festival) + '　' + OT.t('fest.' + N.festival + '.desc'), 'tip long'); }, 1200);
       if (st().day === 1) setTimeout(function () { if (N) OT.ui.toast(OT.t('pon.night1'), 'tip long'); }, 900);
 
       N.last = performance.now();
       N.raf = requestAnimationFrame(loop);
     },
     leave: function () { if (N && N.raf) cancelAnimationFrame(N.raf); N = null; },
+    pickVip: function () { return pickVip(); },
     /** 自動テスト用：今夜のようす（ゲームでは使わない） */
     _peek: function () { return N; }
   };
@@ -203,7 +326,9 @@
     for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle('on', tabs[i].getAttribute('data-cat') === N.tab);
     N.binsEl.innerHTML = '';
     var ids = Object.keys(cfg().INGREDIENTS).filter(function (id) {
-      return cfg().INGREDIENTS[id].cat === N.tab && st().seen[id];
+      var g = cfg().INGREDIENTS[id];
+      if (g.virtual) return g.cat === N.tab && OT.state.chapter() >= 3;   // 3枚重ねの皮（トウモロコシの皮3枚）
+      return g.cat === N.tab && st().seen[id];
     });
     // 在庫のあるものを前に
     ids.sort(function (a, b) { return (OT.state.stockOf(b) > 0) - (OT.state.stockOf(a) > 0); });
@@ -338,9 +463,28 @@
   /** 評価して、客のようす・売上・評判に反映する */
   function judge(g, dish) {
     var res = OT.evaluate(g, dish, g.waited, OT.state.chapter());
+    // 行事の日の値段
+    if (N.fest && N.fest.priceMul && res.recipe && N.fest.priceMul[res.recipe]) res.pay = Math.round(res.pay * N.fest.priceMul[res.recipe]);
+    // VIP：お題のタコスを、点数 minScore 以上で出せば勝ち
+    if (g.vip) {
+      var V = cfg().VIPS[g.vip];
+      var ok = res.recipe === V.recipe && res.score >= V.minScore && (!V.minItems || dish.items.length >= V.minItems);
+      N.vipResult = ok ? 'win' : 'lose';
+      N.vipScore = res.score;
+      res.rep += ok ? cfg().REP.vipWin : cfg().REP.vipLose;
+      if (ok) res.stars = 3;
+    }
+    // 常連：星3を出すと、なじみが深まる
+    if (g.regular && res.stars === 3) {
+      st().regulars[g.regular] = (st().regulars[g.regular] || 0) + 1;
+      if (st().regulars[g.regular] >= cfg().REGULARS.eventAfter) N.regularsServed.push(g.regular);
+    }
     g.state = 'eat'; g.t = 0; g.result = res;
     g.mood = res.stars >= 2 ? 'happy' : 'worry';
     if (res.forbidden && g.type.forbid) g.line = OT.say('cust.' + g.typeId + '.forbid');
+    else if (g.vip) g.line = OT.t('vip.' + (N.vipResult === 'win' ? 'win' : 'lose'));
+    else if (g.traveler) g.line = OT.say('trav.' + res.stars);
+    else if (g.regular) g.line = OT.say('reg.' + g.regular + '.' + res.stars);
     else g.line = OT.say('cust.' + g.typeId + '.' + res.stars);
     g.lineT = 2.4;
     // ときどき、味のひとこと感想（いちばん好みから外れた味について）
@@ -392,7 +536,9 @@
 
   function update(dt) {
     var D = cfg().DAY;
+    if (N.pause || OT.dialogOpen()) return;
     N.time += dt;
+    if (N.tribute && N.vipResult && N.open) N.time = Math.max(N.time, D.nightSeconds);   // 献上は1皿で終わり
     var left = Math.max(0, Math.ceil(D.nightSeconds - N.time));
     N.timerEl.textContent = '⏳ ' + OT.t('night.close', { n: left });
 
@@ -407,14 +553,14 @@
     // 新しい客
     if (N.open) {
       N.nextGuest -= dt;
-      if (N.nextGuest <= 0 && N.time < D.nightSeconds - D.lastOrderBefore) {
+      if (N.nextGuest <= 0 && N.time < D.nightSeconds - D.lastOrderBefore && (!N.tribute || N.queue.length)) {
         var free = [];
         N.guests.forEach(function (g, i) { if (!g) free.push(i); });
         if (free.length) {
           var seat = free[Math.floor(Math.random() * free.length)];
           N.guests[seat] = makeGuest(seat);
           OT.sfx.arrive();
-          var busy = Math.pow(D.busier, OT.state.chapter() - 1);
+          var busy = Math.pow(D.busier, Math.min(5, OT.state.chapter()) - 1) * ((N.fest && N.fest.busier) || 1);
           N.nextGuest = (D.arrivalMin + Math.random() * (D.arrivalMax - D.arrivalMin)) * busy;
         } else {
           N.nextGuest = 1.5;
@@ -439,6 +585,7 @@
         if (g.patience <= 0) {
           g.state = 'out'; g.mood = 'angry'; g.line = OT.say('cust.angry'); g.lineT = 2;
           N.angry++; N.repDelta += cfg().REP.angry;
+          if (g.vip) N.vipResult = 'lose';
           OT.sfx.angry();
           floater(i, '💢', 'angry');
           refreshHud();
@@ -477,7 +624,9 @@
       else if (g.state === 'eat' && g.comment) html += '<div class="b-line cmt">' + esc(g.comment) + '</div>';
       if (g.state === 'wait') {
         var order = g.order ? OT.tacoName(g.order, g.variant) : OT.t('night.omakase');
-        html += '<div class="b-type">' + esc(OT.t('cust.' + g.typeId)) + '</div>';
+        if (g.vip) order = OT.t('vip.odaiShort') + '：' + OT.tacoName(g.order);
+        var label = g.name ? g.name : OT.t('cust.' + g.typeId);
+        html += '<div class="b-type' + (g.vip ? ' vip' : g.regular ? ' reg' : g.traveler ? ' trav' : '') + '">' + esc(label) + '</div>';
         html += '<div class="b-order">' + esc(order) + '</div>';
         var r = Math.max(0, g.patience / g.patienceMax);
         html += '<div class="b-bar"><i style="width:' + (r * 100).toFixed(0) + '%;background:' + (r > 0.5 ? '#46b03a' : r > 0.2 ? '#f5b860' : '#f24a2a') + '"></i></div>';
@@ -494,7 +643,7 @@
     OT.art.drawStall(ctx, W, H, N.time);
     N.guests.forEach(function (g, i) {
       if (!g) return;
-      OT.art.drawGuest(ctx, g.typeId, Math.round(g.x), GUEST_Y, g.mood, N.time, N.selected === i && g.state === 'wait');
+      OT.art.drawGuest(ctx, g.skin || g.regular || g.typeId, Math.round(g.x), GUEST_Y, g.mood, N.time, N.selected === i && g.state === 'wait', g.typeId);
     });
     OT.art.drawCounter(ctx, W, H);
   }
@@ -513,14 +662,19 @@
     s.rep = Math.max(0, s.rep + N.repDelta);
     s.rankSeen = Math.max(s.rankSeen, OT.state.rank());
     var chapterAfter = OT.state.chapter();
+    s.chStart = s.chStart || { 1: 1 };
+    for (var c = chapterBefore + 1; c <= chapterAfter; c++) if (!s.chStart[c]) s.chStart[c] = s.day + 1;
     s.totals.sales += N.sales; s.totals.served += N.served; s.totals.stars += N.starsSum;
     s.lastResult = {
       day: s.day, sales: N.sales, served: N.served, angry: N.angry,
       avg: avg, satisfaction: N.served + N.angry ? Math.round(N.starsSum / (3 * (N.served + N.angry)) * 100) : 0,
       rep: N.repDelta, best: best === 'omakase' ? null : best, bestIsOmakase: best === 'omakase',
       bestVariant: N.soldVariant[best] || null,
-      rankUp: chapterAfter > chapterBefore ? chapterAfter : 0
+      rankUp: chapterAfter > chapterBefore ? chapterAfter : 0,
+      vip: N.vip, vipResult: N.vip ? (N.vipResult || 'lose') : null,
+      regulars: N.regularsServed, tribute: N.tribute, festival: N.festival
     };
+    if (N.vip && N.vipResult === 'win') s.flags[cfg().VIPS[N.vip].win] = 1;
     s.phase = 'result';
     OT.state.save();
     setTimeout(function () { OT.night.leave(); OT.flow.result(); }, 600);

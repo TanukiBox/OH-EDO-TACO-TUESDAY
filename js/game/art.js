@@ -145,6 +145,31 @@
     togarashi:  { shape: 'ring', c: [P.red1, P.red2, P.red3], n: 7, s: 2, h: 0.12 }
   };
   Object.keys(MORE).forEach(function (k) { LOOK[k] = MORE[k]; });
+  // 第3段階の食材
+  var MORE3 = {
+    kashira:     { shape: 'chunk', c: [P.pink1, P.brown3, P.brown1], n: 7, s: 5, h: 0.05 },
+    ino_karaage: { shape: 'chunk', c: [P.brown4, P.brown3, P.brown1], n: 6, s: 6, h: 0.06 },
+    amazu:       { shape: 'blob', c: [P.pink1, P.pink2, P.red2], n: 4, s: 3, h: 0.08 },
+    sakura:      { shape: 'zest', c: [P.white, P.pink1, P.pink2], n: 12, s: 2, h: 0.12 },
+    ranou:       { shape: 'blob', c: [P.warm1, P.warm2, P.brown3], n: 1, s: 5, h: 0.09 },
+    konbu:       { shape: 'strand', c: [P.green3, P.ind5, P.char], n: 10, s: 4, h: 0.1 },
+    sake:        { shape: 'chunk', c: [P.pink1, P.pink2, P.brown3], n: 6, s: 6, h: 0.05 },
+    buta:        { shape: 'chunk', c: [P.white, P.pink1, P.brown3], n: 6, s: 6, h: 0.05 },
+    kosho:       { shape: 'dust', c: [P.char, P.gray3, P.brown1], n: 30, s: 1, h: 0.13 },
+    nikkei:      { shape: 'dust', c: [P.brown3, P.brown2, P.brown1], n: 24, s: 1, h: 0.13 },
+    choji:       { shape: 'dust', c: [P.brown2, P.brown1, P.char], n: 14, s: 1, h: 0.13 },
+    sato:        { shape: 'dust', c: [P.white, P.white2, P.gray1], n: 24, s: 1, h: 0.13 },
+    pineapple:   { shape: 'chunk', c: [P.corn2, P.corn, P.brown4], n: 6, s: 5, h: 0.07 },
+    gyuniku:     { shape: 'chunk', c: [P.brown3, P.brown2, P.char], n: 6, s: 6, h: 0.05 },
+    cheese:      { shape: 'blob', c: [P.warm1, P.corn2, P.corn], n: 3, s: 5, h: 0.07 },
+    butter:      { shape: 'blob', c: [P.warm1, P.corn2, P.brown4], n: 2, s: 3, h: 0.08 },
+    tomato:      { shape: 'chunk', c: [P.red1, P.red2, P.red3], n: 7, s: 4, h: 0.07 },
+    avocado:     { shape: 'chunk', c: [P.green1, P.green2, P.green3], n: 6, s: 5, h: 0.07 },
+    mole:        { shape: 'blob', c: [P.brown2, P.brown1, P.char], n: 4, s: 4, h: 0.08 },
+    honba_chili: { shape: 'ring', c: [P.red1, P.red2, P.red3], n: 6, s: 2, h: 0.12 },
+    corn:        { shape: 'chunk', c: [P.corn2, P.corn, P.brown4], n: 6, s: 3, h: 0.05 }
+  };
+  Object.keys(MORE3).forEach(function (k) { LOOK[k] = MORE3[k]; });
 
   OT.art.look = function (id) { return LOOK[id] || { shape: 'blob', c: [P.gray1, P.gray2, P.gray3], n: 4, s: 3, h: 0.08 }; };
 
@@ -422,7 +447,9 @@
     usuyaki:     { c: [P.corn2, P.corn, P.brown4], spot: P.brown4 },
     yakionigiri: { c: [P.white2, P.brown4, P.brown2], spot: P.brown1, tri: true },
     aigawa:      { c: [P.ind1, P.ind2, P.ind3], spot: P.ind4 },
-    kagomushi:   { c: [P.corn2, P.corn, P.cornShade], spot: P.brown3 }
+    kagomushi:   { c: [P.corn2, P.corn, P.cornShade], spot: P.brown3 },
+    pan:         { c: [P.brown4, P.brown3, P.brown2], spot: P.brown1 },
+    yuba:        { c: [P.corn2, P.warm1, P.corn], spot: P.brown4 }
   };
   OT.art.skinLook = function (id) { return SKIN_LOOK[id]; };
 
@@ -563,4 +590,56 @@
       rect(ctx, x - 4, y - 12, 1, 8, P.green3); rect(ctx, x + 3, y - 13, 1, 9, P.green3);
     }
   };
+
+  // ---------------------------------------------------------------
+  // 仮の図形：常連・旅の客・VIP（見分けがつくように、目印をつける）
+  // ---------------------------------------------------------------
+  var typeGuest = OT.art.drawGuest;
+  var REG_MARK = { yokichi: P.warm2, genpachi: P.red1, hotta: P.white, jonen: P.brown4, ikazuchi: P.corn, sessai: P.pink1 };
+  OT.art.drawGuest = function (ctx, skin, x, y, mood, t, selected, typeId) {
+    typeId = typeId || skin;
+    var bob = Math.round(Math.sin(t * 3 + x) * 0.6), yy = y + bob;
+    if (skin === 'tabibito') {
+      typeGuest(ctx, 'chonin', x, y, mood, t, selected);
+      rect(ctx, x - 12, yy - 34, 24, 3, P.corn); rect(ctx, x - 8, yy - 37, 16, 3, P.brown4); rect(ctx, x - 3, yy - 39, 6, 2, P.brown3);   // 笠
+      rect(ctx, x - 12, yy - 16, 24, 6, P.gray2);   // 合羽
+      return;
+    }
+    if (skin === 'chin') {
+      typeGuest(ctx, 'samurai', x, y, mood, t, selected);
+      rect(ctx, x - 11, yy - 16, 22, 24, P.red2); rect(ctx, x - 1, yy - 16, 2, 20, P.corn);
+      rect(ctx, x - 7, yy - 36, 14, 6, P.white); rect(ctx, x - 8, yy - 31, 16, 2, P.white2);   // 料理人の帽子
+      return;
+    }
+    if (skin === 'raizo') {
+      typeGuest(ctx, 'samurai', x, y, mood, t, selected);
+      rect(ctx, x - 11, yy - 16, 22, 24, P.pink2); for (var i = -10; i < 11; i += 5) rect(ctx, x + i, yy - 12, 3, 3, P.white);
+      rect(ctx, x - 6, yy - 27, 3, 1, P.red1); rect(ctx, x + 3, yy - 27, 3, 1, P.red1); rect(ctx, x - 7, yy - 22, 2, 3, P.red1); rect(ctx, x + 5, yy - 22, 2, 3, P.red1);   // 隈取
+      return;
+    }
+    if (skin === 'ransai') {
+      typeGuest(ctx, 'samurai', x, y, mood, t, selected);
+      rect(ctx, x - 11, yy - 16, 22, 24, P.gray3);
+      rect(ctx, x - 6, yy - 26, 4, 3, P.corn2); rect(ctx, x + 2, yy - 26, 4, 3, P.corn2); rect(ctx, x - 2, yy - 25, 4, 1, P.corn2);   // 眼鏡
+      return;
+    }
+    if (skin === 'uesama') {
+      typeGuest(ctx, 'samurai', x, y, mood, t, selected);
+      rect(ctx, x - 14, yy - 16, 28, 24, P.ind1); rect(ctx, x - 14, yy - 16, 28, 3, P.warm2); rect(ctx, x - 2, yy - 12, 4, 4, P.warm1);   // 葵色の着物と紋
+      return;
+    }
+    if (skin === 'ikazuchi') { typeGuest(ctx, 'rikishi', x, y, mood, t, selected); rect(ctx, x - 16, yy - 4, 32, 3, P.corn); return; }
+    if (REG_MARK[skin]) {
+      typeGuest(ctx, typeId, x, y, mood, t, selected);
+      rect(ctx, x - 3, yy - 44, 6, 3, REG_MARK[skin]); px(ctx, x, yy - 41, REG_MARK[skin]);   // 常連の目印
+      return;
+    }
+    typeGuest(ctx, skin, x, y, mood, t, selected);
+  };
+
+  /** 会話で使う顔（第4段階でドット絵に差し替える） */
+  var FACES = { mateo: '🌮', pon: '🦝', tatsu: '🍣', yokichi: '🐟', genpachi: '🔨', hotta: '⚔️', jonen: '📿', ikazuchi: '💪',
+    sessai: '🪭', chin: '🥢', ransai: '📚', raizo: '🎭', okane: '👵', kumazo: '🏹', gonta: '⛵', genba: '🍱', uesama: '👑',
+    messenger: '📜', traveler: '🎒', crowd: '👥', narrator: '' };
+  OT.art.portrait = function (who) { return FACES[who] || '🙂'; };
 })(window);

@@ -17,7 +17,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&family=Mochiy+Pop+One&family=Yuji+Syuku&display=swap">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <div id="app">
@@ -30,6 +30,10 @@
   <section id="scr-fishing" class="screen scroll"></section>
   <section id="scr-forage" class="screen scroll"></section>
   <section id="scr-dex" class="screen scroll"></section>
+  <section id="scr-hunt" class="screen scroll"></section>
+  <section id="scr-smuggle" class="screen scroll"></section>
+  <section id="scr-ending" class="screen scroll"></section>
+  <div id="dialog"></div>
   <div id="toast"></div>
   <div id="tipbox"></div>
   <div id="keys" hidden></div>
@@ -37,30 +41,34 @@
 </div>
 
 <!-- Tanuki Box 共通土台 -->
-<script src="js/common/tb-i18n.js?v=2"></script>
-<script src="js/common/tb-input.js?v=2"></script>
-<script src="js/common/tb-sound.js?v=2"></script>
-<script src="js/common/tb-store.js?v=2"></script>
+<script src="js/common/tb-i18n.js?v=3"></script>
+<script src="js/common/tb-input.js?v=3"></script>
+<script src="js/common/tb-sound.js?v=3"></script>
+<script src="js/common/tb-store.js?v=3"></script>
 <!-- 設定（数値）とことば（日英） -->
-<script>window.OT = { VERSION: 2 };</script>
-<script src="js/game/config.js?v=2"></script>
-<script src="js/game/text.js?v=2"></script>
+<script>window.OT = { VERSION: 3 };</script>
+<script src="js/game/config.js?v=3"></script>
+<script src="js/game/text.js?v=3"></script>
 <!-- 絵の仕組み（art/build.py）が書き出す折りたたみの数値 -->
-<script src="art/output/taco_plain/fold.js?v=2"></script>
+<script src="art/output/taco_plain/fold.js?v=3"></script>
 <!-- ゲーム本体 -->
-<script src="js/game/state.js?v=2"></script>
-<script src="js/game/taste.js?v=2"></script>
-<script src="js/game/ui.js?v=2"></script>
-<script src="js/game/art.js?v=2"></script>
-<script src="js/game/sfx.js?v=2"></script>
-<script src="js/game/share.js?v=2"></script>
-<script src="js/game/auction.js?v=2"></script>
-<script src="js/game/fishing.js?v=2"></script>
-<script src="js/game/forage.js?v=2"></script>
-<script src="js/game/shop.js?v=2"></script>
-<script src="js/game/dex.js?v=2"></script>
-<script src="js/game/night.js?v=2"></script>
-<script src="js/game/screens.js?v=2"></script>
-<script src="js/game/main.js?v=2"></script>
+<script src="js/game/state.js?v=3"></script>
+<script src="js/game/taste.js?v=3"></script>
+<script src="js/game/ui.js?v=3"></script>
+<script src="js/game/art.js?v=3"></script>
+<script src="js/game/sfx.js?v=3"></script>
+<script src="js/game/share.js?v=3"></script>
+<script src="js/game/auction.js?v=3"></script>
+<script src="js/game/fishing.js?v=3"></script>
+<script src="js/game/forage.js?v=3"></script>
+<script src="js/game/shop.js?v=3"></script>
+<script src="js/game/dex.js?v=3"></script>
+<script src="js/game/hunt.js?v=3"></script>
+<script src="js/game/smuggle.js?v=3"></script>
+<script src="js/game/story.js?v=3"></script>
+<script src="js/game/ending.js?v=3"></script>
+<script src="js/game/night.js?v=3"></script>
+<script src="js/game/screens.js?v=3"></script>
+<script src="js/game/main.js?v=3"></script>
 </body>
 </html>

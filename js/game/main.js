@@ -8,20 +8,53 @@
 
   OT.flow = {
     title: function () { OT.title.enter(); },
-    morning: function () { OT.morning.enter(); },
+    newGame: function () {
+      OT.state.newGame();
+      OT.story.check('newgame', null, function () { OT.flow.morning(); });
+    },
+    morning: function () {
+      OT.morning.enter();
+      // 朝の場面（起きたら、画面を作り直す）
+      OT.story.check('morning', null, function (played) { if (played) OT.morning.enter(); });
+    },
     supplier: function (sup) {
       if (sup.game === 'auction') OT.auction.enter();
       else if (sup.game === 'fishing') OT.fishing.enter();
       else if (sup.game === 'forage') OT.forage.enter();
+      else if (sup.game === 'hunt') OT.hunt.enter();
+      else if (sup.game === 'smuggle') OT.story.check('smuggle', null, function () { OT.smuggle.enter(); });
       else if (sup.kind === 'shop') OT.shop.enter(sup.id);
     },
-    night: function () {
+    night: function (opts) {
+      opts = opts || {};
       var s = OT.state.get();
       s.phase = 'night';
+      s.tributeNight = !!opts.tribute;
       OT.state.save();          // 営業の直前をセーブ（途中で閉じたら、この夜の最初から）
-      OT.night.enter();
+      OT.story.check('night', null, function () {
+        if (opts.tribute) { OT.story.play('vip_tribute_intro', function () { OT.night.enter({ tribute: true }); }); return; }
+        var vip = OT.night.pickVip();
+        if (vip) OT.story.play('vip_' + vip + '_intro', function () { OT.night.enter({ vip: vip }); });
+        else OT.night.enter();
+      });
     },
-    result: function () { OT.result.enter(); },
+    result: function () {
+      OT.result.enter();
+      var s = OT.state.get(), r = s.lastResult;
+      if (!r || r.eventsDone) return;
+      // 結果のあとの場面：ランクアップ → VIP の勝ち負け → 常連 → その他 → エンディング
+      var steps = [];
+      if (r.rankUp) steps.push(function (next) { OT.story.check('rankup', { chapter: r.rankUp }, next); });
+      if (r.vip && r.vip !== 'tribute') steps.push(function (next) { OT.story.play(r.vipResult === 'win' ? 'vip_' + r.vip + '_win' : 'vip_lose', next); });
+      if (r.tribute && r.vipResult !== 'win') steps.push(function (next) { OT.story.play('vip_lose', next); });
+      (r.regulars || []).forEach(function (id) { steps.push(function (next) { OT.story.check('regular', { regular: id }, next); }); });
+      steps.push(function (next) { OT.story.check('result', null, next); });
+      if (r.tribute && r.vipResult === 'win') steps.push(function (next) { OT.story.play('ending', function () { OT.ending.enter(); }); });
+      (function run(i) {
+        if (i >= steps.length) { r.eventsDone = true; OT.state.save(); if (OT.ui.current() === 'result') OT.result.enter(); return; }
+        steps[i](function () { run(i + 1); });
+      })(0);
+    },
     nextDay: function () {
       var s = OT.state.get();
       s.day += 1;
@@ -36,9 +69,9 @@
     /** セーブの続きから */
     resume: function () {
       var s = OT.state.get();
-      if (s.phase === 'result' && s.lastResult) OT.result.enter();
-      else if (s.phase === 'night') OT.flow.night();
-      else OT.morning.enter();
+      if (s.phase === 'result' && s.lastResult) OT.flow.result();
+      else if (s.phase === 'night') OT.flow.night({ tribute: s.tributeNight });
+      else OT.flow.morning();
     }
   };
 
