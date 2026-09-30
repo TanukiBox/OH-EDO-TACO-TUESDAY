@@ -25,8 +25,8 @@ def _mound(rng, sx, sy, sz):
 def on_taco(pile, rng):
     m = _material()
     objs = []
-    for i, (x, y, s) in enumerate([(0.16, 0.03, 1.0), (-0.34, -0.05, 0.75)]):
-        bm = pile.place(_mound(rng, 0.25 * s, 0.19 * s, 0.10 * s), x, y, rot_z=0.2, sink=0.5)
+    for i, (x, y, s) in enumerate([(0.16, 0.03, 1.0), (-0.38, -0.05, 0.8)]):
+        bm = pile.place(_mound(rng, 0.32 * s, 0.24 * s, 0.12 * s), x, y, rot_z=0.2, sink=0.5)
         objs.append(mesh_object(f"daikon_{i}", bm, m))
     return objs
 

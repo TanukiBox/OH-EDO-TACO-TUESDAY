@@ -135,13 +135,36 @@ python build.py
 
 ---
 
+## 見た目の方針（調査メモ）
+
+絵を描く前に本物のタコスの見た目を調べ、次のようにモデルに反映しています。
+ゲームなので、色は実物より少し鮮やかにしています。
+
+| 調べたこと | モデルへの反映 |
+|---|---|
+| 屋台のタコスは直径10cm前後の小さなトウモロコシのトルティーヤを**2枚重ね**で出すのが定番 | トルティーヤを2枚重ね、下の1枚を少しずらして見せる（`blender/taco.py`） |
+| 焼き色は明るい黄色の上に**こげ茶の細かい斑点**、膨らんだところが濃く焦げる | ふち一周の焦げをやめ、全体に散る斑点と中くらいの焦げ跡にした（ふちが一周焦げるとピザに見える） |
+| 皮は薄く、ふちは盛り上がらない | 厚みを薄くし、ふちはわずかに垂れる形に |
+| 具は皮に対して多めにのせる | 具を大きく・多めにし、皮の中央の帯をほぼ覆うように盛る |
+| 白い丸皿で出すことが多い | 白い平皿 |
+| 鯛は白い身と桜色の皮 | 白いほぐし身の上に薄い桜色の皮をのせる（皮だけの塊はトマトに見えるため） |
+
+出典：
+[Chicken Street Tacos（Sandra Valvassori）](https://www.sandravalvassori.com/chicken-street-tacos/)、
+[Size Matters: When It Comes to Tacos（San Antonio Current）](https://www.sacurrent.com/food-drink/size-matters-when-it-comes-to-tacos-theres-a-logic-to-the-scale-of-tortilla-you-use-23443971/)、
+[Homemade Corn Tortillas（Stellanspice）](https://stellanspice.com/homemade-corn-tortillas/)、
+[Homemade Corn Tortillas（Mexican Please）](https://www.mexicanplease.com/homemade-corn-tortillas/)、
+[Tacos al Pastor（Gusto TV）](https://gustotv.com/mains/tacos-al-pastor/)
+
+---
+
 ## しくみ
 
 ```
 python build.py
   ├─ pipeline/noren_textures.py … フォントから暖簾の布の模様（藍色に白抜き文字）を作る
   ├─ Blender（画面なしで起動）→ blender/render_all.py
-  │    ├─ blender/taco.py         … 2.1 トルティーヤ / 2.3 皿 / 折りたたみ変形
+  │    ├─ blender/taco.py         … 2.1 トルティーヤ（2枚重ね）/ 2.3 皿 / 折りたたみ変形
   │    ├─ blender/ingredients/    … 2.2 具材（1種類 = 1ファイル）
   │    ├─ blender/noren.py        … 6. 暖簾（布を波で動かす、6コマでループ）
   │    └─ blender/common.py       … 3. カメラ（真上・斜め45度）と照明（左上から暖色）

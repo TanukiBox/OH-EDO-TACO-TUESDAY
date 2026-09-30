@@ -10,7 +10,7 @@ LABEL = "唐辛子"
 
 def _materials():
     red = cached_material("togarashi_red", lambda n: object_noise_material(n, [
-        (0.0, "#f04a30"), (0.5, "#d0301e"), (1.0, "#8a1a16"),
+        (0.0, "#ff5a36"), (0.5, "#e82a1e"), (1.0, "#9a1418"),
     ], scale=14.0, roughness=0.3))
     stem = cached_material("togarashi_stem", lambda n: object_noise_material(n, [
         (0.0, "#7aa048"), (1.0, "#3a5e26"),
@@ -31,10 +31,10 @@ def _slice(rng):
 def on_taco(pile, rng):
     red, _ = _materials()
     objs = []
-    for i in range(10):
+    for i in range(12):
         a = rng.uniform(0, 2 * math.pi)
         d = math.sqrt(rng.uniform(0.05, 1))
-        x, y = 0.66 * d * math.cos(a), 0.36 * d * math.sin(a)
+        x, y = 0.70 * d * math.cos(a), 0.40 * d * math.sin(a)
         bm = pile.place(_slice(rng), x, y, rot_z=rng.uniform(0, math.pi), sink=0.25)
         objs.append(mesh_object(f"togarashi_{i}", bm, red))
     return objs

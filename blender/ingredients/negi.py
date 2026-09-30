@@ -10,10 +10,10 @@ LABEL = "青ねぎの小口切り"
 
 def _materials():
     dark = cached_material("negi_dark", lambda n: object_noise_material(n, [
-        (0.0, "#6cb44a"), (0.5, "#4f9a3a"), (1.0, "#2f6a2c"),
+        (0.0, "#7ad04a"), (0.5, "#46b03a"), (1.0, "#237a2e"),
     ], scale=20.0, roughness=0.35))
     light = cached_material("negi_light", lambda n: object_noise_material(n, [
-        (0.0, "#d4ec9e"), (0.5, "#a8d672"), (1.0, "#78b454"),
+        (0.0, "#e0f59a"), (0.5, "#aee064"), (1.0, "#7cc44c"),
     ], scale=20.0, roughness=0.35))
     return dark, light
 
@@ -30,10 +30,10 @@ def _ring(rng, size=1.0, tilt=0.35):
 def on_taco(pile, rng):
     dark, light = _materials()
     objs = []
-    for i in range(18):
+    for i in range(24):
         a = rng.uniform(0, 2 * math.pi)
         d = math.sqrt(rng.uniform(0, 1))
-        x, y = 0.70 * d * math.cos(a), 0.38 * d * math.sin(a)
+        x, y = 0.74 * d * math.cos(a), 0.42 * d * math.sin(a)
         bm = pile.place(_ring(rng), x, y, rot_z=rng.uniform(0, math.pi), sink=0.3)
         objs.append(mesh_object(f"negi_{i}", bm, light if rng.random() < 0.35 else dark))
     return objs

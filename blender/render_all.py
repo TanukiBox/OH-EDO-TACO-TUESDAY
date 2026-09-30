@@ -22,7 +22,7 @@ ICON_SIZE = 32
 NOREN_SIZE = (240, 160)
 FOLD_FRAMES = 8
 NOREN_FRAMES = 6
-TOP_ORTHO_SCALE = 2.78
+TOP_ORTHO_SCALE = 2.9
 
 
 def job_taco(out):
@@ -32,7 +32,7 @@ def job_taco(out):
     common.add_night_world()
 
     plate = taco.build_plate()
-    tortilla = taco.build_tortilla()
+    tortillas = taco.build_tortilla()
     pile = common.Pile(taco.TOP_Z)
     toppings = []
     for ing in INGREDIENTS:
@@ -44,12 +44,12 @@ def job_taco(out):
 
     # 5.2 斜め上（45度）
     cam = common.oblique_camera(1.0)
-    common.fit_camera(cam, [plate, tortilla] + toppings, margin=1.05)
+    common.fit_camera(cam, [plate] + tortillas + toppings, margin=1.05)
     common.render_to(os.path.join(out, "taco_oblique.png"))
 
     # 5.3 折りたたみアニメ（真上）
     common.top_camera(TOP_ORTHO_SCALE)
-    folder = taco.Folder([tortilla] + toppings)
+    folder = taco.Folder(tortillas + toppings)
     for f in range(FOLD_FRAMES):
         folder.apply(f / (FOLD_FRAMES - 1))
         common.render_to(os.path.join(out, f"taco_fold_{f:02d}.png"))
