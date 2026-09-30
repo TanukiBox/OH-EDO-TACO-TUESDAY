@@ -53,6 +53,7 @@
       var all = doc.querySelectorAll('.screen');
       for (var i = 0; i < all.length; i++) all[i].classList.toggle('on', all[i].id === 'scr-' + id);
       current = id;
+      if (OT.tut) OT.tut.clear();   // 画面が変わったら案内の吹き出しを消す
       return doc.getElementById('scr-' + id);
     },
     current: function () { return current; },

@@ -12,7 +12,7 @@ import sys
 import time
 
 from pipeline.blender_path import find_blender
-from pipeline import noren_textures, pixelate, preview
+from pipeline import noren_textures, pixelate, preview, game_assets
 from pipeline.palette import PALETTE
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -127,6 +127,17 @@ def convert():
     pixelate.save_gif(nor, os.path.join(OUT, "noren/noren_x4.gif"), [120] * NOREN_FRAMES)
     made.append("noren/noren_x4.gif")
 
+    # ゲームで使う絵（人物・食材・皮・屋台・地図・ミニゲーム・生き物・紙芝居・ロゴ）
+    import re
+    fsrc = open(os.path.join(ROOT, "blender", "foods.py"), encoding="utf-8").read()
+    food_keys = re.findall(r'^    "(\w+)":\s+dict\(shape=', fsrc, re.M)
+    tsrc = open(os.path.join(ROOT, "blender", "taco.py"), encoding="utf-8").read()
+    skin_keys = re.findall(r'^    "(\w+)":\s+dict\(shape=', tsrc, re.M)
+    game_assets.make_all(RENDERS, os.path.join(OUT, "game"), OUT, food_keys + skin_keys + ["tortilla", "real_tortilla", "kagomushi", "sudachi"])
+    for dirpath, _, files in os.walk(os.path.join(OUT, "game")):
+        for fn in sorted(files):
+            made.append(os.path.relpath(os.path.join(dirpath, fn), OUT).replace("\\", "/"))
+
     # 同じ入力から同じ画像ができているか確かめるための指紋（SHA-256）
     with open(os.path.join(OUT, "checksums.txt"), "w", encoding="utf-8", newline="\n") as f:
         for rel in made:
@@ -141,7 +152,7 @@ def convert():
 def main():
     p = argparse.ArgumentParser(description="Oh!Edo Taco Tuesday!! のドット絵を作り直す")
     p.add_argument("--skip-render", action="store_true", help="Blender のレンダリングを省略する")
-    p.add_argument("--only", default="taco,plain,icons,noren", help="レンダリングする種類")
+    p.add_argument("--only", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story", help="レンダリングする種類")
     a = p.parse_args()
     if not a.skip_render:
         render(a.only)

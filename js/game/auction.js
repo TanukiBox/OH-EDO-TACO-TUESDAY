@@ -31,7 +31,9 @@
       kind: kind, info: cfg().fish[kind], t: 0,
       w: 1.7 + Math.random() * 1.6, ph: Math.random() * Math.PI * 2, w2: 3.1 + Math.random() * 2
     };
-    OT.art.drawFish(A.fishCanvas.getContext('2d'), kind, 96, 64);
+    var fctx = A.fishCanvas.getContext('2d');
+    if (OT.sprites.has('cr_fish_' + kind)) { fctx.clearRect(0, 0, 96, 64); fctx.drawImage(OT.sprites.get('cr_fish_' + kind), 0, 0); }
+    else OT.art.drawFish(fctx, kind, 96, 64);
     A.nameEl.textContent = OT.t('fish.' + kind) + '  ' + OT.t('auc.portions', { n: A.lot.info.portions });
     A.marketEl.textContent = OT.t('auc.market', { n: A.lot.info.base });
     A.panel.classList.remove('won', 'lost');
@@ -83,6 +85,7 @@
       ]);
       root.appendChild(intro);
       A.intro = intro;
+      if (OT.tut) OT.tut.point('a1', '#scr-auction .auc-intro .btn');
     },
     leave: function () { if (A && A.raf) cancelAnimationFrame(A.raf); A = null; }
   };
@@ -90,9 +93,11 @@
   function start() {
     var root = A.root;
     root.removeChild(A.intro);
+    if (OT.tut) { OT.tut.done('a1'); setTimeout(function () { OT.tut.point('a2', '.auc-price'); }, 200); }
     A.timeBar = OT.el('div', { class: 'auc-time' }, [OT.el('i')]);
     root.appendChild(A.timeBar);
     A.panel = OT.el('div', { class: 'auc-panel', onpointerdown: function (e) { e.preventDefault(); bid(); } });
+    if (OT.sprites.has('bg_auction')) A.panel.style.backgroundImage = 'url(' + OT.sprites.get('bg_auction').src + ')';
     A.fishCanvas = OT.ui.pixelCanvas(96, 64, 'auc-fish');
     A.nameEl = OT.el('div', { class: 'auc-name' });
     A.marketEl = OT.el('div', { class: 'auc-market' });
@@ -172,6 +177,7 @@
     root.appendChild(list);
     st().gamesToday += 1;
     OT.state.save();
-    root.appendChild(OT.button(OT.t('auc.done'), function () { OT.auction.leave(); OT.flow.morning(); }, 'primary big'));
+    root.appendChild(OT.button(OT.t('auc.done'), function () { OT.auction.leave(); if (OT.tut) OT.tut.done('a3'); OT.flow.morning(); }, 'primary big'));
+    if (OT.tut) { OT.tut.done('a2'); OT.tut.point('a3', '#scr-auction .btn.primary.big'); }
   }
 })(window);

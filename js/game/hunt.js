@@ -140,7 +140,7 @@
   function catchIt(an) {
     Object.keys(an.info.gives).forEach(function (id) { OT.state.addStock(id, an.info.gives[id]); });
     K.caught.push(an.kind);
-    if (an.kind === 'nushi') K.nushi = true;
+    if (an.kind === 'nushi') { K.nushi = true; OT.fx.nushi(OT.t('hunt.nushi')); }
     K.animal = null;
     K.spawnT = 0.9;
     OT.sfx.buy();
@@ -149,6 +149,23 @@
 
   function draw() {
     var ctx = K.canvas.getContext('2d'), P = OT.PAL, t = K.time;
+    if (OT.sprites.has('bg_hunt')) {
+      ctx.drawImage(OT.sprites.get('bg_hunt'), 0, 0);
+      var an0 = K.animal;
+      if (an0) {
+        var sp = OT.sprites.get('cr_animal_' + (an0.kind === 'boar' ? 'boar' : an0.kind) + '_' + (Math.floor(t * 8) % 2));
+        if (sp && sp.complete && sp.naturalWidth) {
+          ctx.save();
+          ctx.translate(Math.round(an0.x), Math.round(an0.y));
+          if (an0.vx > 0) ctx.scale(-1, 1);
+          ctx.drawImage(sp, -Math.round(sp.width / 2), -Math.round(sp.height / 2));
+          ctx.restore();
+        }
+      }
+      ctx.fillStyle = 'rgba(255,230,176,0.8)';
+      K.trail.forEach(function (tr) { ctx.fillRect(Math.round(tr.p.x) - 1, Math.round(tr.p.y) - 1, 2, 2); });
+      return;
+    }
     ctx.fillStyle = P.green2; ctx.fillRect(0, 0, W, H);
     // 木々
     for (var i = 0; i < 18; i++) {

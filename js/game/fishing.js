@@ -90,6 +90,7 @@
     var fish = F.fish;
     Object.keys(fish.info.gives).forEach(function (id) { OT.state.addStock(id, fish.info.gives[id]); });
     F.caught.push(fish.kind);
+    if (fish.kind === 'nushi') OT.fx.nushi(OT.t('sea.nushi'));
     F.state = 'after'; F.afterT = 1.1;
     OT.sfx.buy();
     flash(OT.t('fish.caught', { name: OT.t('sea.' + fish.kind) }), 'won');
@@ -160,6 +161,8 @@
 
   function draw() {
     var ctx = F.canvas.getContext('2d'), P = OT.PAL, t = F.time;
+    var bgImg = OT.sprites.has('bg_fishing') ? OT.sprites.get('bg_fishing') : null;
+    if (bgImg) { ctx.drawImage(bgImg, 0, 0); drawBoatAndLine(ctx, P, t); return; }
     var g = ctx.createLinearGradient(0, 0, 0, 40);
     g.addColorStop(0, P.warm1); g.addColorStop(1, P.ind1);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, 40);
@@ -200,6 +203,33 @@
         var sag = F.state === 'fight' ? (1 - F.fish.tension / 100) * 10 : 6;
         var lx = tipX + (fx - tipX) * u, ly = tipY + (fy - tipY) * u + Math.sin(u * Math.PI) * sag;
         ctx.fillRect(Math.round(lx), Math.round(ly), 1, 1);
+      }
+    }
+  }
+
+  /** 絵の背景のときの、小舟・マテオ・竿・糸・魚 */
+  function drawBoatAndLine(ctx, P, t) {
+    var by = 38 + Math.round(Math.sin(t * 2) * 1);
+    ctx.fillStyle = P.brown2; ctx.fillRect(8, by, 34, 5); ctx.fillStyle = P.brown1; ctx.fillRect(10, by + 5, 30, 2);
+    var mate = OT.sprites.get('people_mini_mateo');
+    if (mate && mate.complete) ctx.drawImage(mate, 0, 0, 24, 30, 14, by - 28, 24, 30);
+    ctx.fillStyle = P.brown3; for (var r = 0; r < 30; r++) ctx.fillRect(Math.round(29 + r), Math.round(by - 12 - r * 0.4), 1, 1);
+    var tipX = 60, tipY = by - 24, fx = null, fy = null;
+    if (F.state === 'wait') { fx = 120; fy = 42 + Math.round(Math.sin(t * 6) * 1); ctx.fillStyle = P.red1; ctx.fillRect(fx - 1, fy - 2, 3, 3); }
+    else if (F.state === 'fight') {
+      var f = F.fish;
+      fx = Math.round(70 + f.dist * 0.7 + (f.surging ? Math.sin(t * 40) * 2 : 0));
+      fy = Math.round(76 + Math.sin(t * 3) * 6);
+      var sp = OT.sprites.get('cr_sea_' + f.kind + '_' + (Math.floor(t * 6) % 2));
+      if (sp && sp.complete && sp.naturalWidth) ctx.drawImage(sp, Math.round(fx - sp.width / 2), Math.round(fy - sp.height / 2));
+      else OT.art.drawSeaFish(ctx, f.kind, fx, fy, -1, t);
+      if (f.surging) { ctx.fillStyle = P.white; ctx.fillRect(fx - 4, 40, 1, 3); ctx.fillRect(fx + 3, 41, 1, 2); }
+    }
+    if (fx !== null) {
+      ctx.fillStyle = F.state === 'fight' && F.fish.tension > 75 ? P.red1 : P.white2;
+      for (var s = 0; s <= 40; s++) {
+        var u = s / 40, sag = F.state === 'fight' ? (1 - F.fish.tension / 100) * 10 : 6;
+        ctx.fillRect(Math.round(tipX + (fx - tipX) * u), Math.round(tipY + (fy - tipY) * u + Math.sin(u * Math.PI) * sag), 1, 1);
       }
     }
   }

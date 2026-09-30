@@ -107,6 +107,7 @@
 
   function draw() {
     var ctx = M.canvas.getContext('2d'), P = OT.PAL, t = M.time;
+    if (OT.sprites.has('bg_smuggle')) { ctx.drawImage(OT.sprites.get('bg_smuggle'), 0, 0); drawActors(ctx, P, t); return; }
     ctx.fillStyle = P.ind5; ctx.fillRect(0, 0, W, H);
     // 海と出島の影
     ctx.fillStyle = P.ind4; ctx.fillRect(0, 60, W, 30);
@@ -137,6 +138,29 @@
       ctx.fillStyle = '#f0c8a0'; ctx.fillRect(x - 3, PATH_Y - 18 + bob, 6, 6);
       ctx.fillStyle = P.brown4; ctx.fillRect(x - 5, PATH_Y - 24 + bob, 10, 6);   // 背負った荷
       if (M.spot > 0) { ctx.fillStyle = P.red1; ctx.fillRect(x - 1, PATH_Y - 32, 2, 5); ctx.fillRect(x - 1, PATH_Y - 26, 2, 1); }   // ！
+    }
+  }
+
+  function drawActors(ctx, P, t) {
+    M.guards.forEach(function (g) {
+      var L = lightPos(g);
+      var grad = ctx.createRadialGradient(L.x, L.y, 2, L.x, L.y, g.r + 3);
+      grad.addColorStop(0, 'rgba(255,220,140,0.75)'); grad.addColorStop(1, 'rgba(255,220,140,0)');
+      ctx.fillStyle = grad; ctx.fillRect(L.x - g.r - 4, L.y - g.r - 4, g.r * 2 + 8, g.r * 2 + 8);
+      var gd = OT.sprites.get('people_mini_guard');
+      if (gd && gd.complete && gd.naturalWidth) ctx.drawImage(gd, (Math.floor(t * 4) % 4) * 24, 0, 24, 30, Math.round(g.x - 12), 26, 24, 30);
+      ctx.fillStyle = P.red1; ctx.fillRect(Math.round(g.x + 8), 44, 4, 6);
+    });
+    var x = Math.round(M.x), moving = holding() && M.flash <= 0;
+    if (M.flash <= 0 || Math.floor(t * 12) % 2) {
+      var mm = OT.sprites.get('people_mini_mateo');
+      if (mm && mm.complete && mm.naturalWidth) {
+        ctx.save(); ctx.translate(x, 0); ctx.scale(-1, 1);
+        ctx.drawImage(mm, (moving ? Math.floor(t * 8) % 4 : 0) * 24, 0, 24, 30, -12, PATH_Y - 30, 24, 30);
+        ctx.restore();
+      }
+      ctx.fillStyle = P.brown4; ctx.fillRect(x - 5, PATH_Y - 30, 10, 6);
+      if (M.spot > 0) { ctx.fillStyle = P.red1; ctx.fillRect(x - 1, PATH_Y - 40, 2, 5); ctx.fillRect(x - 1, PATH_Y - 34, 2, 1); }
     }
   }
 

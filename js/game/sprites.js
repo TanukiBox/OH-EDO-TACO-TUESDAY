@@ -1,0 +1,162 @@
+/*
+ * 多幸寿：Blender で作ったドット絵を使う（art/output/game/ と art/build.py が書き出す一覧 OT_ART）
+ *   ・人物（動きのコマ）・会話の顔・星3の大写し
+ *   ・食材のアイコンとかけら・皮の折りたたみ
+ *   ・屋台の夜景（年中行事の飾りつき）と手前のカウンター・町の地図・ミニゲームの背景・生き物・紙芝居・ロゴ
+ *   絵がまだないものは、art.js の仮の図形のまま。
+ */
+(function (global) {
+  'use strict';
+  var OT = global.OT = global.OT || {};
+  var A = global.OT_ART || {};
+  var BASE = 'art/output/game/';
+  var img = {};
+  var ready = false;
+
+  function file(key, path) { img[key] = path; }
+
+  // 読み込む絵の一覧
+  Object.keys(A.people || {}).forEach(function (k) { file('people_' + k, 'people/' + k + '.png'); });
+  ['mini_mateo', 'mini_guard'].forEach(function (k) { file('people_' + k, 'people/' + k + '.png'); });
+  file('faces', 'faces.png');
+  file('icons', 'food_icons.png');
+  file('pieces', 'food_pieces.png');
+  (A.skins || []).forEach(function (k) { file('skin_' + k, 'skins/' + k + '.png'); });
+  (A.stall || []).forEach(function (k) { file('stall_' + k, 'stall/' + k + '.png'); });
+  file('stall_fg', 'stall/fg.png');
+  file('map', 'map.png');
+  (A.bg || []).forEach(function (k) { file('bg_' + k, 'bg/' + k + '.png'); });
+  Object.keys(A.creatures || {}).forEach(function (k) { file('cr_' + k, 'creatures/' + k + '.png'); });
+  for (var i = 1; i <= (A.story || 0); i++) file('story_' + i, 'story/' + i + '.png');
+  file('logo', 'logo.png');
+
+  var loaded = {};
+  OT.sprites = {
+    has: function (k) { var im = loaded[k]; return !!(im && im.complete && im.naturalWidth); },
+    get: function (k) { return loaded[k]; },
+    load: function (done) {
+      var keys = Object.keys(img), left = keys.length;
+      if (!left) { done(); return; }
+      keys.forEach(function (k) {
+        var im = new Image();
+        im.onload = im.onerror = function () { if (--left === 0) { ready = true; done(); } };
+        im.src = BASE + img[k] + '?v=' + OT.VERSION;
+        loaded[k] = im;
+      });
+    },
+    /** 星3の大写し（読み込みは使うときに） */
+    closeup: function (key) {
+      var k = 'close_' + key;
+      if (!loaded[k]) { var im = new Image(); im.src = BASE + 'close/' + key + '.png?v=' + OT.VERSION; loaded[k] = im; }
+      return loaded[k];
+    },
+    manifest: A
+  };
+  var S = OT.sprites;
+
+  // ---------------------------------------------------------------
+  // 人物
+  // ---------------------------------------------------------------
+  /** 客（または人物キー）→ 人物の絵のキー */
+  OT.sprites.personKey = function (g) {
+    if (!g) return null;
+    if (typeof g === 'string') return A.people && A.people[g] ? g : null;
+    var cand = g.vipGuest || g.regular || (g.traveler ? 'tabibito' : null);
+    if (cand && A.people[cand]) return cand;
+    var v = (g.variantSeed || 0) % 2 ? '_b' : '_a';
+    return A.people[g.typeId + v] ? g.typeId + v : null;
+  };
+
+  /** 人物の1コマを描く。(x, y) は足もとの中心。anim の中の frame は時間 t で選ぶ */
+  OT.sprites.drawPerson = function (ctx, key, anim, t, x, y, flip, fps) {
+    var lay = A.people && A.people[key];
+    var sheet = loaded['people_' + key];
+    if (!lay || !sheet || !sheet.complete || !sheet.naturalWidth) return false;
+    var a = lay[anim] || lay.wait || lay[Object.keys(lay)[0]];
+    var n = a[1], f = a[0] + (Math.floor(t * (fps || 4)) % n);
+    ctx.save();
+    if (flip) { ctx.translate(Math.round(x), 0); ctx.scale(-1, 1); ctx.drawImage(sheet, f * 64, 0, 64, 80, -32, Math.round(y) - 80, 64, 80); }
+    else ctx.drawImage(sheet, f * 64, 0, 64, 80, Math.round(x) - 32, Math.round(y) - 80, 64, 80);
+    ctx.restore();
+    return true;
+  };
+
+  /** 会話の顔を canvas（48×48）に描く。なければ false */
+  OT.sprites.drawFace = function (canvas, key, happy) {
+    var F = A.faces || {};
+    var pos = F[key + (happy ? '_happy' : '')] || F[key];
+    if (!pos || !S.has('faces')) return false;
+    var ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, 48, 48);
+    ctx.drawImage(loaded.faces, pos[0], pos[1], 48, 48, 0, 0, 48, 48);
+    return true;
+  };
+
+  // ---------------------------------------------------------------
+  // 食材
+  // ---------------------------------------------------------------
+  var baseIcon = OT.art.drawIcon;
+  OT.art.drawIcon = function (canvas, id) {
+    var pos = (A.icons || {})[id] || (id === 'sanmai' ? (A.icons || {}).tortilla : null);
+    if (pos && S.has('icons')) {
+      canvas.width = 32; canvas.height = 32;
+      var ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(loaded.icons, pos[0], pos[1], 32, 32, 0, 0, 32, 32);
+      return;
+    }
+    baseIcon(canvas, id);
+  };
+
+  var baseToppings = OT.art.drawToppings;
+  OT.art.drawToppings = function (ctx, items, frame) {
+    var P = A.pieces || {};
+    if (!S.has('pieces')) return baseToppings(ctx, items, frame);
+    var fd = global.OT_FOLD, ppu = fd.size / fd.orthoScale, cx = fd.size / 2, cy = fd.size / 2;
+    var rest = [];
+    items.forEach(function (id, layer) {
+      var pos = P[id];
+      if (!pos) { rest.push(id); return; }
+      var look = OT.art.look(id);
+      var n = pos[2] || look.n || 5;
+      var r = OT.rng(OT.hash(id) + layer * 97);
+      for (var i = 0; i < n; i++) {
+        var a = r() * Math.PI * 2, d = Math.sqrt(r());
+        var wx = 0.62 * d * Math.cos(a), wy = 0.3 * d * Math.sin(a);
+        var f = OT.art.foldY(wy, look.h || 0.06, frame || 0);
+        var v = Math.floor(r() * 3);
+        var h = Math.max(6, Math.round(36 * f.squash));
+        ctx.drawImage(loaded.pieces, pos[0] + v * 36, pos[1], 36, 36, Math.round(cx + wx * ppu - 18), Math.round(cy - f.y * ppu - h / 2), 36, h);
+      }
+    });
+    if (rest.length) baseToppings(ctx, rest, frame);
+  };
+
+  var baseSkin = OT.art.drawSkin;
+  OT.art.drawSkin = function (ctx, skin, frame) {
+    frame = frame || 0;
+    if (skin === 'real_tortilla') skin = 'tortilla';
+    if (skin !== 'tortilla' && S.has('skin_' + skin)) {
+      ctx.drawImage(loaded['skin_' + skin], frame * 128, 0, 128, 128, 0, 0, 128, 128);
+      return;
+    }
+    baseSkin(ctx, skin, frame);
+  };
+
+  /** すだち（さっぱりしたタコス以外に添える）：皿のふちに */
+  OT.sprites.drawSudachi = function (ctx) {
+    var pos = (A.pieces || {}).sudachi;
+    if (!pos || !S.has('pieces')) return;
+    ctx.drawImage(loaded.pieces, pos[0], pos[1], 36, 36, 90, 86, 36, 36);
+  };
+
+  // ---------------------------------------------------------------
+  // 屋台
+  // ---------------------------------------------------------------
+  OT.sprites.stallBg = function (festival) {
+    var k = 'stall_' + (festival || 'normal');
+    return S.has(k) ? loaded[k] : (S.has('stall_normal') ? loaded.stall_normal : null);
+  };
+  OT.sprites.stallFg = function () { return S.has('stall_fg') ? loaded.stall_fg : null; };
+})(window);

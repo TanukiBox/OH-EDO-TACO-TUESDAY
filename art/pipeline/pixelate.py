@@ -68,12 +68,14 @@ def to_image(index, opaque):
     return Image.fromarray(out, "RGBA")
 
 
-def pixelate(src_path, size):
-    """高解像度レンダー1枚 → 完成ドット絵（RGBA の Image）。"""
+def pixelate(src_path, size, with_outline=True):
+    """高解像度レンダー1枚 → 完成ドット絵（RGBA の Image）。
+    with_outline=False は輪郭なし（タコスの上に散らす具のかけらなど、ほかの絵に重ねるもの）。"""
     src = Image.open(src_path).convert("RGBA")
     small = downscale(src, size)
     index, opaque = quantize(small)
-    index, opaque = outline(index, opaque)
+    if with_outline:
+        index, opaque = outline(index, opaque)
     return to_image(index, opaque)
 
 

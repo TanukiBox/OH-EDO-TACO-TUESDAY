@@ -298,3 +298,58 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .ending-taco { width: 256px; height: 256px; }
 .ending-stats { color: var(--ink2); padding: 0 16px; text-align: center; }
 .ending .res-btns { width: 100%; }
+
+/* ---------- 第4段階：絵と演出 ---------- */
+.logo-img { width: min(92%, 480px); height: auto; aspect-ratio: 240 / 132; margin-top: -8px; }
+.mateo-canvas { position: absolute; left: 0; bottom: 0; height: 88%; max-height: 160px; width: auto; aspect-ratio: 64 / 80; pointer-events: none; }
+.board { position: relative; }
+.map { position: relative; margin: 6px 16px; border: 3px solid #8c5228; border-radius: 12px; overflow: hidden; }
+.map-img { width: 100%; height: auto; aspect-ratio: 256 / 160; }
+.pin { position: absolute; transform: translate(-50%, -100%); font: inherit; font-size: 10px; font-weight: 800; color: #1c1220; background: #fffaf0; border: 2px solid #1c1220; border-radius: 8px; padding: 1px 5px; white-space: nowrap; cursor: pointer; box-shadow: 0 2px 0 #1c1220; }
+.pin::after { content: ''; position: absolute; left: 50%; bottom: -6px; transform: translateX(-50%); border: 4px solid transparent; border-top-color: #1c1220; }
+.pin.game { background: #ffe6b0; }
+.pin.shop { background: #d2ec9a; }
+.pin.soon { background: #aaa292; opacity: .8; }
+.pin.blocked { opacity: .55; }
+.pin.home { background: #f24a2a; color: #fffaf0; cursor: default; }
+.auc-panel { background-size: cover; background-position: center; image-rendering: pixelated; }
+.dlg-face-img { width: 48px; height: 48px; }
+.dlg-face { overflow: hidden; }
+
+#fxlayer { position: absolute; inset: 0; pointer-events: none; z-index: 70; overflow: hidden; }
+.cutin { position: absolute; inset: 0; background: rgba(7,11,24,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; animation: pop .2s ease-out; transition: opacity .3s; }
+.cutin.out { opacity: 0; }
+.cutin-noren { width: 100%; height: auto; aspect-ratio: 3 / 2; }
+.cutin-mateo { width: 128px; height: 160px; margin-top: -60px; transition: transform .2s; }
+.cutin.dress .cutin-mateo { transform: scale(1.15); }
+.cutin-word { font-family: "Mochiy Pop One", sans-serif; font-size: 40px; color: #ffe6b0; text-shadow: 0 4px 0 #c42618, 0 0 20px #f5b860; opacity: 0; transform: scale(.5); transition: all .25s; }
+.cutin.dress .cutin-word { opacity: 1; transform: scale(1); }
+.closeup { position: absolute; right: 8px; top: 18%; width: 150px; background: #fffaf0; border: 4px solid #f5b860; border-radius: 16px; padding: 6px; display: flex; flex-direction: column; align-items: center; animation: slideIn .25s ease-out; transition: opacity .3s, transform .3s; box-shadow: 0 0 24px rgba(245,184,96,.8); }
+.closeup.out { opacity: 0; transform: translateX(40px); }
+.closeup-face { width: 132px; height: 132px; }
+.closeup-line { font-family: "Mochiy Pop One", sans-serif; color: #c42618; font-size: 16px; text-align: center; line-height: 1.2; }
+.spark { position: absolute; width: 8px; height: 8px; background: #ffe6b0; transform: rotate(45deg); animation: sparkle .8s ease-out infinite; }
+@keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes sparkle { 0% { transform: rotate(45deg) scale(0); opacity: 1; } 100% { transform: rotate(45deg) scale(1.6); opacity: 0; } }
+.fx-banner { position: absolute; left: 0; right: 0; top: 32%; text-align: center; padding: 16px 0; background: linear-gradient(90deg, transparent, rgba(196,38,24,.92) 15%, rgba(196,38,24,.92) 85%, transparent); animation: pop .3s ease-out; transition: opacity .4s; }
+.fx-banner.nushi { background: linear-gradient(90deg, transparent, rgba(23,43,88,.95) 15%, rgba(23,43,88,.95) 85%, transparent); animation: pop .3s ease-out, shake .4s; }
+.fx-banner.win { background: linear-gradient(90deg, transparent, rgba(31,106,44,.92) 15%, rgba(31,106,44,.92) 85%, transparent); }
+.fx-banner.out { opacity: 0; }
+.fx-title { font-family: "Mochiy Pop One", sans-serif; font-size: 36px; color: #ffe6b0; text-shadow: 0 3px 0 #1c1220; }
+.fx-sub { font-family: "Yuji Syuku", serif; font-size: 26px; color: #fffaf0; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.confetti { position: absolute; top: -10px; width: 7px; height: 11px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+.fx-confetti { position: absolute; inset: 0; }
+
+#dialog.kami { background: #1c1220; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 150px; }
+.kami-frame { width: calc(100% - 24px); padding: 10px; background: linear-gradient(#b87838, #8c5228); border: 4px solid #5a3218; border-radius: 6px; box-shadow: 0 6px 0 #2e1a12; }
+.kami-frame.slide { animation: kamiSlide .45s ease-out; }
+@keyframes kamiSlide { from { transform: translateX(40%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.kami-pic { width: 100%; height: auto; aspect-ratio: 3 / 2; border: 2px solid #2e1a12; }
+
+.tut { position: absolute; inset: 0; pointer-events: none; z-index: 60; }
+.tut-ring { position: absolute; border: 3px solid #ffe6b0; border-radius: 12px; box-shadow: 0 0 0 4000px rgba(7,11,24,.35), 0 0 16px #f5b860; animation: blink 1s infinite; }
+.tut-bubble { position: absolute; left: 12px; right: 12px; background: #2a2838; border: 2px solid #f5b860; border-radius: 12px; padding: 8px 12px; font-size: 14px; display: flex; flex-direction: column; }
+.tut-bubble b { color: #f5b860; font-size: 12px; }
+.screen.scroll > * { flex-shrink: 0; }

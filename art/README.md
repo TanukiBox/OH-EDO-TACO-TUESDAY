@@ -1,4 +1,4 @@
-# Oh!Edo Taco Tuesday!!（多幸寿）— ドット絵パイプライン試作
+# Oh!Edo Taco Tuesday!!（多幸寿）— 絵の仕組み（Blender → ドット絵）
 
 江戸にタイムスリップしたタコス屋の屋台ゲーム「Oh!Edo Taco Tuesday!!」のための試作です。
 **Blender の3Dモデルを Python で作り、自動でドット絵に変換する仕組み**を、
@@ -196,3 +196,38 @@ python build.py
 ## ライセンス
 
 使用フォント（Yuji Syuku / SIL OFL 1.1）などは [LICENSES.md](LICENSES.md) を見てください。
+
+
+---
+
+## ゲームで使うすべての絵（第4段階で追加）
+
+`python build.py` を実行すると、試作の絵に加えて、ゲームで使う絵をすべて作り直します（20分ほどかかります）。
+できた絵は `art/output/game/` にまとまり、ゲームはその中の `art.js`（絵の一覧）を見て読み込みます。
+
+| 作るもの | Blender のファイル | できる絵 |
+|---|---|---|
+| 人物（客・常連・ライバル・VIP・マテオ・ポン吉）の動きと顔 | `blender/people.py`（人物の設定は `CHARACTERS`） | `output/game/people/*.png`、`faces.png`、`close/*.png` |
+| 全食材のアイコンと、皮の上に散らす「かけら」 | `blender/foods.py`（食材の設定は `FOODS`） | `output/game/food_icons.png`、`food_pieces.png` |
+| トルティーヤ以外の皮の折りたたみ | `blender/taco.py` の `SKIN_LOOKS` | `output/game/skins/*.png` |
+| 夜の屋台（年中行事の飾り）・町の地図・ミニゲームの背景・生き物・紙芝居 | `blender/scenes.py` | `output/game/stall/`、`map.png`、`bg/`、`creatures/`、`story/` |
+| タイトルロゴ・X用の絵・アイコン | `pipeline/game_assets.py`（フォントから作る） | `output/game/logo.png`、`ogp.png`、`icon-*.png` |
+
+一部だけ作り直すとき（例）：
+```
+python build.py --only people      … 人物だけ
+python build.py --only foods,skins … 食材と皮だけ
+python build.py --skip-render      … レンダリングせず、まとめ直しだけ（速い）
+```
+
+### ゲームの食材の絵を足すとき
+1. `blender/foods.py` の `FOODS` に1行足します。形の型（`shape`）は、似た食材の行をまねてください。
+   例：`"shiitake": dict(shape="mushroom", c=["#f0e6d2", "#8c5228", "#5a3218"], size=0.18, n=5, icon=3),`
+   - `c` は [明るい, ふつう, 暗い] の3色（パレットの色から選ぶと、きれいに出ます）
+   - `size` は大きさ（トルティーヤの半径 = 1）、`n` はタコスの上にのせる数、`icon` はアイコンに積む数
+2. `python build.py --only foods` を実行します。
+3. ゲームの設定（`js/game/config.js` の `INGREDIENTS`）と名前（`js/game/text.js`）にも同じ名前で足すと、ゲームに出てきます。
+
+### 人物を足すとき
+`blender/people.py` の `CHARACTERS` に1行足します（`body` 服の型、`cloth` 着物の色、`hair` 髪型、`extra` 小物）。
+`python build.py --only people` で、歩く・待つ・困る・食べる・喜ぶ・怒るのコマと、会話の顔ができます。

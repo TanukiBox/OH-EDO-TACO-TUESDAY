@@ -172,3 +172,94 @@ class Folder:
             new = fold_coords(rest, e * FOLD_MAX_ANGLE)
             ob.data.vertices.foreach_set("co", new.astype(np.float32).ravel())
             ob.data.update()
+
+
+# ---------------------------------------------------------------------------
+# トルティーヤ以外の皮（料理画面で、同じように折りたたむ）
+#   shape: 'disc' 丸 / 'rect' 四角 / 'tri' 三角
+#   c: [明るい, ふつう, 暗い]、spot: 焼き色の点、bump: 表面のでこぼこ
+# ---------------------------------------------------------------------------
+SKIN_LOOKS = {
+    "morokoshi":   dict(shape="disc", c=["#fbe39a", "#f0e6d2", "#dca24a"], spot="#b87838", crack=True),
+    "funoyaki":    dict(shape="disc", c=["#fffaf0", "#f0e6d2", "#dca24a"], spot="#b87838"),
+    "aburaage":    dict(shape="rect", w=1.5, h=1.0, c=["#fbe39a", "#dca24a", "#b87838"], spot="#8c5228", bump=0.03, thick=0.06),
+    "nori":        dict(shape="rect", w=1.45, h=1.45, c=["#1f6a2c", "#172b58", "#0d1830"], spot="#46b03a", thick=0.012),
+    "soba":        dict(shape="disc", c=["#d6ccb8", "#aaa292", "#76726a"], spot="#2e1a12"),
+    "usuyaki":     dict(shape="disc", c=["#fbe39a", "#f4cc62", "#dca24a"], spot="#b87838"),
+    "yakionigiri": dict(shape="tri", c=["#f0e6d2", "#dca24a", "#8c5228"], spot="#5a3218", thick=0.18, bump=0.03),
+    "aigawa":      dict(shape="disc", c=["#5070b0", "#34569a", "#243f7a"], spot="#172b58"),
+    "pan":         dict(shape="disc", c=["#dca24a", "#b87838", "#8c5228"], spot="#5a3218", thick=0.07, bump=0.02),
+    "yuba":        dict(shape="disc", c=["#fbe39a", "#f4cc62", "#dca24a"], spot="#dca24a", bump=0.02),
+    "sanmai":      dict(shape="stack"),
+}
+SKINS = list(SKIN_LOOKS.keys())
+
+
+def _skin_material(kind, L):
+    m, nt, bsdf = new_material("skin_" + kind, roughness=0.6 if kind != "nori" else 0.35)
+    uv = nt.nodes.new("ShaderNodeUVMap")
+    uv.uv_map = "UVMap"
+    base = mapped(nt, noise_tex(nt, uv.outputs["UV"], 5.0, 3.0, 0.55, w=float(len(kind) % 7) + 0.5).outputs["Fac"], 0.35, 0.75)
+    spot = mapped(nt, noise_tex(nt, uv.outputs["UV"], 24.0, 1.0, 0.5, w=3.3).outputs["Fac"], 0.66, 0.72)
+    fac = math_node(nt, "MAXIMUM", math_node(nt, "MULTIPLY", base, 0.7), math_node(nt, "MULTIPLY", spot, 1.0), clamp=True)
+    stops = [(0.0, L["c"][0]), (0.4, L["c"][1]), (0.7, L["c"][2]), (1.0, L["spot"])]
+    if L.get("crack"):
+        # ひび割れ：ノイズの値が 0.5 ちょうどのあたりだけ、細い線にする
+        cn = noise_tex(nt, uv.outputs["UV"], 6.0, 0.0, 0.5, w=8.0).outputs["Fac"]
+        band = math_node(nt, "ABSOLUTE", math_node(nt, "SUBTRACT", cn, 0.5))
+        crack = math_node(nt, "SUBTRACT", 1.0, mapped(nt, band, 0.0, 0.012))
+        fac = math_node(nt, "MAXIMUM", math_node(nt, "MULTIPLY", fac, 0.6), math_node(nt, "MULTIPLY", crack, 0.72), clamp=True)
+    cr = color_ramp(nt, stops)
+    nt.links.new(fac, cr.inputs["Fac"])
+    nt.links.new(cr.outputs["Color"], bsdf.inputs["Base Color"])
+    return m
+
+
+def build_skin(kind):
+    """kind の皮を作る。戻り値はオブジェクトのリスト（Folder で折りたためる）。"""
+    L = SKIN_LOOKS[kind]
+    if L["shape"] == "stack":
+        # 3枚重ね：トルティーヤを少しずつずらして3枚
+        objs = []
+        for i, (dx, dy, rot) in enumerate([(0.1, -0.1, 2.2), (-0.08, 0.06, 1.1), (0.0, 0.0, 0.0)]):
+            objs.append(_tortilla("Sanmai%d" % i, UNDER_MID_Z + TORTILLA_THICKNESS * i, (dx, dy), rot, 2.0 + i * 3, droop=0.004 * i))
+        return objs
+    N = 72
+    size = 2.1
+    bm = bmesh.new()
+    uv_layer = bm.loops.layers.uv.new("UVMap")
+    grid = {}
+
+    def inside(x, y):
+        if L["shape"] == "rect":
+            return abs(x) <= L["w"] / 2 and abs(y) <= L["h"] / 2
+        if L["shape"] == "tri":
+            # 角の丸い三角（おにぎり）
+            return y >= -0.72 and abs(x) <= (0.72 - y) * 0.62 + 0.05 and y <= 0.78
+        return x * x + y * y <= 0.97 * 0.97
+
+    for i in range(N + 1):
+        for j in range(N + 1):
+            x, y = -size / 2 + size * i / N, -size / 2 + size * j / N
+            z = MID_Z + L.get("bump", 0) * value_noise(x * 6, y * 6, 1.7)
+            grid[(i, j)] = (x, y, z)
+    verts = {}
+    for i in range(N):
+        for j in range(N):
+            cs = [(i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1)]
+            if not all(inside(*grid[c][:2]) for c in cs):
+                continue
+            vs = []
+            for c in cs:
+                if c not in verts:
+                    verts[c] = bm.verts.new(grid[c])
+                vs.append(verts[c])
+            f = bm.faces.new(vs)
+            for loop in f.loops:
+                co = loop.vert.co
+                loop[uv_layer].uv = (co.x * 0.5 + 0.5, co.y * 0.5 + 0.5)
+    ob = mesh_object("Skin_" + kind, bm, _skin_material(kind, L))
+    mod = ob.modifiers.new("Thickness", "SOLIDIFY")
+    mod.thickness = L.get("thick", TORTILLA_THICKNESS)
+    mod.offset = 0.0
+    return [ob]

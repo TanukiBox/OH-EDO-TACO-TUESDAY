@@ -19,7 +19,12 @@
       var noren = OT.ui.pixelCanvas(240, 160, 'title-noren');
       root.appendChild(OT.el('div', { class: 'title-top' }, [
         noren,
-        OT.el('h1', { class: 'logo' }, [
+        OT.sprites.has('logo') ? (function () {
+          var lc = OT.ui.pixelCanvas(240, 132, 'logo-img');
+          lc.getContext('2d').drawImage(OT.sprites.get('logo'), 0, 0);
+          lc.setAttribute('aria-label', OT.t('title.logo') + ' 多幸寿');
+          return lc;
+        })() : OT.el('h1', { class: 'logo' }, [
           OT.el('span', { class: 'logo-en', text: OT.t('title.logo') }),
           OT.el('span', { class: 'logo-ja', text: '多幸寿' })
         ]),
@@ -41,6 +46,10 @@
         OT.sound.toggle();
         soundBtn.textContent = OT.sound.muted ? OT.t('ui.soundOff') : OT.t('ui.soundOn');
       }, 'small');
+      var bgmBtn = OT.button(OT.bgm.on() ? OT.t('ui.bgmOn') : OT.t('ui.bgmOff'), function () {
+        OT.bgm.toggle();
+        bgmBtn.textContent = OT.bgm.on() ? OT.t('ui.bgmOn') : OT.t('ui.bgmOff');
+      }, 'small');
       var langBtn = OT.button(OT.t('ui.lang'), function () {
         var next = OT.i18n.lang === 'ja' ? 'en' : 'ja';
         OT.i18n.setLang(next);
@@ -49,7 +58,8 @@
         OT.title.leave();
         OT.title.enter();
       }, 'small');
-      root.appendChild(OT.el('div', { class: 'title-foot' }, [soundBtn, langBtn, OT.el('span', { class: 'by', text: OT.t('title.by') })]));
+      root.appendChild(OT.el('div', { class: 'title-foot' }, [soundBtn, bgmBtn, langBtn, OT.el('span', { class: 'by', text: OT.t('title.by') })]));
+      OT.bgm.play('day');
 
       // 暖簾のはためき（開店カットインの絵を、タイトルでも流す）
       var ctx = noren.getContext('2d'), f = 0;
@@ -88,9 +98,11 @@
       var left = OT.CFG.MAX_GAMES_PER_DAY - s.gamesToday;
       root.appendChild(OT.el('p', { class: 'lead', text: left > 0 ? OT.t('morning.left', { n: left }) : OT.t('morning.done') }));
 
+      // 町の地図（仕入れ先の場所）
+      if (OT.sprites.has('map')) root.appendChild(mapView(left));
       var list = OT.el('div', { class: 'suppliers' });
       OT.CFG.SUPPLIERS.forEach(function (sup) {
-        var soon = sup.soon || sup.chapter > OT.state.chapter();
+        var soon = sup.soon || sup.chapter > OT.state.chapter() || (sup.needFlag && !s.flags[sup.needFlag]);
         var locked = !sup.soon && sup.chapter > OT.state.chapter();
         var blocked = sup.kind === 'game' && left <= 0;
         var card = OT.el('button', {
@@ -136,10 +148,38 @@
       root.appendChild(pantry);
 
       root.appendChild(OT.el('div', { class: 'sticky-bottom' }, [
-        OT.button('🏮 ' + OT.t('morning.toNight'), function () { OT.flow.night(); }, 'primary big')
+        OT.button('🏮 ' + OT.t('morning.toNight'), function () { if (OT.tut) OT.tut.done('m2'); OT.flow.night(); }, 'primary big')
       ]));
+      // はじめての1日の案内
+      if (OT.tut) {
+        if (s.gamesToday === 0) OT.tut.point('m1', '#scr-morning .sup.game');
+        else { OT.tut.done('m1'); OT.tut.point('m2', '#scr-morning .sticky-bottom .btn'); }
+      }
     }
   };
+
+  /** 町の地図：仕入れ先の場所に目印（タップで行ける） */
+  function mapView(left) {
+    var wrap = OT.el('div', { class: 'map' });
+    var c = OT.ui.pixelCanvas(256, 160, 'map-img');
+    c.getContext('2d').drawImage(OT.sprites.get('map'), 0, 0);
+    wrap.appendChild(c);
+    var P = OT.sprites.manifest.places || {};
+    OT.CFG.SUPPLIERS.forEach(function (sup) {
+      var p = P[sup.id];
+      if (!p) return;
+      var soon = sup.soon || sup.chapter > OT.state.chapter() || (sup.needFlag && !st().flags[sup.needFlag]);
+      var blocked = sup.kind === 'game' && left <= 0;
+      var pin = OT.el('button', { class: 'pin ' + sup.kind + (soon ? ' soon' : '') + (blocked && !soon ? ' blocked' : ''),
+        style: 'left:' + (p[0] * 100) + '%;top:' + (p[1] * 100) + '%',
+        onclick: function () { if (soon || blocked) { OT.sfx.denied(); return; } OT.sfx.tap(); OT.flow.supplier(sup); } }, [
+        OT.el('span', { text: soon ? '？' : OT.t('sup.' + sup.id) })
+      ]);
+      wrap.appendChild(pin);
+    });
+    if (P.stall) wrap.appendChild(OT.el('span', { class: 'pin home', style: 'left:' + (P.stall[0] * 100) + '%;top:' + (P.stall[1] * 100) + '%' }, [OT.el('span', { text: '🏮 ' + OT.t('map.stall') })]));
+    return wrap;
+  }
 
   function realPanel() {
     var per = OT.CFG.FINALE.perCorn, have = OT.state.stockOf('corn');
@@ -250,8 +290,9 @@
       root.appendChild(OT.el('div', { class: 'res-btns' }, [
         OT.button(OT.t('res.share'), function () { OT.shareOnX(shareText); }, 'x'),
         OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('result'); }, 'ghost'),
-        OT.button(OT.t('res.next'), function () { OT.flow.nextDay(); }, 'primary big')
+        OT.button(OT.t('res.next'), function () { if (OT.tut) OT.tut.finish(); OT.flow.nextDay(); }, 'primary big')
       ]));
+      if (OT.tut) setTimeout(function () { OT.tut.point('r1', '#scr-result .res-table'); }, 300);
     }
   };
 })(window);

@@ -112,6 +112,7 @@
 
   function draw() {
     var ctx = G.canvas.getContext('2d'), P = OT.PAL, t = G.time;
+    if (OT.sprites.has('bg_forage')) { ctx.drawImage(OT.sprites.get('bg_forage'), 0, 0); drawItems(ctx, P, t); return; }
     ctx.fillStyle = P.warm1; ctx.fillRect(0, 0, W, 30);
     // 山
     ctx.fillStyle = P.green3;
@@ -136,6 +137,22 @@
       if (blink) return;
       var y = it.y - (it.air > 0 ? Math.sin((0.45 - it.air) / 0.45 * Math.PI) * 10 : 0);
       OT.art.drawForage(ctx, it.kind, Math.round(it.x), Math.round(y), t);
+    });
+    G.sparks.forEach(function (s) {
+      ctx.fillStyle = P.warm1;
+      var r = 3 + s.t * 16;
+      for (var k = 0; k < 6; k++) { var a = k / 6 * Math.PI * 2; ctx.fillRect(Math.round(s.x + Math.cos(a) * r), Math.round(s.y + Math.sin(a) * r), 2, 2); }
+    });
+  }
+
+  function drawItems(ctx, P, t) {
+    G.items.forEach(function (it) {
+      var left = it.life - it.t;
+      if (left < 0.6 && Math.floor(t * 12) % 2 === 0) return;
+      var y = it.y - (it.air > 0 ? Math.sin((0.45 - it.air) / 0.45 * Math.PI) * 10 : 0);
+      var sp = OT.sprites.get('cr_forage_' + it.kind);
+      if (sp && sp.complete && sp.naturalWidth) ctx.drawImage(sp, Math.round(it.x - 12), Math.round(y - 12));
+      else OT.art.drawForage(ctx, it.kind, Math.round(it.x), Math.round(y), t);
     });
     G.sparks.forEach(function (s) {
       ctx.fillStyle = P.warm1;

@@ -37,6 +37,8 @@
       anim = setInterval(tick, 120);
       OT.sfx.happy(3);
       setTimeout(function () { OT.sfx.happy(3); }, 450);
+      OT.fx.celebrate();
+      OT.bgm.play('ending');
     },
     leave: function () { clearInterval(anim); anim = null; }
   };

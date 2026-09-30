@@ -14,12 +14,12 @@
     char: '#2e1a12', brown1: '#5a3218', brown2: '#8c5228', brown3: '#b87838', brown4: '#dca24a',
     corn: '#f4cc62', corn2: '#fbe39a', cornShade: '#b08a4a',
     white: '#fffaf0', white2: '#f0e6d2', gray1: '#d6ccb8', gray2: '#aaa292', gray3: '#76726a',
-    pink1: '#ffb8a4', pink2: '#f0664e', pink3: '#b8323a',
+    pink1: '#f6c39c', pink2: '#f0664e', pink3: '#b8323a',
     red1: '#f24a2a', red2: '#c42618', red3: '#7a1414',
     green1: '#a8e05a', green2: '#46b03a', green3: '#1f6a2c',
     ind1: '#5070b0', ind2: '#34569a', ind3: '#243f7a', ind4: '#172b58', ind5: '#0d1830',
     warm1: '#ffe6b0', warm2: '#f5b860',
-    night1: '#4a4658', night2: '#2a2838'
+    night1: '#4a4658', night2: '#2a2838', skin2: '#d08a64'
   };
   OT.PAL = P;
 
@@ -244,6 +244,8 @@
     var sy = R * Math.sin(th) + extra * Math.cos(th) - h * Math.sin(th);
     return { y: sy, squash: Math.max(0.35, Math.abs(Math.cos(th))) };
   }
+
+  OT.art.foldY = foldY;
 
   /** items の具を、128×128 のタコスの絵の上に描く */
   OT.art.drawToppings = function (ctx, items, frame) {

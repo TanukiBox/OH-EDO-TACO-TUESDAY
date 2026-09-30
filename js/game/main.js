@@ -13,6 +13,7 @@
       OT.story.check('newgame', null, function () { OT.flow.morning(); });
     },
     morning: function () {
+      OT.bgm.play('day');
       OT.morning.enter();
       // 朝の場面（起きたら、画面を作り直す）
       OT.story.check('morning', null, function (played) { if (played) OT.morning.enter(); });
@@ -32,16 +33,19 @@
       s.tributeNight = !!opts.tribute;
       OT.state.save();          // 営業の直前をセーブ（途中で閉じたら、この夜の最初から）
       OT.story.check('night', null, function () {
-        if (opts.tribute) { OT.story.play('vip_tribute_intro', function () { OT.night.enter({ tribute: true }); }); return; }
+        if (opts.tribute) { OT.bgm.play('battle'); OT.story.play('vip_tribute_intro', function () { OT.night.enter({ tribute: true }); }); return; }
         var vip = OT.night.pickVip();
-        if (vip) OT.story.play('vip_' + vip + '_intro', function () { OT.night.enter({ vip: vip }); });
-        else OT.night.enter();
+        if (vip) { OT.bgm.play('battle'); OT.story.play('vip_' + vip + '_intro', function () { OT.night.enter({ vip: vip }); }); }
+        else { OT.bgm.play('night'); OT.night.enter(); }
       });
     },
     result: function () {
+      OT.bgm.play('day');
       OT.result.enter();
       var s = OT.state.get(), r = s.lastResult;
       if (!r || r.eventsDone) return;
+      if (r.rankUp) OT.fx.rankUp(OT.t('rank.' + r.rankUp));
+      if (r.vip && r.vipResult === 'win') OT.fx.win();
       // 結果のあとの場面：ランクアップ → VIP の勝ち負け → 常連 → その他 → エンディング
       var steps = [];
       if (r.rankUp) steps.push(function (next) { OT.story.check('rankup', { chapter: r.rankUp }, next); });
@@ -49,7 +53,7 @@
       if (r.tribute && r.vipResult !== 'win') steps.push(function (next) { OT.story.play('vip_lose', next); });
       (r.regulars || []).forEach(function (id) { steps.push(function (next) { OT.story.check('regular', { regular: id }, next); }); });
       steps.push(function (next) { OT.story.check('result', null, next); });
-      if (r.tribute && r.vipResult === 'win') steps.push(function (next) { OT.story.play('ending', function () { OT.ending.enter(); }); });
+      if (r.tribute && r.vipResult === 'win') steps.push(function (next) { OT.bgm.play('ending'); OT.story.play('ending', function () { OT.ending.enter(); }); });
       (function run(i) {
         if (i >= steps.length) { r.eventsDone = true; OT.state.save(); if (OT.ui.current() === 'result') OT.result.enter(); return; }
         steps[i](function () { run(i + 1); });
@@ -85,8 +89,10 @@
     // 共通土台の片手操作：スペース/Enter キーを「押した」にまとめる（画面のボタンは普通のタップ）
     OT.input = TB.createInput(global.document.getElementById('keys'));
     OT.art.load(function () {
-      global.document.body.classList.add('ready');
-      OT.flow.title();
+      OT.sprites.load(function () {
+        global.document.body.classList.add('ready');
+        OT.flow.title();
+      });
     });
   }
 

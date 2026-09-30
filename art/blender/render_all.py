@@ -13,6 +13,9 @@ sys.path.insert(0, HERE)
 import common  # noqa: E402
 import taco  # noqa: E402
 import noren  # noqa: E402
+import people_render  # noqa: E402
+import foods_render  # noqa: E402
+import scenes  # noqa: E402
 from ingredients import INGREDIENTS  # noqa: E402
 
 # 元画像は完成サイズの 4 倍で描き、あとで縮小する
@@ -103,7 +106,9 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,plain,icons,noren")
+    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story")
+    p.add_argument("--foods", default="", help="食材をしぼる（カンマ区切り）")
+    p.add_argument("--people", default="", help="人物をしぼる（カンマ区切り）")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     jobs = a.jobs.split(",")
@@ -116,6 +121,30 @@ def main():
     if "icons" in jobs:
         print("== 具材アイコン", flush=True)
         job_icons(a.out)
+    if "people" in jobs:
+        print("== 人物", flush=True)
+        people_render.job_people(a.out, [k for k in a.people.split(",") if k] or None)
+    if "foods" in jobs:
+        print("== 食材", flush=True)
+        foods_render.job_foods(a.out, [k for k in a.foods.split(",") if k] or None)
+    if "skins" in jobs:
+        print("== 皮", flush=True)
+        foods_render.job_skins(a.out)
+    if "stall" in jobs:
+        print("== 屋台", flush=True)
+        scenes.job_stall(a.out)
+    if "map" in jobs:
+        print("== 地図", flush=True)
+        scenes.job_map(a.out)
+    if "minigames" in jobs:
+        print("== ミニゲームの背景", flush=True)
+        scenes.job_minigames(a.out)
+    if "creatures" in jobs:
+        print("== 生き物", flush=True)
+        scenes.job_creatures(a.out)
+    if "story" in jobs:
+        print("== 紙芝居", flush=True)
+        scenes.job_story(a.out, a.textures)
     if "noren" in jobs:
         print("== 暖簾", flush=True)
         job_noren(a.out, a.textures)

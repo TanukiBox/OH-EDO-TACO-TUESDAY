@@ -28,6 +28,7 @@
     box.innerHTML = '';
     box.className = 'on';
     var face = OT.el('div', { class: 'dlg-face' });
+    var faceCanvas = OT.ui.pixelCanvas(48, 48, 'dlg-face-img');
     var name = OT.el('div', { class: 'dlg-name' });
     var text = OT.el('div', { class: 'dlg-text' });
     var next = OT.el('div', { class: 'dlg-next', text: '▼' });
@@ -38,7 +39,11 @@
     function show() {
       var ln = list[i];
       var w = ln[0];
-      face.textContent = OT.art.portrait(w);
+      var FK = { mateo: 'mateo', pon: 'pon', traveler: 'tabibito', crowd: 'chonin_a' };
+      var key = FK[w] || w;
+      face.textContent = '';
+      if (OT.sprites.drawFace(faceCanvas, key, /！|!|うまい|ありがた|ごっつぁん|粋/.test(ln[1]))) face.appendChild(faceCanvas);
+      else face.textContent = OT.art.portrait(w);
       face.className = 'dlg-face' + (w === 'narrator' ? ' none' : '');
       name.textContent = who(w);
       text.textContent = ln[1];
@@ -110,7 +115,8 @@
     /** 場面を1つ見せる（会話 → ごほうび → つながる場面） */
     play: function (id, done) {
       var ev = find(id) || { id: id };
-      OT.dialog(lines(id), function () {
+      var show = (id === 'prologue' && OT.sprites.manifest.story) ? OT.opening.play : OT.dialog;
+      show(lines(id), function () {
         apply(ev);
         if (ev.next) OT.story.play(ev.next, done);
         else if (done) done();

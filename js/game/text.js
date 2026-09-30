@@ -29,8 +29,6 @@
       'ui.day': '{n}日目',
       'ui.money': '{n}文',
       'ui.rep': '評判 {n}',
-      'ui.soundOn': '🔊 音あり',
-      'ui.soundOff': '🔇 音なし',
       'ui.lang': 'English',
       'ui.ok': 'OK',
       'ui.yes': 'はい',
@@ -516,7 +514,25 @@
       'taco.kyo': '京の湯葉タコス',
       'taco.ezo': '蝦夷の鮭昆布タコス',
       'taco.satsuma': '薩摩の豚芋タコス',
-      'taco.nagasaki': '長崎の唐柿タコス'
+      'taco.nagasaki': '長崎の唐柿タコス',
+      // ---------- 第4段階 ----------
+      'ui.bgmOn': '🎵 BGMあり',
+      'ui.bgmOff': '🎵 BGMなし',
+      'ui.soundOn': '🔊 効果音あり',
+      'ui.soundOff': '🔇 効果音なし',
+      'map.stall': '多幸寿',
+      'fx.umai': 'うまい！',
+      'fx.nushi': 'ヌシ！',
+      'fx.win': '勝負あり！',
+      'tut.m1': 'まずは魚河岸へ！ タップして競りに行こう',
+      'tut.a1': '競りのはじまり！ ここをタップ',
+      'tut.a2': '値札が安い（緑）ときにタップで競り落とそう！',
+      'tut.a3': '仕入れ完了！ 仕入れ先の画面にもどろう',
+      'tut.m2': '仕込みはばっちり。夜の営業へ行こう！',
+      'tut.n2': 'お客さんの注文を見て、まず「皮」をタップ！',
+      'tut.n3': '次は具・サルサ・薬味のタブから、注文の食材をのせよう',
+      'tut.n4': 'そろったら「包んで出す！」',
+      'tut.r1': 'これが今日の売上と評判。「次の日へ」で明日の仕入れだよ'
     },
 
     en: {
@@ -532,8 +548,6 @@
       'ui.day': 'Day {n}',
       'ui.money': '{n} mon',
       'ui.rep': 'Rep {n}',
-      'ui.soundOn': '🔊 Sound on',
-      'ui.soundOff': '🔇 Sound off',
       'ui.lang': '日本語',
       'ui.ok': 'OK',
       'ui.yes': 'Yes',
@@ -1005,7 +1019,24 @@
       'taco.kyo': 'Kyoto Yuba Taco',
       'taco.ezo': 'Ezo Salmon Kombu Taco',
       'taco.satsuma': 'Satsuma Pork & Potato Taco',
-      'taco.nagasaki': 'Nagasaki Tomato Taco'
+      'taco.nagasaki': 'Nagasaki Tomato Taco',
+      'ui.bgmOn': '🎵 Music on',
+      'ui.bgmOff': '🎵 Music off',
+      'ui.soundOn': '🔊 Sound on',
+      'ui.soundOff': '🔇 Sound off',
+      'map.stall': 'Takosu',
+      'fx.umai': 'Delicious!',
+      'fx.nushi': 'The Lord!',
+      'fx.win': 'Victory!',
+      'tut.m1': "First, the fish market! Tap it to join the auction.",
+      'tut.a1': 'The auction begins! Tap here.',
+      'tut.a2': 'Tap when the price tag is cheap (green)!',
+      'tut.a3': 'Shopping done! Head back to the map.',
+      'tut.m2': "Prep's ready. Let's open for the night!",
+      'tut.n2': 'Read the order, then tap a Shell first!',
+      'tut.n3': 'Next, add the ordered items from the Filling, Salsa and Garnish tabs.',
+      'tut.n4': 'All set? Tap "Wrap & serve!"',
+      'tut.r1': "Here are today's takings and reputation. Tap \"Next day\" to shop again tomorrow."
     }
   };
 
