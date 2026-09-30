@@ -1,0 +1,5 @@
+# 途中のファイル（python build.py でいつでも作り直せる）
+build/
+__pycache__/
+*.pyc
+*.blend1
