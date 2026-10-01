@@ -33,7 +33,7 @@
     cutin: function (done) {
       var box = OT.el('div', { class: 'cutin' });
       var noren = OT.ui.pixelCanvas(240, 160, 'cutin-noren');
-      var mateo = OT.ui.pixelCanvas(64, 80, 'cutin-mateo');
+      var mateo = OT.ui.pixelCanvas(OT.sprites.frame[0], OT.sprites.frame[1], 'cutin-mateo');
       var word = OT.el('div', { class: 'cutin-word', text: OT.t('night.open') });
       box.appendChild(noren);
       box.appendChild(mateo);
@@ -46,10 +46,11 @@
         nctx.clearRect(0, 0, 240, 160);
         var im = OT.art.img('noren' + (Math.floor(t * 9) % 6));
         if (im && im.complete) nctx.drawImage(im, 0, 0);
-        mctx.clearRect(0, 0, 64, 80);
+        var fr = OT.sprites.frame;
+        mctx.clearRect(0, 0, fr[0], fr[1]);
         // 0〜0.6秒：ふだん着でくるり → 0.6秒〜：勝負服（法被）で決めポーズ
-        if (t < 0.6) OT.sprites.drawPerson(mctx, 'mateo', 'spin', t, 32, 80, false, 8);
-        else OT.sprites.drawPerson(mctx, 'mateo_happi', 'pose', t, 32, 80, false, 4);
+        if (t < 0.6) OT.sprites.drawPerson(mctx, 'mateo', 'spin', t, fr[0] / 2, fr[1], false, 8);
+        else OT.sprites.drawPerson(mctx, 'mateo_happi', 'pose', t, fr[0] / 2, fr[1], false, 4);
         if (t > 0.6 && !box.classList.contains('dress')) { box.classList.add('dress'); OT.sfx.clack(1); }
         if (t < 2.1) requestAnimationFrame(step);
         else { box.classList.add('out'); setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 350); if (done) done(); }
@@ -63,12 +64,13 @@
       if (!key) return;
       var im = OT.sprites.closeup(key);
       var box = OT.el('div', { class: 'closeup' });
-      var c = OT.ui.pixelCanvas(96, 96, 'closeup-face');
+      var cs = OT.sprites.manifest.close || 96;
+      var c = OT.ui.pixelCanvas(cs, cs, 'closeup-face');
       box.appendChild(c);
       box.appendChild(OT.el('div', { class: 'closeup-line', text: line || OT.t('fx.umai') }));
       for (var k = 0; k < 8; k++) box.appendChild(OT.el('i', { class: 'spark', style: 'left:' + (10 + Math.random() * 80) + '%;top:' + (10 + Math.random() * 70) + '%;animation-delay:' + (k * 0.08) + 's' }));
       layer().appendChild(box);
-      function draw() { var ctx = c.getContext('2d'); ctx.clearRect(0, 0, 96, 96); if (im.complete && im.naturalWidth) ctx.drawImage(im, 0, 0); }
+      function draw() { var ctx = c.getContext('2d'); ctx.clearRect(0, 0, cs, cs); if (im.complete && im.naturalWidth) ctx.drawImage(im, 0, 0); }
       if (im.complete) draw(); else im.onload = draw;
       setTimeout(function () { box.classList.add('out'); }, 1300);
       setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 1700);

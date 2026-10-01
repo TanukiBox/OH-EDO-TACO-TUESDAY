@@ -69,10 +69,17 @@
       ]);
     },
 
+    /** ポン吉の顔（Blender で作った会話の顔。読みこめていなければ絵文字） */
+    ponFace: function (cls, happy) {
+      var c = OT.ui.pixelCanvas(48, 48, 'pon-face-img ' + (cls || ''));
+      if (OT.sprites && OT.sprites.drawFace(c, 'pon', happy)) return c;
+      return OT.el('span', { class: cls || '', text: '🦝' });
+    },
+
     /** ポン吉のひとこと */
     pon: function (key, params) {
       return OT.el('div', { class: 'pon' }, [
-        OT.el('div', { class: 'pon-face', text: '🦝' }),
+        OT.el('div', { class: 'pon-face' }, [OT.ui.ponFace()]),
         OT.el('div', { class: 'pon-text' }, [
           OT.el('b', { text: OT.t('pon.name') }),
           OT.el('span', { text: OT.t(key, params) })

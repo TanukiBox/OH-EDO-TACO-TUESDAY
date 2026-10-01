@@ -5,9 +5,12 @@
   'use strict';
   var OT = global.OT = global.OT || {};
 
-  var W = 256, H = 144;               // 屋台の絵の大きさ（ドット）
-  var SEAT_X = [58, 128, 198];         // 席の位置
-  var GUEST_Y = 130;                   // 客の足もと（カウンターのうしろ）
+  var SZ = (global.OT_ART && global.OT_ART.stallSize) || [256, 144];
+  var W = SZ[0], H = SZ[1];             // 屋台の絵の大きさ（ドット）
+  var SEAT_X = [0.227, 0.5, 0.773].map(function (f) { return Math.round(W * f); });   // 席の位置
+  var GUEST_Y = Math.round(H * 0.903); // 客の足もと（カウンターのうしろ）
+  var FG_Y = Math.round(H * 0.125);    // 手前のカウンターを下げる量（客の上半身が見えるように）
+  var PW = ((global.OT_ART && global.OT_ART.frame) || [64, 80])[0];   // 人物の絵の幅
 
   var N = null;   // 今夜のようす
 
@@ -94,7 +97,7 @@
     var pm = (N.fest && N.fest.patienceMul) || 1;
     return {
       typeId: typeId, type: type, want: want, order: null, variant: null, seat: seat,
-      x: seat < 1 ? -36 : W + 36, state: 'in', t: 0,
+      x: seat < 1 ? -PW * 0.56 : W + PW * 0.56, state: 'in', t: 0,
       patience: type.patience * pm, patienceMax: type.patience * pm, waitMax: type.patience * pm, waited: 0,
       line: OT.say('cust.' + typeId + '.hello'), lineT: 2.5, mood: 'ok', variantSeed: Math.floor(Math.random() * 1000),
       smallBonus: N.fest && N.fest.smallBonus
@@ -219,6 +222,7 @@
       N.hud = OT.ui.hud(timer);
       N.timerEl = timer;
       root.appendChild(N.hud);
+      N.root = root;
 
       // 屋台（客）：注文の持ち場
       var stage = OT.el('div', { class: 'stall' });
@@ -228,7 +232,7 @@
       for (var s = 0; s < 3; s++) {
         (function (seat) {
           var b = OT.el('div', { class: 'bubble', style: 'left:' + (SEAT_X[seat] / W * 100) + '%' });
-          var hit = OT.el('div', { class: 'seat-hit', style: 'left:' + ((SEAT_X[seat] - 30) / W * 100) + '%;width:' + (60 / W * 100) + '%',
+          var hit = OT.el('div', { class: 'seat-hit', style: 'left:' + ((SEAT_X[seat] - W * 0.117) / W * 100) + '%;width:' + (23.4) + '%',
             onpointerdown: function (e) { e.preventDefault(); tapSeat(seat); } });
           stage.appendChild(hit);
           stage.appendChild(b);
@@ -285,7 +289,28 @@
     leave: function () { if (N && N.raf) cancelAnimationFrame(N.raf); N = null; OT.kitchen.leave(); },
     pickVip: function () { return pickVip(); },
     /** kitchen.js が、包んだタコスを客に出すときに呼ぶ */
-    serve: function (g, served, plating) { if (N && g) judge(g, served, plating); },
+    /**
+     * kitchen.js が、包んだタコスを客に出すときに呼ぶ。
+     * 評価してから「出す場面」（serve.js）を見せる。場面のあいだ夜の時間は止まる。
+     */
+    serve: function (g, served, plating, img, done) {
+      if (!N || !g) return;
+      var res = judge(g, served, plating);
+      N.pause = true;
+      if (OT.tut) OT.tut.clear();
+      var name = OT.tacoName(res.recipe, res.variant);
+      OT.serve.play({
+        root: N.root, guest: g, res: res, img: img, name: name,
+        stage: { W: W, H: H, seatX: SEAT_X[g.seat], footY: GUEST_Y, fgY: FG_Y, festival: N.festival },
+        onTip: function (n) { st().money += n; N.tips += n; refreshHud(); }
+      }, function () {
+        if (!N) return;
+        N.pause = false;
+        N.last = performance.now();
+        g.t = Math.max(g.t, 1.6);   // 場面の中で食べ終わったので、まもなく帰る
+        if (done) done();
+      });
+    },
     /** 自動テスト用：今夜のようす（ゲームでは使わない） */
     _peek: function () { return N; }
   };
@@ -346,7 +371,7 @@
     } else if (res.stars === 5 && Math.random() < cfg().COMMENT_CHANCE * 0.5) {
       g.comment = OT.say('cmt.great');
     }
-    N.sales += res.pay; N.tips += res.tip; N.served++; N.starsSum += res.stars; N.repDelta += res.rep;
+    N.sales += res.pay; N.served++; N.starsSum += res.stars; N.repDelta += res.rep;
     var key = res.recipe || 'omakase';
     N.sold[key] = (N.sold[key] || 0) + 1;
     N.soldMoney[key] = (N.soldMoney[key] || 0) + res.pay;
@@ -354,15 +379,12 @@
     st().money += res.pay;
     var before = res.recipe && cfg().TACOS[res.recipe] ? OT.masteryLevel(res.recipe) : 0;
     st().made[key] = (st().made[key] || 0) + 1;
-    floater(g.seat, '★'.repeat(res.stars) + '  +' + res.pay + OT.t('ui.mon'), 'stars s' + res.stars);
     if (before && OT.masteryLevel(res.recipe) > before) {
       setTimeout(function () { if (N) OT.ui.toast(OT.t('night.levelUp', { name: OT.tacoName(res.recipe), lv: OT.masteryLevel(res.recipe) }), 'lv'); }, 500);
     }
-    OT.kitchen.showCard(g, res);
-    OT.sfx.happy(res.stars);
-    setTimeout(function () { if (N) OT.sfx.coin(); }, 350);
-    if (res.stars === 5) { mateoDo('pose', 1.4); OT.fx.closeup(OT.sprites.personKey(g), g.line); }
+    if (res.stars === 5) mateoDo('pose', 1.4);
     refreshHud();
+    return res;
   }
 
   function floater(seat, text, cls) {
@@ -454,8 +476,8 @@
         if (g.t > 2.2) { g.state = 'out'; g.t = 0; }
       } else if (g.state === 'out') {
         var dir = i < 1 ? -1 : 1;
-        g.x += dir * dt * 70;
-        if (g.x < -40 || g.x > W + 40) N.guests[i] = null;
+        g.x += dir * dt * 70 * W / 256;
+        if (g.x < -PW * 0.62 || g.x > W + PW * 0.62) N.guests[i] = null;
       }
     });
     updateBubbles();
@@ -518,7 +540,7 @@
       if (!g) return;
       var key = OT.sprites.personKey(g);
       if (key) {
-        if (g.state === 'order' && Math.floor(g.t * 3) % 2) { ctx.fillStyle = 'rgba(255,230,176,0.16)'; ctx.fillRect(Math.round(g.x) - 30, 40, 60, 90); }
+        if (g.state === 'order' && Math.floor(g.t * 3) % 2) { ctx.fillStyle = 'rgba(255,230,176,0.16)'; ctx.fillRect(Math.round(g.x - W * 0.117), Math.round(H * 0.28), Math.round(W * 0.234), Math.round(H * 0.625)); }
         var anim = guestAnim(g);
         var left = (g.state === 'in' && g.x > SEAT_X[i]) || (g.state === 'out' && i >= 1);
         OT.sprites.drawPerson(ctx, key, anim, g.t + i * 0.37, g.x, GUEST_Y, left && anim === 'walk', anim === 'walk' ? 8 : 3);
@@ -527,7 +549,7 @@
       }
     });
     var fg = OT.sprites.stallFg();
-    if (fg) ctx.drawImage(fg, 0, 18); else OT.art.drawCounter(ctx, W, H);   // カウンターは少し下げて、客の上半身が見えるように
+    if (fg) ctx.drawImage(fg, 0, FG_Y); else OT.art.drawCounter(ctx, W, H);   // カウンターは少し下げて、客の上半身が見えるように
     OT.kitchen.draw();
   }
 
@@ -546,7 +568,6 @@
     var avg = N.served ? N.starsSum / N.served : 0;
     var chapterBefore = OT.state.chapter();
     s.rep = Math.max(0, s.rep + N.repDelta);
-    s.money += N.tips;                 // 心付けの壺は、閉店のあとに開ける
     s.rankSeen = Math.max(s.rankSeen, OT.state.rank());
     var chapterAfter = OT.state.chapter();
     s.chStart = s.chStart || { 1: 1 };

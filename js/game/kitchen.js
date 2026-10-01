@@ -313,12 +313,8 @@
     if (!list.length) K.rawEl.appendChild(OT.el('span', { class: 'k-empty', text: OT.t('k.noRaw.' + K.fire) }));
     list.forEach(function (id) {
       var n = OT.state.stockOf(id);
-      var c = OT.ui.pixelCanvas(32, 32, 'k-ico');
-      OT.art.drawIcon(c, id);
-      K.rawEl.appendChild(OT.el('button', { class: 'k-chip' + (n ? '' : ' empty') + (want[id] ? ' want' : ''), 'data-id': id, onclick: function () { putOnFire(id); } }, [
-        c, OT.el('span', { class: 'k-name', text: OT.ingName(id) }),
-        OT.el('span', { class: 'k-sub', text: OT.t('ui.stock', { n: n }) })
-      ]));
+      // 指を離したときに反応（タブを切りかえた直後のタップも取りこぼさない）
+      K.rawEl.appendChild(chip(id, OT.t('ui.stock', { n: n }), (n ? '' : 'empty') + (want[id] ? ' want' : ''), { tap: function () { putOnFire(id); } }));
     });
     KINDS.forEach(function (k) {
       var open = K.slots.filter(function (s) { return s.kind === k && !s.locked; });
@@ -672,7 +668,7 @@
     K.boardWrap = OT.el('div', { class: 'plate-board-wrap' }, [K.board]);
     K.plateInfo = OT.el('div', { class: 'plate-info' });
     K.boardWrap.appendChild(K.plateInfo);
-    if (OT.sprites.has('people_mateo_happi')) { K.mateo = OT.ui.pixelCanvas(64, 80, 'plate-mateo'); top.appendChild(K.mateo); }
+    if (OT.sprites.has('people_mateo_happi')) { K.mateo = OT.ui.pixelCanvas(OT.sprites.frame[0], OT.sprites.frame[1], 'plate-mateo'); top.appendChild(K.mateo); }
     top.appendChild(K.boardWrap);
     var side = OT.el('div', { class: 'plate-side' });
     K.trash = OT.el('button', { class: 'trash', onclick: trashDish }, [OT.el('span', { class: 'trash-ico' }), OT.el('span', { text: OT.t('k.trash') })]);
@@ -1031,14 +1027,21 @@
 
   function serveDish() {
     var t = K.foldTicket, served = dishServed(), plating = platingInfo();
+    // 包みあがったタコスの絵（出す場面で大きく見せる）
+    var snap = doc.createElement('canvas');
+    snap.width = snap.height = BOARD;
+    var sg = snap.getContext('2d');
+    sg.imageSmoothingEnabled = false;
+    sg.drawImage(K.board, 0, 0);
+    var idd = OT.identifyTaco(served, OT.state.chapter()), rec = idd && cfg().TACOS[idd.id];
+    if (rec && !rec.light) OT.sprites.drawSudachi(sg);
     K.folding = -1;
     K.dish = newDish();
     if (t && t.guest.state === 'wait') {
-      OT.night.serve(t.guest, served, plating);
       OT.kitchen.dropTicketFor(t.guest);
+      OT.night.serve(t.guest, served, plating, snap, function () { OT.kitchen.tutorialCheck('served'); });
     } else OT.ui.toast(OT.t('k.gone'));
     renderPlate(); drawBoard();
-    OT.kitchen.tutorialCheck('served');
   }
 
   function serveKago() {
@@ -1046,8 +1049,10 @@
     if (!t) { OT.sfx.denied(); OT.ui.toast(OT.t('k.noTicket')); return; }
     if (!OT.state.useStock('kagomushi', 1)) { OT.sfx.denied(); return; }
     OT.sfx.wrap();
-    OT.night.serve(t.guest, { skin: 'kagomushi', items: [] }, null);
+    var snap = OT.ui.pixelCanvas(BOARD, BOARD);
+    OT.art.drawSkin(snap.getContext('2d'), 'kagomushi', 7);
     OT.kitchen.dropTicketFor(t.guest);
+    OT.night.serve(t.guest, { skin: 'kagomushi', items: [] }, null, snap);
     renderPlate();
   }
 
@@ -1093,9 +1098,10 @@
     alerts();
     if (K.mateo) {
       var ctx = K.mateo.getContext('2d');
-      ctx.clearRect(0, 0, 64, 80);
+      var fr = OT.sprites.frame;
+      ctx.clearRect(0, 0, fr[0], fr[1]);
       var an = K.N.mateoT > 0 ? K.N.mateoAnim : (K.dish.skin || K.folding >= 0 ? 'cook' : 'wait');
-      OT.sprites.drawPerson(ctx, 'mateo_happi', an, K.N.time, 32, 80, false, an === 'cook' ? 5 : 3);
+      OT.sprites.drawPerson(ctx, 'mateo_happi', an, K.N.time, fr[0] / 2, fr[1], false, an === 'cook' ? 5 : 3);
     }
   }
 
@@ -1140,12 +1146,13 @@
       done: function () { return K.dish.layers.some(function (L) { return L.id === 'bainiku' && L.amount > 60; }); } },
     { key: 'k11', sel: function () { return holding(null, 'daikon') ? '.plate-board' : '.st-plate .k-chip[data-id=daikon]'; },
       done: function () { return K.dish.layers.some(function (L) { return L.id === 'daikon' && L.amount >= 4; }); } },
-    { key: 'k12', sel: '.wrap-btn', done: function (ev) { return ev === 'served' || K.folding >= 0; } },
-    { key: 'k13', sel: '.score-card', ok: true }
+    { key: 'k12', sel: '.wrap-btn', done: function (ev) { return ev === 'served'; } },
+    { key: 'k13', sel: '.st-btn[data-st=order]', ok: true }
   ];
   OT.kitchen.tutorialActive = function () { var s = st(); return !!(K && s && s.day === 1 && !s.flags.tutNight); };
   OT.kitchen.tutorialCheck = function (ev) {
     if (!OT.kitchen.tutorialActive() || !OT.tut) return;
+    if (OT.serve.isOpen()) { OT.tut.clear(); return; }   // 出す場面のあいだは、案内を出さない
     var s = st();
     var i = s.flags.tutStep || 0;
     // 済んだ手順を進める

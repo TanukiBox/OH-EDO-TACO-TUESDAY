@@ -547,7 +547,7 @@
       'tut.k10': '梅肉をタップして持ったら、皮の上を指でなぞって回しかけよう。左右に何回か',
       'tut.k11': '大根の千切りをタップして持ったら、皮の上で指を左右に動かして撒こう。6回くらいがちょうどいい',
       'tut.k12': 'できた！「包んで出す！」',
-      'tut.k13': '点数は「待ち時間・焼き加減・盛り付け・好み」の4つ。ここからはお客さんがどんどん来るよ。がんばれ！',
+      'tut.k13': '今のが採点。待ち時間・焼き加減・盛り付け・好みの4つで星が決まるよ。ここからはお客さんがどんどん来る。がんばれ！',
       'k.st.order': '注文',
       'k.st.grill': '焼き場',
       'k.st.plate': '盛り付け',
@@ -615,7 +615,11 @@
       'k.callOrder': '注文！',
       'k.hint.fry': '揚げ物：泡が小さくなって「引き上げる！」が出たら、タップで引き上げる',
       'k.hint.sear': '藁焼き：「押して炙る」を押している間だけ炎が出る。ゲージが緑に来たら「取り出す」',
-      'res.tips': '心付けの壺'
+      'res.tips': '心付けの壺',
+      'sv.done': 'できあがり！',
+      'sv.next': 'つぎへ ▶',
+      'sv.pay': 'お代 +{n}文',
+      'sv.tipHint': '心付けの銭をタップして受け取ろう'
     },
 
     en: {
@@ -1134,7 +1138,7 @@
       'tut.k10': 'Tap the plum paste to pick it up, then trace over the shell to drizzle. Swipe left and right a few times.',
       'tut.k11': 'Tap the shredded daikon to pick it up, then move your finger left and right over the shell to sprinkle. About 6 times is right.',
       'tut.k12': 'Looks great! Tap "Wrap & serve!"',
-      'tut.k13': "You're scored on Wait, Cooking, Plating and Taste. From here on, customers keep coming. Good luck!",
+      'tut.k13': 'That\'s the scoring: wait, cooking, plating and taste decide the stars. From here on, customers keep coming. Good luck!',
       'k.st.order': 'Orders',
       'k.st.grill': 'Grill',
       'k.st.plate': 'Plating',
@@ -1202,7 +1206,11 @@
       'k.callOrder': 'Order!',
       'k.hint.fry': 'Frying: when the bubbles get small and "Lift out!" appears, tap to lift it.',
       'k.hint.sear': 'Straw-searing: the flame burns only while you hold "Hold to sear". When the gauge reaches green, tap "Take off".',
-      'res.tips': 'Tip jar'
+      'res.tips': 'Tip jar',
+      'sv.done': 'Order up!',
+      'sv.next': 'Next ▶',
+      'sv.pay': 'Paid +{n} mon',
+      'sv.tipHint': 'Tap the coins to take your tip'
     }
   };
 

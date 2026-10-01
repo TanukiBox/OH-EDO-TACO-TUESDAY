@@ -9,6 +9,8 @@
   'use strict';
   var OT = global.OT = global.OT || {};
   var A = global.OT_ART || {};
+  var FR = A.frame || [64, 80];   // 人物の1コマの大きさ
+  var FACE = A.face || 48;        // 会話の顔の大きさ
   var BASE = 'art/output/game/';
   var img = {};
   var ready = false;
@@ -52,7 +54,8 @@
       if (!loaded[k]) { var im = new Image(); im.src = BASE + 'close/' + key + '.png?v=' + OT.VERSION; loaded[k] = im; }
       return loaded[k];
     },
-    manifest: A
+    manifest: A,
+    frame: FR
   };
   var S = OT.sprites;
 
@@ -76,9 +79,10 @@
     if (!lay || !sheet || !sheet.complete || !sheet.naturalWidth) return false;
     var a = lay[anim] || lay.wait || lay[Object.keys(lay)[0]];
     var n = a[1], f = a[0] + (Math.floor(t * (fps || 4)) % n);
+    var fw = FR[0], fh = FR[1];
     ctx.save();
-    if (flip) { ctx.translate(Math.round(x), 0); ctx.scale(-1, 1); ctx.drawImage(sheet, f * 64, 0, 64, 80, -32, Math.round(y) - 80, 64, 80); }
-    else ctx.drawImage(sheet, f * 64, 0, 64, 80, Math.round(x) - 32, Math.round(y) - 80, 64, 80);
+    if (flip) { ctx.translate(Math.round(x), 0); ctx.scale(-1, 1); ctx.drawImage(sheet, f * fw, 0, fw, fh, -fw / 2, Math.round(y) - fh, fw, fh); }
+    else ctx.drawImage(sheet, f * fw, 0, fw, fh, Math.round(x) - fw / 2, Math.round(y) - fh, fw, fh);
     ctx.restore();
     return true;
   };
@@ -88,10 +92,11 @@
     var F = A.faces || {};
     var pos = F[key + (happy ? '_happy' : '')] || F[key];
     if (!pos || !S.has('faces')) return false;
+    canvas.width = canvas.height = FACE;
     var ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, 48, 48);
-    ctx.drawImage(loaded.faces, pos[0], pos[1], 48, 48, 0, 0, 48, 48);
+    ctx.clearRect(0, 0, FACE, FACE);
+    ctx.drawImage(loaded.faces, pos[0], pos[1], FACE, FACE, 0, 0, FACE, FACE);
     return true;
   };
 

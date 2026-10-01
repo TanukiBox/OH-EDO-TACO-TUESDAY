@@ -34,7 +34,7 @@
       if (current === key && box) { curSel = selector; return; }   // 同じ案内は出し直さない（光らせる場所だけ変える）
       clear();
       current = key; curSel = selector;
-      var head = OT.el('div', { class: 'tut-head' }, [OT.el('b', { text: '🦝 ' + OT.t('pon.name') })]);
+      var head = OT.el('div', { class: 'tut-head' }, [OT.ui.ponFace('tut-face'), OT.el('b', { text: OT.t('pon.name') })]);
       if (opts.index) head.appendChild(OT.el('span', { class: 'tut-step', text: opts.index + ' / ' + opts.total }));
       var closeBtn = OT.el('button', { class: 'tut-x', text: '×', 'aria-label': OT.t('tut.close'),
         onclick: function () { if (opts.close) opts.close(); else OT.tut.done(key); } });

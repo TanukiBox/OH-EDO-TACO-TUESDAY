@@ -14,6 +14,12 @@ from .palette import PALETTE, rgb
 FONTS = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts")
 
 
+PF = (96, 120)     # 人物の1コマ
+FACE = 64          # 会話の顔
+CLOSE = 128        # 星5の大写し
+STALL = (384, 216) # 夜の屋台
+
+
 def _px(src, size, outline=True, recolor=None):
     return pixelate.pixelate(src, size, with_outline=outline, recolor=recolor)
 
@@ -54,29 +60,32 @@ def people_atlases(R, out, man):
             for f in range(n):
                 name = "p_%s_%s_%d.png" % (key, a, f)
                 if _exists(R, name):
-                    frames.append(_px(os.path.join(R, name), (64, 80)))
+                    frames.append(_px(os.path.join(R, name), PF))
                     got += 1
             if got:
                 layout[a] = [len(frames) - got, got]
         if frames:
-            sheet = Image.new("RGBA", (64 * len(frames), 80), (0, 0, 0, 0))
+            sheet = Image.new("RGBA", (PF[0] * len(frames), PF[1]), (0, 0, 0, 0))
             for i, fr in enumerate(frames):
-                sheet.alpha_composite(fr, (i * 64, 0))
+                sheet.alpha_composite(fr, (i * PF[0], 0))
             _save(sheet, os.path.join(out, "people", key + ".png"))
             man["people"][key] = layout
         for suffix in ("", "_happy"):
             name = "face_%s%s.png" % (key, suffix)
             if _exists(R, name):
-                faces.append((key + suffix, _px(os.path.join(R, name), (48, 48))))
+                faces.append((key + suffix, _px(os.path.join(R, name), (FACE, FACE))))
         name = "close_%s.png" % key
         if _exists(R, name):
-            _save(_px(os.path.join(R, name), (96, 96)), os.path.join(out, "close", key + ".png"))
+            _save(_px(os.path.join(R, name), (CLOSE, CLOSE)), os.path.join(out, "close", key + ".png"))
     cols = 8
-    sheet = Image.new("RGBA", (48 * cols, 48 * ((len(faces) + cols - 1) // cols)), (0, 0, 0, 0))
+    sheet = Image.new("RGBA", (FACE * cols, FACE * ((len(faces) + cols - 1) // cols)), (0, 0, 0, 0))
     man["faces"] = {}
     for i, (k, im) in enumerate(faces):
-        sheet.alpha_composite(im, ((i % cols) * 48, (i // cols) * 48))
-        man["faces"][k] = [(i % cols) * 48, (i // cols) * 48]
+        sheet.alpha_composite(im, ((i % cols) * FACE, (i // cols) * FACE))
+        man["faces"][k] = [(i % cols) * FACE, (i // cols) * FACE]
+    man["frame"] = list(PF)
+    man["face"] = FACE
+    man["close"] = CLOSE
     _save(sheet, os.path.join(out, "faces.png"))
     # 抜け荷で使う小さな人（マテオと役人）
     for key, src_key in (("mini_mateo", "mateo_happi"), ("mini_guard", "messenger")):
@@ -142,11 +151,12 @@ def scene_images(R, out, man):
     man["stall"] = []
     fg = os.path.join(R, "stall_fg.png")
     if os.path.exists(fg):
-        _save(_px(fg, (256, 144), False), os.path.join(out, "stall", "fg.png"))
+        _save(_px(fg, STALL, False), os.path.join(out, "stall", "fg.png"))
     for n in sorted(os.listdir(R)):
         if n.startswith("stall_bg"):
             key = n[len("stall_bg"):-4].lstrip("_") or "normal"
-            _save(_px(os.path.join(R, n), (256, 144), False), os.path.join(out, "stall", key + ".png"))
+            _save(_px(os.path.join(R, n), STALL, False), os.path.join(out, "stall", key + ".png"))
+            man["stallSize"] = list(STALL)
             man["stall"].append(key)
     if _exists(R, "map.png"):
         _save(_px(os.path.join(R, "map.png"), (256, 160), False), os.path.join(out, "map.png"))
@@ -220,17 +230,19 @@ def ogp_and_icons(out, root_out):
     scene.alpha_composite(fg)
     lg = Image.open(os.path.join(out, "logo.png")).convert("RGBA")
     taco = Image.open(os.path.join(root_out, "taco", "taco_oblique.png")).convert("RGBA")
-    canvas = Image.new("RGBA", (300, 158), rgb("#0d1830") + (255,))
-    canvas.alpha_composite(scene.resize((281, 158), Image.NEAREST), (19, 0))
+    canvas = Image.new("RGBA", (400, 210), rgb("#0d1830") + (255,))
+    canvas.alpha_composite(scene.resize((374, 210), Image.NEAREST), (13, 0))
     people_dir = os.path.join(out, "people")
-    for key, x in (("mateo_happi", 4), ("pon", 228)):
+    for key, x in (("mateo_happi", 2), ("pon", 302)):
         p = os.path.join(people_dir, key + ".png")
         if os.path.exists(p):
             sh = Image.open(p).convert("RGBA")
-            canvas.alpha_composite(sh.crop((64 * (sh.width // 64 - 1) if key == "pon" else 0, 0, 64 * (sh.width // 64 - 1) + 64 if key == "pon" else 64, 80)), (x, 76))
-    canvas.alpha_composite(lg.resize((160, 88), Image.NEAREST), (70, 2))
-    canvas.alpha_composite(taco.resize((76, 76), Image.NEAREST), (112, 84))
-    canvas.resize((1200, 632), Image.NEAREST).crop((0, 0, 1200, 630)).convert("RGB").save(os.path.join(out, "ogp.png"))
+            fw = PF[0]
+            k0 = (sh.width // fw - 1) if key == "pon" else 0
+            canvas.alpha_composite(sh.crop((fw * k0, 0, fw * k0 + fw, PF[1])), (x, 210 - PF[1]))
+    canvas.alpha_composite(lg.resize((214, 118), Image.NEAREST), (93, 2))
+    canvas.alpha_composite(taco.resize((100, 100), Image.NEAREST), (150, 110))
+    canvas.resize((1200, 630), Image.NEAREST).convert("RGB").save(os.path.join(out, "ogp.png"))
     icon = Image.new("RGBA", (64, 64), rgb("#172b58") + (255,))
     icon.alpha_composite(taco.resize((64, 64), Image.NEAREST), (0, 2))
     for size, name in ((512, "icon-512.png"), (180, "icon-180.png"), (64, "favicon.png")):

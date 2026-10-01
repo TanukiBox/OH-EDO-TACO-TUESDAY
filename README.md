@@ -58,7 +58,7 @@
 | 盛り付けの中の重み | `SCORE.plate` | 順番・量・均等さ |
 | 薬味・たれのちょうど良い量 | `SCORE.sprinkleTarget`（撒く回数）/ `drizzleTarget`（たれの長さ） | 6回 / 200（皮の幅が約90なので、左右に2往復くらい） |
 | 待ち時間の点 | `SCORE.waitGrace` / `waitFloor` | 待てる時間の4割までに出せば満点 |
-| 星ごとの代金・心付け | `RATING.starPay` / `RATING.tipRate` | 星1〜5。心付けは閉店後に壺から所持金へ |
+| 星ごとの代金・心付け | `RATING.starPay` / `RATING.tipRate` | 星1〜5。心付けは出す場面で銭をタップして受け取る |
 | タコスごとの星の上限 | `MASTERY.maxStars` | 熟練度 Lv1〜5 で `[3, 4, 5, 5, 5]` |
 
 ### 新しいタコスを足すとき
@@ -81,6 +81,7 @@
 | `js/game/taste.js` | 味と評価（星と代金の計算） |
 | `js/game/screens.js` | タイトル・朝（町の地図と仕入れ先）・結果の画面 |
 | `js/game/night.js` | 夜の営業（客の出入り・常連・旅の客・VIP・評価・閉店） |
+| `js/game/serve.js` | タコスを出す場面（できあがり → お客さんが食べる → 評価と心付け）。このあいだ夜の時間は止まる |
 | `js/game/kitchen.js` | 夜の厨房（木札・焼き場・盛り付け・包む・持ち場のボタン・はじめての夜の案内） |
 | `js/game/auction.js` / `fishing.js` / `forage.js` / `hunt.js` / `smuggle.js` | ミニゲーム（競り・一本釣り・採集・山の追い込み・抜け荷） |
 | `js/game/shop.js` | 町の店 |

@@ -1,4 +1,9 @@
-"""人物のレンダリング（全員 × 全部の動き、会話の顔）。"""
+"""人物のレンダリング（全員 × 全部の動き、会話の顔、星5の大写し）。
+
+塗りはセル調（people.py の mat）なので、光源はいらない。
+内側の線は Freestyle：部品が重なる所（腕と胴など）にだけ、その部品の色を暗くした線を引く。
+外側の輪郭は、ドット絵にする段階（pipeline）で引く。
+"""
 import math
 import os
 
@@ -8,24 +13,49 @@ from mathutils import Vector
 import common
 import people
 
-FRAME = (64, 80)      # 1コマの大きさ（完成サイズ）
-PORTRAIT = (48, 48)   # 会話の顔
-CLOSEUP = (96, 96)    # 星3のときの大写し
+FRAME = (96, 120)     # 1コマの大きさ（完成サイズ）
+PORTRAIT = (64, 64)   # 会話の顔
+CLOSEUP = (128, 128)  # 星5のときの大写し
+LINE_PX = 4.2         # 内側の線の太さ（4倍で描いて縮めるので、完成で約1ドット）
 
 
 def _scene(size):
     common.reset_scene()
     common.set_resolution(size[0] * 4, size[1] * 4)
     scene = bpy.context.scene
-    scene.cycles.samples = 24
-    common.add_lantern_light(direction_from=(-1.1, -1.4, 1.3), strength=3.6)
-    # 後ろからの青い縁取りの光（夜の町の明かり）
-    ld = bpy.data.lights.new("Rim", "SUN")
-    ld.energy = 1.6
-    ld.color = (0.55, 0.65, 1.0)
-    rim = common.link(bpy.data.objects.new("Rim", ld))
-    rim.rotation_euler = (math.radians(-60), 0, math.radians(-160))
-    common.add_night_world(strength=0.7)
+    scene.cycles.samples = 8
+    scene.cycles.use_denoising = False
+    common.add_night_world(strength=0.0)
+    # 内側の線（Freestyle）
+    scene.render.use_freestyle = True
+    scene.render.line_thickness_mode = "ABSOLUTE"
+    vl = bpy.context.view_layer
+    vl.use_freestyle = True
+    fs = vl.freestyle_settings
+    ls = fs.linesets[0] if len(fs.linesets) else fs.linesets.new("lines")
+    ls.select_by_visibility = True
+    ls.select_by_edge_types = True
+    ls.select_silhouette = True
+    ls.select_border = False
+    ls.select_crease = False
+    ls.select_external_contour = True
+    ls.exclude_external_contour = True     # 外側の輪郭は描かない（pipeline で描く）
+    ls.edge_type_combination = "AND"
+    # 顔の部品など（people.NOLINE のコレクション）には線を引かない
+    ls.select_by_collection = True
+    ls.collection = people._noline_coll()
+    ls.collection_negation = "EXCLUSIVE"
+    st = ls.linestyle
+    st.thickness = LINE_PX
+    st.color = (0.02, 0.01, 0.01)
+    if not any(m.type == "MATERIAL" for m in st.color_modifiers):
+        mod = st.color_modifiers.new("mat", "MATERIAL")
+        mod.material_attribute = "LINE"
+
+
+def _head_center(p):
+    bpy.context.view_layer.update()
+    return (p.headp.matrix_world @ Vector((0, 0, 0.3))).z
 
 
 def render_person(key, out, anims=None, portrait=True):
@@ -40,25 +70,21 @@ def render_person(key, out, anims=None, portrait=True):
             p.pose(anim, f)
             common.render_to(os.path.join(out, "p_%s_%s_%d.png" % (key, anim, f)))
     if portrait:
-        # 会話の顔（ふつう・喜ぶ）と、星3の大写し
+        # 会話の顔（ふつう・喜ぶ）と、星5の大写し。頭の中心に合わせて枠に収める
         common.set_resolution(PORTRAIT[0] * 4, PORTRAIT[1] * 4)
-        cam.data.ortho_scale = 1.05 * sc
+        cam.data.ortho_scale = 1.1 * sc
         p.pose("wait", 0)
-        face_z, close_z = 1.36 * sc, 1.22 * sc
-        if people.CHARACTERS[key].get("body") == "tanuki":
-            # ポン吉は頭の高さが人とちがうので、頭の中心に合わせて枠に収める
-            bpy.context.view_layer.update()
-            head_c = (p.headp.matrix_world @ Vector((0, 0, 0.3))).z
-            face_z, close_z = head_c, head_c - 0.12
-        cam.location = (0, -10, face_z + 1.2)
+        hc = _head_center(p)
+        cam.location = (0, -10, hc + 1.2 + 0.03 * sc)
         p.set_face("talk")
         common.render_to(os.path.join(out, "face_%s.png" % key))
         p.set_face("happy")
         common.render_to(os.path.join(out, "face_%s_happy.png" % key))
         common.set_resolution(CLOSEUP[0] * 4, CLOSEUP[1] * 4)
-        cam.data.ortho_scale = 1.35 * sc
-        cam.location = (0, -10, close_z + 1.2)
+        cam.data.ortho_scale = 1.45 * sc
         p.pose("happy", 1)
+        hc = _head_center(p)
+        cam.location = (0, -10, hc - 0.14 * sc + 1.2 + 0.03 * sc)
         common.render_to(os.path.join(out, "close_%s.png" % key))
 
 
