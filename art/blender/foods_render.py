@@ -21,6 +21,7 @@ def _base(size_px):
     bpy.context.scene.cycles.samples = 24
     common.add_lantern_light()
     common.add_night_world()
+    common.toon_lines()   # 人物と同じ内側の線
 
 
 def render_piece(key, spec, out):

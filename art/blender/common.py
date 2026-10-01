@@ -64,6 +64,9 @@ def reset_scene():
     r.image_settings.color_mode = "RGBA"
     r.image_settings.color_depth = "8"
     r.use_file_extension = True
+    r.use_freestyle = False   # 線は toon_lines() を呼んだときだけ（前の job の設定を持ちこさない）
+    if AUTO_LINES is not None:
+        toon_lines(**AUTO_LINES)
 
     c = scene.cycles
     c.device = "CPU"
@@ -306,6 +309,118 @@ def ramp_material(name, stops, fac_socket_fn, roughness=0.6, interpolation="LINE
     nt.links.new(fac, cr.inputs["Fac"])
     nt.links.new(cr.outputs["Color"], bsdf.inputs["Base Color"])
     return m
+
+
+AUTO_LINES = None   # dict にすると、reset_scene のたびに toon_lines(**AUTO_LINES) を呼ぶ
+
+
+def toon_lines(thickness=4.2, outer=False):
+    """セル調の線（Freestyle）。人物と同じく、部品が重なる所に「その部品の色を暗くした線」を引く。
+    outer=True なら外側の輪郭も描く（背景など、pipeline で輪郭を足さない絵）。
+    「noline」コレクションに入れたものには線を引かない。"""
+    scene = bpy.context.scene
+    scene.render.use_freestyle = True
+    scene.render.line_thickness_mode = "ABSOLUTE"
+    vl = bpy.context.view_layer
+    vl.use_freestyle = True
+    fs = vl.freestyle_settings
+    ls = fs.linesets[0] if len(fs.linesets) else fs.linesets.new("lines")
+    ls.select_by_visibility = True
+    ls.select_by_edge_types = True
+    ls.select_silhouette = True
+    ls.select_border = False
+    ls.select_crease = False
+    ls.select_external_contour = True
+    ls.exclude_external_contour = not outer
+    ls.edge_type_combination = "OR" if outer else "AND"
+    nl = bpy.data.collections.get("noline") or bpy.data.collections.new("noline")
+    if nl.name not in scene.collection.children:
+        scene.collection.children.link(nl)
+    ls.select_by_collection = True
+    ls.collection = nl
+    ls.collection_negation = "EXCLUSIVE"
+    st = ls.linestyle
+    st.thickness = thickness
+    st.color = (0.02, 0.01, 0.01)
+    if not any(m.type == "MATERIAL" for m in st.color_modifiers):
+        mod = st.color_modifiers.new("mat", "MATERIAL")
+        mod.material_attribute = "LINE"
+
+
+def noline(ob):
+    """この物には線を引かない（地面・空・水面など、輪郭がいらないもの）"""
+    nl = bpy.data.collections.get("noline") or bpy.data.collections.new("noline")
+    if nl.name not in bpy.context.scene.collection.children:
+        bpy.context.scene.collection.children.link(nl)
+    for c in list(ob.users_collection):
+        c.objects.unlink(ob)
+    nl.objects.link(ob)
+    return ob
+
+
+TOON_LIGHT = (-0.45, -0.7, 0.55)   # セル調の光の来る向き（人物と同じ：左上・手前から）
+
+
+def _lum(h):
+    r, g, b = [int(h.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+    return 0.3 * r + 0.59 * g + 0.11 * b
+
+
+def toon3(name, light, mid, dark, noise=0.0, scale=10.0, line=None):
+    """セル調：光の向きで「明るい色・地の色・影の色」の3段に塗り分ける（光源に関係なく、パレットの色そのまま）。
+    noise を 0 より大きくすると、塗り分けの境目がまだらになる（食材や地面の質感）。line は内側の線の色。"""
+    m = bpy.data.materials.get(name)
+    if m:
+        return m
+    m = bpy.data.materials.new(name)
+    try:
+        m.use_nodes = True
+    except Exception:
+        pass
+    nt = m.node_tree
+    for n in list(nt.nodes):
+        nt.nodes.remove(n)
+    out = nt.nodes.new("ShaderNodeOutputMaterial")
+    em = nt.nodes.new("ShaderNodeEmission")
+    nt.links.new(em.outputs[0], out.inputs["Surface"])
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    dot = nt.nodes.new("ShaderNodeVectorMath")
+    dot.operation = "DOT_PRODUCT"
+    L = Vector(TOON_LIGHT).normalized()
+    dot.inputs[1].default_value = tuple(L)
+    nt.links.new(geo.outputs["Normal"], dot.inputs[0])
+    ma = nt.nodes.new("ShaderNodeMath")
+    ma.operation = "MULTIPLY_ADD"
+    ma.inputs[1].default_value = 0.5
+    ma.inputs[2].default_value = 0.5
+    nt.links.new(dot.outputs["Value"], ma.inputs[0])
+    fac = ma.outputs[0]
+    if noise > 0:
+        attr = nt.nodes.new("ShaderNodeAttribute")
+        attr.attribute_name = "rest"
+        nz = noise_tex(nt, attr.outputs["Vector"], scale, 2.0)
+        off = math_node(nt, "SUBTRACT", nz.outputs["Fac"], 0.5)
+        off = math_node(nt, "MULTIPLY", off, noise)
+        fac = math_node(nt, "ADD", fac, off)
+    cr = color_ramp(nt, [(0.0, dark), (0.42, mid), (0.88, light)], "CONSTANT")
+    nt.links.new(fac, cr.inputs["Fac"])
+    nt.links.new(cr.outputs["Color"], em.inputs["Color"])
+    try:
+        m.line_color = (*hex_rgb(line or dark), 1.0)
+    except Exception:
+        pass
+    return m
+
+
+def toon_stops(name, stops, noise=0.25, scale=8.0):
+    """いままでの色ムラのマテリアルの色（stops）から、セル調の3色をえらぶ（明るい順に 明るい・地・影）"""
+    cols = sorted({c for _, c in stops}, key=_lum, reverse=True)
+    if len(cols) == 1:
+        cols = cols * 3
+    elif len(cols) == 2:
+        cols = [cols[0], cols[0], cols[1]]
+    light, mid, dark = cols[0], cols[len(cols) // 2], cols[-1]
+    return toon3(name, light, mid, dark, noise=noise, scale=scale)
 
 
 def object_noise_material(name, stops, scale=8.0, roughness=0.6, detail=2.0):

@@ -210,8 +210,14 @@ python build.py
 | 人物（客・常連・ライバル・VIP・マテオ・ポン吉）の動きと顔 | `blender/people.py`（人物の設定は `CHARACTERS`） | `output/game/people/*.png`、`faces.png`、`close/*.png` |
 | 全食材のアイコンと、皮の上に散らす「かけら」 | `blender/foods.py`（食材の設定は `FOODS`） | `output/game/food_icons.png`、`food_pieces.png` |
 | トルティーヤ以外の皮の折りたたみ | `blender/taco.py` の `SKIN_LOOKS` | `output/game/skins/*.png` |
-| 夜の屋台（年中行事の飾り）・町の地図・ミニゲームの背景・生き物・紙芝居 | `blender/scenes.py` | `output/game/stall/`、`map.png`、`bg/`、`creatures/`、`story/` |
+| 夜の屋台（年中行事の飾り）・生き物・紙芝居・厨房・魚河岸 | `blender/scenes.py` | `output/game/stall/`、`creatures/`、`story/`、`kitchen/`、`market/` |
+| 町の地図・ミニゲームの背景（一本釣り・里山・山・長崎） | `blender/landscapes.py`（ゲームの座標に合わせた置き場所は、ファイルの先頭に） | `output/game/map.png`、`bg/` |
 | タイトルロゴ・X用の絵・アイコン | `pipeline/game_assets.py`（フォントから作る） | `output/game/logo.png`、`ogp.png`、`icon-*.png` |
+
+**塗り方（セル調）**：人物・食材・地図・ミニゲームの背景・生き物は、同じ塗り方でそろえています。
+光の向き（左上・手前から）で「明るい色・地の色・影の色」の3段にパキッと塗り分け（`common.toon3`）、
+部品が重なる所に、その部品の色を暗くした線を引きます（`common.toon_lines`、Blender の Freestyle）。
+色の組み合わせ（地の色 → 影・明るい・線）は `blender/people.py` の `RAMP` で決めています。
 
 一部だけ作り直すとき（例）：
 ```

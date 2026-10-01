@@ -15,7 +15,14 @@ from common import (link, new_material, hex_rgb, bm_icosphere, bm_tube, transfor
 # ---------------------------------------------------------------------------
 # 小さな道具
 # ---------------------------------------------------------------------------
+TOON = False   # True のあいだに作る M / noiseM はセル調（job_map・job_minigames・job_creatures）
+
+
 def M(color, rough=0.7, emit=0.0, name=None):
+    if TOON and not emit:
+        from people import RAMP
+        sh, li, ln = RAMP.get(color, (color, color, color))
+        return common.toon3("tn_" + color.strip("#"), li, color, sh, line=ln)
     name = name or "sc_%s_%d_%d" % (color.strip("#"), int(rough * 10), int(emit * 10))
     m = bpy.data.materials.get(name)
     if m:
@@ -28,7 +35,21 @@ def M(color, rough=0.7, emit=0.0, name=None):
 
 
 def noiseM(name, stops, scale=6.0):
+    if TOON:
+        return common.toon_stops("tn_" + name, stops, noise=0.12, scale=scale)   # 生き物：まだらは控えめに
     return common.cached_material(name, lambda n: common.object_noise_material(n, stops, scale=scale, roughness=0.8))
+
+
+def toon_job(fn):
+    """その job のあいだだけ、セル調で作る"""
+    def run(*a, **k):
+        global TOON
+        TOON = True
+        try:
+            return fn(*a, **k)
+        finally:
+            TOON = False
+    return run
 
 
 def put(bm, mat, name="obj"):
@@ -247,6 +268,7 @@ PLACES = {
 }
 
 
+@toon_job
 def job_map(out):
     common.reset_scene()
     common.set_resolution(MAP_PX[0] * 4, MAP_PX[1] * 4)
@@ -336,6 +358,7 @@ def _game_scene(samples=24):
     bpy.context.scene.cycles.samples = samples
 
 
+@toon_job
 def job_minigames(out):
     rng = rng_for("minigames")
     # --- 魚河岸の競り（正面）：板の間・木箱・のれん ---
@@ -485,6 +508,16 @@ def build_fish(spec, wag=0.0):
 
 
 def job_creatures(out):
+    """生き物も人物と同じ内側の線をつける（外側の輪郭は pipeline で）"""
+    common.AUTO_LINES = {}
+    try:
+        _job_creatures(out)
+    finally:
+        common.AUTO_LINES = None
+
+
+@toon_job
+def _job_creatures(out):
     # 競りの魚：まな板にのせて斜め上から 96×64
     for key in ("a_tai", "a_kisu", "a_katsuo"):
         common.reset_scene()

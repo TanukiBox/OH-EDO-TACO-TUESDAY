@@ -47,7 +47,7 @@
     // 1日の流れ
     // ---------------------------------------------------------
     DAY: {
-      nightSeconds: 240,     // 夜の営業の長さ（秒）。約4分（同時進行が楽しめる長さ）
+      nightSeconds: 180,     // 夜の営業の長さ（秒）。3分（1日が長すぎないように 4分→3分）
       firstGuestAfter: 3,    // 開店から最初の客が来るまで（秒）
       arrivalMin: 11,        // 次の客が来るまでの間隔（秒）の最小（第1章）
       arrivalMax: 17,        // 　　　　〃　　　　　　　　　の最大（第1章）
@@ -562,6 +562,31 @@
       firstDayEasy: 0.8,        // 1日目は、ライバルの出す上限をこの倍に（やさしく）
       // 常連漁師の耳打ち：夜に漁師の浜蔵さんを満足させると「信頼」が1上がる。翌朝、信頼×perTrust の確率で耳打ち（1回で信頼が1減る）
       whisper: { perTrust: 0.3, maxTrust: 4, accuracy: 0.9 }
+    },
+
+    // ---------------------------------------------------------
+    // 瓦版と番付：江戸の屋台・食べ物屋の評判。毎朝少しずつ変わり、自分の店（多幸寿）の評判とならべて番付にする
+    //   rep = はじめの評判、grow = 1日に増える評判、icon = 瓦版と番付に描く食材の絵、owner = 店の主（顔の絵）、chapter = 何章から
+    // ---------------------------------------------------------
+    BANZUKE: {
+      shops: {
+        daikokuya: { rep: 380, grow: 2.5, icon: 'kabayaki', chapter: 1 },              // 鰻の大黒屋
+        tatsu:     { rep: 240, grow: 4, icon: 'zuke', owner: 'tatsu', chapter: 1 },    // 寿司の辰五郎（物語のライバル）
+        tenkichi:  { rep: 200, grow: 3, icon: 'kisu_ten', chapter: 1 },                // 天ぷらの天吉
+        chojuan:   { rep: 160, grow: 2.5, icon: 'kamo', chapter: 1 },                  // 二八そばの長寿庵
+        hyotan:    { rep: 110, grow: 2, icon: 'nidaikon', chapter: 1 },                // おでんのひょうたん
+        mitarashi: { rep: 60, grow: 1.5, icon: 'satsumaimo', chapter: 1 },             // 団子のみたらし堂
+        choboichi: { rep: 25, grow: 1, icon: 'sumeshi', chapter: 1 },                  // 一膳めしのちょぼ一
+        chin:      { rep: 150, grow: 4, icon: 'tomato', owner: 'chin', chapter: 4 }    // 陳師傅の唐料理（第4章から）
+      },
+      jitter: 4,              // 毎日の評判のゆれ（±）
+      eventChance: 0.6,       // 瓦版に、ほかの店のできごとが載る確率（載ると評判が上がる・下がる）
+      eventSize: [8, 20],     // できごとで上がる・下がる評判
+      sanyaku: 6              // 上から何番目までが三役（大関・関脇・小結の東西）。あとは前頭
+    },
+    KAWARABAN: {
+      trendChance: 0.6,       // 「江戸でいま○○がはやり」が載る確率
+      trendBoost: 2.5         // はやりのタコスが、その日に頼まれやすくなる倍率
     },
 
     // 常連の漁師（夜の客）。満足させるほど、朝の競りの前に耳打ちしてくれる

@@ -63,60 +63,60 @@ LIGHT = Vector((-0.45, -0.7, 0.55)).normalized()   # 光の来る向き（左上
 #   pattern: 着物の模様 'stripe' 縞 / 'check' 格子 / 'kasuri' 絣（点）  pat: 模様の色
 CHARACTERS = {
     # 客の種類（それぞれ2通りの色）
-    "chonin_a":   dict(body="kimono", cloth="#b87838", cloth2="#8c5228", obi="#5a3218", hair="mage", extra=["tenugui"], pattern="stripe", pat="#8c5228"),
-    "chonin_b":   dict(body="kimono", cloth="#34569a", cloth2="#243f7a", obi="#dca24a", hair="mage", pattern="check", pat="#243f7a"),
-    "shokunin_a": dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#c42618", hair="mage", extra=["hachimaki"]),
-    "shokunin_b": dict(body="happi", cloth="#8c5228", cloth2="#f0e6d2", obi="#243f7a", hair="mage", extra=["hachimaki"]),
-    "samurai_a":  dict(body="samurai", cloth="#243f7a", cloth2="#aaa292", obi="#f0e6d2", hair="mage", extra=["swords"], brows="thick"),
-    "samurai_b":  dict(body="samurai", cloth="#5a3218", cloth2="#76726a", obi="#f0e6d2", hair="mage", extra=["swords"]),
-    "bozu_a":     dict(body="robe", cloth="#2e1a12", cloth2="#dca24a", obi="#dca24a", hair="bald", extra=["juzu"], eyes="calm"),
-    "bozu_b":     dict(body="robe", cloth="#4a4658", cloth2="#b87838", obi="#b87838", hair="bald", extra=["juzu"]),
-    "rikishi_a":  dict(body="sumo", cloth="#5070b0", cloth2="#34569a", obi="#243f7a", hair="oicho", scale=1.1, brows="thick"),
-    "rikishi_b":  dict(body="sumo", cloth="#b8323a", cloth2="#7a1414", obi="#7a1414", hair="oicho", scale=1.1, brows="thick"),
-    "tsujin_a":   dict(body="kimono", cloth="#76726a", cloth2="#4a4658", obi="#dca24a", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="kasuri", pat="#4a4658"),
-    "tsujin_b":   dict(body="kimono", cloth="#5a3218", cloth2="#2e1a12", obi="#f5b860", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="stripe", pat="#2e1a12"),
+    "chonin_a":   dict(body="kimono", cloth="#b87838", cloth2="#8c5228", obi="#5a3218", hair="mage", extra=["tenugui"], pattern="stripe", pat="#8c5228", eyes='big', nose='round', face='round'),
+    "chonin_b":   dict(body="kimono", cloth="#34569a", cloth2="#243f7a", obi="#dca24a", hair="mage", pattern="check", pat="#243f7a", eyes='droopy', face='long', build='thin', size=1.04),
+    "shokunin_a": dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#c42618", hair="mage", extra=["hachimaki"], eyes='sharp', face='square', build='stout', nose='big'),
+    "shokunin_b": dict(body="happi", cloth="#8c5228", cloth2="#f0e6d2", obi="#243f7a", hair="mage", extra=["hachimaki"], nose='big', hige='mustache', size=0.96),
+    "samurai_a":  dict(body="samurai", cloth="#243f7a", cloth2="#aaa292", obi="#f0e6d2", hair="mage", extra=["swords"], brows="thick", eyes='sharp', face='long', build='thin', size=1.05),
+    "samurai_b":  dict(body="samurai", cloth="#5a3218", cloth2="#76726a", obi="#f0e6d2", hair="mage", extra=["swords"], eyes='narrow', face='square', build='stout', hige='mustache'),
+    "bozu_a":     dict(body="robe", cloth="#2e1a12", cloth2="#dca24a", obi="#dca24a", hair="bald", extra=["juzu"], eyes="calm", face='round', ears='big'),
+    "bozu_b":     dict(body="robe", cloth="#4a4658", cloth2="#b87838", obi="#b87838", hair="bald", extra=["juzu"], eyes='droopy', nose='long', build='thin', size=1.03),
+    "rikishi_a":  dict(body="sumo", cloth="#5070b0", cloth2="#34569a", obi="#243f7a", hair="oicho", scale=1.1, brows="thick", eyes='big', face='round'),
+    "rikishi_b":  dict(body="sumo", cloth="#b8323a", cloth2="#7a1414", obi="#7a1414", hair="oicho", scale=1.1, brows="thick", eyes='sharp', face='square'),
+    "tsujin_a":   dict(body="kimono", cloth="#76726a", cloth2="#4a4658", obi="#dca24a", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="kasuri", pat="#4a4658", eyes='narrow', hige='mustache', wrinkles=True, build='thin'),
+    "tsujin_b":   dict(body="kimono", cloth="#5a3218", cloth2="#2e1a12", obi="#f5b860", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="stripe", pat="#2e1a12", eyes='droopy', hige='goatee', wrinkles=True, build='stout', size=0.97),
     # 常連
-    "yokichi":    dict(body="happi", cloth="#dca24a", cloth2="#fffaf0", obi="#34569a", hair="mage", extra=["tenugui", "pole"]),
-    "genpachi":   dict(body="happi", cloth="#243f7a", cloth2="#fffaf0", obi="#f24a2a", hair="mage", extra=["hachimaki_red"], brows="thick"),
-    "hotta":      dict(body="samurai", cloth="#34569a", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage", extra=["swords", "crest"]),
-    "jonen":      dict(body="robe", cloth="#2e1a12", cloth2="#f5b860", obi="#f5b860", hair="bald", extra=["juzu"], old=True, eyes="calm"),
-    "ikazuchi":   dict(body="sumo", cloth="#dca24a", cloth2="#b87838", obi="#8c5228", hair="oicho", scale=1.2, brows="thick"),
-    "sessai":     dict(body="kimono", cloth="#4a4658", cloth2="#2e1a12", obi="#f0664e", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="check", pat="#2e1a12"),
+    "yokichi":    dict(body="happi", cloth="#dca24a", cloth2="#fffaf0", obi="#34569a", hair="mage", extra=["tenugui", "pole"], eyes='big', face='round', size=0.96),
+    "genpachi":   dict(body="happi", cloth="#243f7a", cloth2="#fffaf0", obi="#f24a2a", hair="mage", extra=["hachimaki_red"], brows="thick", eyes='sharp', face='square', build='stout', nose='big'),
+    "hotta":      dict(body="samurai", cloth="#34569a", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage", extra=["swords", "crest"], eyes='sharp', face='long', build='thin', size=1.04),
+    "jonen":      dict(body="robe", cloth="#2e1a12", cloth2="#f5b860", obi="#f5b860", hair="bald", extra=["juzu"], old=True, eyes="calm", face='round', ears='big', wrinkles=True),
+    "ikazuchi":   dict(body="sumo", cloth="#dca24a", cloth2="#b87838", obi="#8c5228", hair="oicho", scale=1.2, brows="thick", eyes='sharp', face='square'),
+    "sessai":     dict(body="kimono", cloth="#4a4658", cloth2="#2e1a12", obi="#f0664e", hair="mage_gray", extra=["haori", "fan"], old=True, pattern="check", pat="#2e1a12", eyes='narrow', hige='mustache', wrinkles=True, face='long', build='thin'),
     # ライバル・VIP・旅の客
-    "tatsu":      dict(body="happi", cloth="#fffaf0", cloth2="#d6ccb8", obi="#243f7a", hair="mage", extra=["hachimaki_twist"], brows="angry"),
-    "chin":       dict(body="robe", cloth="#c42618", cloth2="#dca24a", obi="#dca24a", hair="short", extra=["chefhat"]),
-    "ransai":     dict(body="kimono", cloth="#76726a", cloth2="#243f7a", obi="#2e1a12", hair="mage", extra=["haori", "glasses", "book"]),
-    "raizo":      dict(body="kimono", cloth="#f0664e", cloth2="#fffaf0", obi="#243f7a", hair="mage_big", extra=["kumadori"], brows="angry", pattern="check", pat="#fffaf0"),
-    "uesama":     dict(body="samurai", cloth="#5070b0", cloth2="#34569a", obi="#f5b860", hair="mage", extra=["crest_gold", "swords"], brows="thick"),
-    "tabibito":   dict(body="kimono", cloth="#aaa292", cloth2="#76726a", obi="#5a3218", hair="mage", extra=["kasa", "cape"]),
+    "tatsu":      dict(body="happi", cloth="#fffaf0", cloth2="#d6ccb8", obi="#243f7a", hair="mage", extra=["hachimaki_twist"], brows="angry", eyes='sharp', face='square', nose='big'),
+    "chin":       dict(body="robe", cloth="#c42618", cloth2="#dca24a", obi="#dca24a", hair="short", extra=["chefhat"], eyes='narrow', hige='mustache', face='round', build='stout'),
+    "ransai":     dict(body="kimono", cloth="#76726a", cloth2="#243f7a", obi="#2e1a12", hair="mage", extra=["haori", "glasses", "book"], face='long', build='thin', nose='long', size=1.04),
+    "raizo":      dict(body="kimono", cloth="#f0664e", cloth2="#fffaf0", obi="#243f7a", hair="mage_big", extra=["kumadori"], brows="angry", pattern="check", pat="#fffaf0", eyes='sharp', face='long', nose='long'),
+    "uesama":     dict(body="samurai", cloth="#5070b0", cloth2="#34569a", obi="#f5b860", hair="mage", extra=["crest_gold", "swords"], brows="thick", face='long', build='thin', size=1.03),
+    "tabibito":   dict(body="kimono", cloth="#aaa292", cloth2="#76726a", obi="#5a3218", hair="mage", extra=["kasa", "cape"], eyes='droopy', hige='goatee'),
     # 会話にだけ出る人
-    "okane":      dict(body="kimono", cloth="#8c5228", cloth2="#5a3218", obi="#f0e6d2", hair="bun_gray", extra=["apron"], old=True, pattern="kasuri", pat="#5a3218", lashes=True),
-    "kumazo":     dict(body="happi", cloth="#5a3218", cloth2="#8c5228", obi="#2e1a12", hair="wild", extra=["fur"], brows="thick", beard=True),
-    "gonta":      dict(body="happi", cloth="#243f7a", cloth2="#34569a", obi="#f0e6d2", hair="mage", extra=["hachimaki"]),
-    "genba":      dict(body="kimono", cloth="#fffaf0", cloth2="#d6ccb8", obi="#76726a", hair="mage", extra=["eboshi"], old=True, brows="thick"),
-    "messenger":  dict(body="samurai", cloth="#2e1a12", cloth2="#4a4658", obi="#f0e6d2", hair="mage", extra=["swords"]),
+    "okane":      dict(body="kimono", cloth="#8c5228", cloth2="#5a3218", obi="#f0e6d2", hair="bun_gray", extra=["apron"], old=True, pattern="kasuri", pat="#5a3218", lashes=True, eyes='droopy', face='round', wrinkles=True, size=0.92),
+    "kumazo":     dict(body="happi", cloth="#5a3218", cloth2="#8c5228", obi="#2e1a12", hair="wild", extra=["fur"], brows="thick", beard=True, eyes='big', nose='round', build='stout', size=1.06),
+    "gonta":      dict(body="happi", cloth="#243f7a", cloth2="#34569a", obi="#f0e6d2", hair="mage", extra=["hachimaki"], eyes='big', face='round', build='stout', size=0.95),
+    "genba":      dict(body="kimono", cloth="#fffaf0", cloth2="#d6ccb8", obi="#76726a", hair="mage", extra=["eboshi"], old=True, brows="thick", eyes='narrow', hige='mustache', wrinkles=True, face='long'),
+    "messenger":  dict(body="samurai", cloth="#2e1a12", cloth2="#4a4658", obi="#f0e6d2", hair="mage", extra=["swords"], eyes='sharp', face='long', build='thin'),
     # 魚河岸の競り（競り人・仲買のライバル）と、常連の漁師
-    "seri":       dict(body="happi", cloth="#8c5228", cloth2="#fffaf0", obi="#1c1220", hair="mage", extra=["hachimaki_red"], brows="thick"),
-    "itamae":     dict(body="kimono", cloth="#f0e6d2", cloth2="#d6ccb8", obi="#5a3218", hair="mage", extra=["maekake", "tasuki"]),
-    "daidokoro":  dict(body="samurai", cloth="#7a1414", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage_gray", extra=["swords", "crest_gold", "fan"], old=True, brows="thick", scale=1.05),
-    "kitsune":    dict(body="happi", cloth="#4a4658", cloth2="#d6ccb8", obi="#dca24a", hair="mage", extra=["tenugui_kubi"], eyes="fox"),
-    "hamazo":     dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#dca24a", hair="mage", extra=["hachimaki_twist"], brows="thick", stubble=True),
+    "seri":       dict(body="happi", cloth="#8c5228", cloth2="#fffaf0", obi="#1c1220", hair="mage", extra=["hachimaki_red"], brows="thick", eyes='big', face='round', nose='round'),
+    "itamae":     dict(body="kimono", cloth="#f0e6d2", cloth2="#d6ccb8", obi="#5a3218", hair="mage", extra=["maekake", "tasuki"], eyes='narrow', face='long', build='thin', size=1.03),
+    "daidokoro":  dict(body="samurai", cloth="#7a1414", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage_gray", extra=["swords", "crest_gold", "fan"], old=True, brows="thick", scale=1.05, eyes='droopy', build='stout', wrinkles=True, nose='round'),
+    "kitsune":    dict(body="happi", cloth="#4a4658", cloth2="#d6ccb8", obi="#dca24a", hair="mage", extra=["tenugui_kubi"], eyes="fox", face='long', build='thin', nose='long', size=1.02),
+    "hamazo":     dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#dca24a", hair="mage", extra=["hachimaki_twist"], brows="thick", stubble=True, eyes='sharp', face='square', build='stout', hige='beard'),
     # 主人公
-    "mateo":      dict(body="modern", cloth="#2e1a12", cloth2="#fffaf0", obi="#c42618", hair="short", extra=["bandana", "apron_modern"], brows="thick", stubble=True),
-    "mateo_happi": dict(body="happi", cloth="#c42618", cloth2="#fffaf0", obi="#243f7a", hair="short", extra=["hachimaki_red", "crest_taco"], brows="thick", stubble=True),
+    "mateo":      dict(body="modern", cloth="#2e1a12", cloth2="#fffaf0", obi="#c42618", hair="short", extra=["bandana", "apron_modern"], brows="thick", stubble=True, face='square'),
+    "mateo_happi": dict(body="happi", cloth="#c42618", cloth2="#fffaf0", obi="#243f7a", hair="short", extra=["hachimaki_red", "crest_taco"], brows="thick", stubble=True, face='square'),
     "pon":        dict(body="tanuki", cloth="#8c5228", cloth2="#5a3218", obi="#f0e6d2", hair="none"),
 }
 
 # 動きのコマ数
-ANIMS = {"walk": 4, "wait": 2, "worry": 2, "eat": 2, "happy": 2, "angry": 2}
+ANIMS = {"walk": 4, "wait": 4, "worry": 2, "eat": 2, "happy": 2, "angry": 2}
 # マテオだけの動き：cook 調理中の手元 / greet いらっしゃい / pose 決めポーズ / spin 着替えの回転
-MATEO_ANIMS = {"cook": 2, "greet": 2, "pose": 2, "spin": 2, "wait": 2, "happy": 2, "walk": 4}
-PON_ANIMS = {"wait": 2, "happy": 2}
+MATEO_ANIMS = {"cook": 2, "greet": 2, "pose": 2, "spin": 2, "wait": 4, "happy": 2, "walk": 4}
+PON_ANIMS = {"wait": 4, "happy": 2}
 # 競りのライバル（仲買）：lean 身を乗り出す / twitch 手がぴくっ / raise 手を上げる / carry 箱を担ぐ / sad 悔しがる / shout 声比べ
 RIVALS = ["tatsu", "itamae", "daidokoro", "kitsune"]
-RIVAL_ANIMS = {"wait": 2, "lean": 2, "twitch": 2, "raise": 2, "carry": 2, "sad": 2, "shout": 2}
+RIVAL_ANIMS = {"wait": 4, "lean": 2, "twitch": 2, "raise": 2, "carry": 2, "sad": 2, "shout": 2}
 # 競り人：call 掛け声 / lift 箱を軽々と持ち上げる / heavy うなりながら持ち上げる / laugh からかって笑う
-SERI_ANIMS = {"wait": 2, "call": 2, "lift": 2, "heavy": 2, "laugh": 2}
+SERI_ANIMS = {"wait": 4, "call": 2, "lift": 2, "heavy": 2, "laugh": 2}
 
 
 def anims_for(key):
@@ -331,7 +331,7 @@ class Person:
         self.key = key
         c = CHARACTERS[key]
         self.c = c
-        sc = c.get("scale", 1.0)
+        sc = c.get("scale", 1.0) * c.get("size", 1.0)   # 背の高さ（人それぞれ）
         self.root = empty(key + "_root", (0, 0, 0))
         self.root.scale = (sc, sc, sc)
         self.faces = {}
@@ -360,7 +360,8 @@ class Person:
         cloth2, obi = mat(c["cloth2"]), mat(c["obi"])
         white = mat("#fffaf0")
         big = body == "sumo"
-        self.skeleton(shoulder=0.4 if big else 0.235, arm_len=0.21 if big else 0.19, leg_x=0.13 if big else 0.085)
+        bw = {"thin": 0.86, "stout": 1.16}.get(c.get("build"), 1.0)   # 体格（胴の太さ）
+        self.skeleton(shoulder=(0.4 if big else 0.235) * (1 + (bw - 1) * 0.8), arm_len=0.21 if big else 0.19, leg_x=(0.13 if big else 0.085) * bw)
         H, P, C = self.headp, self.hips, self.chest
 
         # --- 脚と履物 ---
@@ -431,6 +432,14 @@ class Person:
                 obj("haneri", box(0.035, 0.025, 0.24, loc=(0.045 * s, -0.17, 0.36), ry=0.42 * s), white, P)
                 obj("eri", box(0.05, 0.028, 0.34, loc=(0.075 * s, -0.172, 0.28), ry=0.38 * s), mat(c["cloth2"] if body != "robe" else c["cloth"]), P)
 
+        # 胴の部品を、体格に合わせて横に伸び縮み（太い人は、おなかも出る）
+        if bw != 1.0 and not big:
+            for o in list(P.children) + list(C.children):
+                if o.type == "MESH":
+                    o.scale = (o.scale[0] * bw, o.scale[1] * bw, o.scale[2])
+            if bw > 1:
+                obj("onaka", sphere(0.21, 1.0, 0.8, 0.95, loc=(0, -0.11, 0.18)), cloth if body == "kimono" else cloth_plain, P)
+
         # --- 腕・袖・手 ---
         for s in (-1, 1):
             A, F, Hd = self.arm[s], self.fore[s], self.hand[s]
@@ -457,11 +466,23 @@ class Person:
 
         # --- 頭 ---
         obj("neck", capsule((0, 0, -0.06), (0, 0, 0.08), 0.075 if not big else 0.11), skin, H)
-        obj("head", sphere(0.32, 1.0, 0.93, 0.97, loc=(0, 0, 0.32)), skin, H)
-        obj("jaw", sphere(0.24, 1.05, 0.85, 0.7, loc=(0, -0.05, 0.2)), skin, H)
-        obj("nose", sphere(0.045, 1.0, 0.9, 1.1, loc=(0.0, -0.31, 0.27)), skin, H, noline=True)
+        fc = c.get("face")
+        hs = {"round": (1.05, 0.97), "long": (0.93, 1.07), "square": (1.0, 0.97)}.get(fc, (1.0, 0.97))
+        obj("head", sphere(0.32, hs[0], 0.93, hs[1], loc=(0, 0, 0.32)), skin, H)
+        jw = {"square": (1.22, 0.78), "long": (0.92, 0.82), "round": (1.08, 0.7)}.get(fc, (1.05, 0.7))
+        obj("jaw", sphere(0.24, jw[0], 0.85, jw[1], loc=(0, -0.05, 0.2 - (0.03 if fc == "long" else 0))), skin, H)
+        ns = c.get("nose")
+        if ns == "big":
+            obj("nose", sphere(0.062, 1.1, 0.9, 1.0, loc=(0.0, -0.32, 0.26)), skin, H, noline=True)
+        elif ns == "long":
+            obj("nose", sphere(0.045, 0.9, 1.2, 1.5, loc=(0.0, -0.33, 0.27)), skin, H, noline=True)
+        elif ns == "round":
+            obj("nose", sphere(0.055, 1.1, 1.0, 1.0, loc=(0.0, -0.32, 0.25)), skin, H, noline=True)
+        else:
+            obj("nose", sphere(0.045, 1.0, 0.9, 1.1, loc=(0.0, -0.31, 0.27)), skin, H, noline=True)
+        es = 1.35 if c.get("ears") == "big" else 1.0
         for s in (-1, 1):
-            obj("ear", sphere(0.06, 0.55, 0.9, 1.15, loc=(0.31 * s, 0.03, 0.3)), skin, H)
+            obj("ear", sphere(0.06 * es, 0.55, 0.9, 1.15, loc=(0.31 * s * hs[0], 0.03, 0.3)), skin, H)
         self.hair(c.get("hair"), H)
         self.face(c, H)
         self.extras(c, H)
@@ -607,8 +628,14 @@ class Person:
                 b = capsule((ex * s - 0.045 * s, fy, ey - 0.005 - tilt), (ex * s + 0.045 * s, fy, ey - 0.005 + tilt), 0.014)
                 e_open.append(obj("eye_calm", b, dark, H, noline=True))
             else:
-                e_open.append(obj("eye", sphere(0.05, 0.8, 0.4, 1.25, loc=(ex * s, fy, ey)), dark, H, noline=True))
-                e_open.append(obj("eye_hi", sphere(0.017, 1, 0.5, 1, loc=(ex * s - 0.016, fy - 0.025, ey + 0.025)), white, H, noline=True))
+                et = c.get("eyes")
+                er, esz = {"big": (0.062, 1.25), "sharp": (0.042, 1.1), "narrow": (0.05, 0.62), "droopy": (0.05, 1.15)}.get(et, (0.05, 1.25))
+                e_open.append(obj("eye", sphere(er, 0.8, 0.4, esz, loc=(ex * s, fy, ey)), dark, H, noline=True))
+                e_open.append(obj("eye_hi", sphere(0.017 * (1.3 if et == "big" else 1), 1, 0.5, 1, loc=(ex * s - 0.016, fy - 0.025, ey + 0.025 * esz)), white, H, noline=True))
+                if et == "sharp":     # 上まぶたが、外へつり上がる
+                    e_open.append(obj("lid", box(0.085, 0.02, 0.016, loc=(ex * s + 0.005 * s, fy - 0.004, ey + 0.05), ry=-0.35 * s), dark, H, noline=True))
+                elif et == "droopy":  # たれ目：外へ下がるまぶた
+                    e_open.append(obj("lid", box(0.085, 0.02, 0.016, loc=(ex * s + 0.008 * s, fy - 0.004, ey + 0.05), ry=0.4 * s), dark, H, noline=True))
                 if c.get("lashes"):
                     e_open.append(obj("lash", box(0.05, 0.02, 0.012, loc=(ex * s + 0.03 * s, fy, ey + 0.05), ry=-0.5 * s), dark, H, noline=True))
         F["eyes_open"] = e_open
@@ -647,8 +674,19 @@ class Person:
         F["mouth_chew"] = [obj("mouth_chew", sphere(0.04, 1.3, 0.3, 0.55, loc=(0, mfy, my)), red, H, noline=True)]
         if c.get("stubble"):   # マテオのひげ
             obj("mustache", bm_tube([(-0.08, fy + 0.015, my + 0.05), (0.0, fy - 0.01, my + 0.06), (0.08, fy + 0.015, my + 0.05)], [0.018, 0.024, 0.018], 8), mat(HAIR), H)
-        if c.get("beard"):
-            obj("beard", sphere(0.2, 1.1, 0.6, 0.6, loc=(0, -0.2, 0.1)), mat(HAIR), H)
+        hige = mat(GRAY_HAIR if c.get("hair") in ("mage_gray", "bun_gray") else HAIR)
+        if c.get("beard") or c.get("hige") == "beard":
+            obj("beard", sphere(0.2, 1.1, 0.6, 0.6, loc=(0, -0.2, 0.1)), hige, H)
+        if c.get("hige") == "mustache":
+            for s in (-1, 1):
+                obj("kuchihige", bm_tube([(0.0, fy + 0.005, my + 0.045), (0.05 * s, fy + 0.0, my + 0.035), (0.09 * s, fy + 0.02, my + 0.0)], [0.017, 0.015, 0.008], 8), hige, H, noline=True)
+        if c.get("hige") == "goatee":
+            obj("agohige", sphere(0.05, 0.9, 0.6, 1.4, loc=(0, -0.24, 0.04)), hige, H, noline=True)
+        if c.get("wrinkles"):   # 目じりと、ほうれい線
+            line = mat("#d08a64", emit=1)
+            for s in (-1, 1):
+                obj("shiwa", box(0.04, 0.015, 0.01, loc=((ex + 0.07) * s, fy + 0.02, ey - 0.005), ry=0.5 * s), line, H, noline=True)
+                obj("shiwa2", box(0.012, 0.015, 0.06, loc=(0.075 * s, fy + 0.015, my + 0.03), ry=-0.25 * s), line, H, noline=True)
         # ほっぺ・汗・湯気・怒りの印
         F["blush"] = [obj("blush", sphere(0.045, 1.3, 0.3, 0.6, loc=((ex + 0.07) * s, fy + 0.04, ey - 0.08)), pink, H) for s in (-1, 1)]
         F["sweat"] = [obj("sweat", sphere(0.04, 0.8, 0.6, 1.3, loc=(0.3, fy + 0.08, ey + 0.12)), mat("#5070b0", emit=1), H, noline=True)]
@@ -795,6 +833,13 @@ class Person:
         elif anim in ("wait", "worry"):
             bob = -0.01 * frame
             self.headp.rotation_euler = Euler((0, 0.05 * (frame * 2 - 1), 0))
+            if anim == "wait":   # 4コマ：ふつう → 息を吸う → 首をかしげる → まばたき
+                f4 = frame % 4
+                bob = [0.0, 0.012, 0.004, -0.004][f4]
+                self.chest.rotation_euler = Euler(([0.0, -0.03, 0.0, 0.02][f4], 0, 0))
+                self.headp.rotation_euler = Euler(([0.0, -0.04, 0.02, 0.0][f4], [0.0, 0.0, 0.07, 0.03][f4], 0))
+                for s in (-1, 1):
+                    self.arm[s].rotation_euler = Euler((0.05, (-0.2 - [0, 0.03, 0, 0.01][f4]) * s, 0))
             if anim == "worry":
                 arm(1, -1.0, 0.2, 0.35, fx=-1.6)    # あごに手
                 arm(-1, -0.4, -0.25, -0.5, fx=-1.5)  # 腕組みぎみ
@@ -804,7 +849,7 @@ class Person:
                 if tan:   # ポン吉：おなかの前で手を組む
                     arm(1, -0.7, 0.2, 0.5, fx=-0.9)
                     arm(-1, -0.7, -0.2, -0.5, fx=-0.9)
-                self.set_face("blink" if frame == 1 and c.get("eyes") != "calm" else "ok")
+                self.set_face("blink" if (frame % 4) == 3 and c.get("eyes") not in ("calm", "fox") else "ok")
         elif anim == "eat":
             arm(1, -1.45 - 0.15 * frame, 0.15, 0.35, fx=-1.35)   # タコスを口へ
             arm(-1, -0.6, -0.1, -0.3, fx=-0.9)                  # 下に手をそえる

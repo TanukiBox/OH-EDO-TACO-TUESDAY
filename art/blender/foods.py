@@ -8,7 +8,7 @@ import math
 import bmesh
 
 from common import (bm_icosphere, bm_torus, bm_tube, jitter, transform_bm, drop_to_zero,
-                    mesh_object, object_noise_material, cached_material, rng_for, bm_bounds)
+                    mesh_object, object_noise_material, cached_material, rng_for, bm_bounds, toon3)
 
 # 食材ごとの形と色。n = タコスの上にのせるかけらの数、icon = アイコンに積むかけらの数
 FOODS = {
@@ -104,12 +104,14 @@ GARNISH = {"sudachi": dict(shape="wedge", c=["#d2ec9a", "#46b03a", "#1f6a2c"], s
 
 
 def _mat(key, spec):
-    return cached_material("food_" + key, lambda n: object_noise_material(n, [
-        (0.0, spec["c"][0]), (0.55, spec["c"][1]), (1.0, spec["c"][2])], scale=14.0, roughness=0.45))
+    # セル調：c = [明るい, ふつう, 暗い] を、光の向きで3段に塗り分ける。境目は少しまだら（食材の質感）
+    return toon3("food_" + key, spec["c"][0], spec["c"][1], spec["c"][2], noise=0.22, scale=14.0)
 
 
 def _solid(key, color):
-    return cached_material("solid_" + color, lambda n: object_noise_material(n, [(0.0, color), (1.0, color)], scale=1.0, roughness=0.5))
+    from people import RAMP   # 人物と同じ「影・明るい」の組み合わせ
+    sh, li, _ = RAMP.get(color, (color, color, color))
+    return toon3("solid_" + color, li, color, sh)
 
 
 # ---------------------------------------------------------------------------

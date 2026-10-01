@@ -16,6 +16,7 @@ import noren  # noqa: E402
 import people_render  # noqa: E402
 import foods_render  # noqa: E402
 import scenes  # noqa: E402
+import landscapes  # noqa: E402
 from ingredients import INGREDIENTS  # noqa: E402
 
 # 元画像は完成サイズの 4 倍で描き、あとで縮小する
@@ -135,10 +136,10 @@ def main():
         scenes.job_stall(a.out)
     if "map" in jobs:
         print("== 地図", flush=True)
-        scenes.job_map(a.out)
+        landscapes.job_map(a.out)
     if "minigames" in jobs:
         print("== ミニゲームの背景", flush=True)
-        scenes.job_minigames(a.out)
+        landscapes.job_minigames(a.out)
     if "creatures" in jobs:
         print("== 生き物", flush=True)
         scenes.job_creatures(a.out)

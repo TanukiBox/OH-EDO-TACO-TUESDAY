@@ -92,6 +92,8 @@
       root.appendChild(OT.ui.pon(tipKey));
       root.appendChild(OT.el('div', { class: 'row-btns' }, [
         OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('morning'); }, 'small'),
+        OT.button('📰 ' + OT.t('news.title'), function () { OT.news.open(); }, 'small'),
+        OT.button('🏯 ' + OT.t('bz.open'), function () { OT.news.banzuke(); }, 'small'),
         OT.el('span', { class: 'chapter-name', text: OT.t('rank.' + OT.state.chapter()) })
       ]));
 
@@ -124,6 +126,7 @@
       // 今日の年中行事・今夜の VIP の予告
       var fest = OT.todayFestival();
       if (fest) root.appendChild(OT.el('div', { class: 'notice fest' }, [OT.t('morning.festival', { name: OT.t('fest.' + fest), desc: OT.t('fest.' + fest + '.desc') })]));
+      if (s.trend && s.news && s.news.day === s.day) root.appendChild(OT.el('div', { class: 'notice trend' }, [OT.t('morning.trend', { taco: OT.tacoName(s.trend) })]));
       var vip = OT.night.pickVip();
       if (vip) root.appendChild(OT.el('div', { class: 'notice vip' }, [OT.t('vip.preview', { name: OT.STORY[OT.i18n.lang].who[OT.CFG.VIPS[vip].guest], odai: OT.t('vip.' + vip + '.odai') })]));
 
@@ -155,6 +158,8 @@
         if (s.gamesToday === 0) OT.tut.point('m1', '#scr-morning .sup.game');
         else { OT.tut.done('m1'); OT.tut.point('m2', '#scr-morning .sticky-bottom .btn'); }
       }
+      // 2日目からは、朝いちばんに瓦版（その日いちど）
+      if (s.day > 1 && OT.news) OT.news.morningShow();
     }
   };
 

@@ -66,6 +66,7 @@
       // 鯨組の大物が競りに入る日（第4章から、ときどき）
       s.whaleDay = OT.state.chapter() >= 4 && Math.random() < OT.CFG.AUCTION.whaleChance;
       if (s.stock.kujira) s.stock.kujira = 0;   // 鯨はその日のうちに使いきる
+      if (OT.news) OT.news.newDay();             // 瓦版：ほかの店の評判が動き、今朝の記事ができる
       s.phase = 'morning';
       OT.state.save();
       OT.morning.enter();

@@ -167,7 +167,7 @@ def scene_images(R, out, man):
         _save(_px(os.path.join(R, "map.png"), (256, 160), False), os.path.join(out, "map.png"))
         man["places"] = json.load(open(os.path.join(R, "map_places.json"), encoding="utf-8"))
     man["bg"] = []
-    for k in ("auction", "fishing", "forage", "hunt", "smuggle"):
+    for k in ("fishing", "forage", "hunt", "smuggle"):   # 競りは market の背景を使う
         if _exists(R, "bg_%s.png" % k):
             _save(_px(os.path.join(R, "bg_%s.png" % k), (192, 128), False), os.path.join(out, "bg", k + ".png"))
             man["bg"].append(k)

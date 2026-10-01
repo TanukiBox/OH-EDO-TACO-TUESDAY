@@ -692,3 +692,59 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .ak-mine-rows b { color: #8c5228; }
 .ak-res-row.verdict span { font-weight: 900; color: var(--lantern2); }
 .ak-ans.jpmiss { border-color: #f5b860; } .ak-ans.jpmiss .foot b { color: #f5b860; }
+
+/* ---------- 瓦版と番付 ---------- */
+.notice.trend { background: #f3e6c4; color: #3a2414; border: 2px dashed #8c5228; }
+.kw-wrap { position: absolute; inset: 0; z-index: 75; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 10px; padding: calc(16px + var(--safe-t)) 12px calc(16px + var(--safe-b)); background: rgba(7,11,24,.78); overflow-y: auto; animation: pop .22s ease-out; transition: opacity .25s; }
+.kw-wrap.out { opacity: 0; }
+.kw-paper, .bz-paper { width: min(440px, 100%); flex: none; background: #f3e6c4; background-image: repeating-linear-gradient(0deg, rgba(140,82,40,.05) 0 2px, transparent 2px 7px); color: #2a1a10; border: 3px solid #5a3218; border-radius: 4px; box-shadow: 0 6px 0 rgba(0,0,0,.45); padding: 10px 12px 12px; transform: rotate(-.6deg); }
+.kw-mast { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 3px double #5a3218; padding-bottom: 4px; margin-bottom: 8px; }
+.kw-name { font-family: "Yuji Syuku", serif; font-size: 28px; letter-spacing: 6px; color: #7a1414; }
+.kw-date { font-size: 13px; font-weight: 800; color: #5a3218; }
+.kw-body { display: flex; flex-direction: column; gap: 8px; }
+.kw-art { display: flex; gap: 8px; align-items: flex-start; padding: 6px 4px; border-bottom: 1px dashed rgba(90,50,24,.5); }
+.kw-art:last-child { border-bottom: 0; }
+.kw-art b { display: block; font-family: "Yuji Syuku", serif; font-size: 18px; line-height: 1.25; color: #2a1a10; }
+.kw-art p { margin: 3px 0 0; font-size: 13px; line-height: 1.55; font-weight: 700; color: #3a2414; }
+.kw-art.top b { font-size: 21px; color: #7a1414; }
+.kw-art.rival.up b::after { content: ' ▲'; color: #b8323a; font-size: 13px; }
+.kw-art.rival.down b::after { content: ' ▼'; color: #34569a; font-size: 13px; }
+.kw-art.event b { color: #5a3218; }
+.kw-art.trend { background: rgba(245,184,96,.35); border-radius: 6px; border-bottom: 0; }
+.kw-pic { width: 56px; height: 56px; flex: none; image-rendering: pixelated; background: #e6d2a4; border: 2px solid #5a3218; border-radius: 50%; }
+.kw-ico { width: 40px; height: 40px; flex: none; image-rendering: pixelated; background: #e6d2a4; border: 2px solid #8c5228; border-radius: 8px; }
+.kw-txt { flex: 1; min-width: 0; }
+.kw-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; padding-top: 6px; border-top: 3px double #5a3218; font-size: 13px; font-weight: 900; color: #7a1414; }
+.kw-bz { flex: none; background: #7a1414; color: #fffaf0; border: 0; border-radius: 8px; padding: 6px 10px; font: inherit; font-weight: 900; cursor: pointer; }
+.kw-close { flex: none; min-width: 160px; background: var(--lantern); color: #1c1220; border: 0; border-radius: 12px; padding: 12px 20px; font: inherit; font-size: 16px; font-weight: 900; box-shadow: 0 4px 0 #8c5228; cursor: pointer; }
+.kw-wrap.bz { z-index: 76; }
+.bz-paper { transform: none; padding: 8px; }
+.bz-head { display: flex; align-items: center; justify-content: space-between; border: 2px solid #5a3218; background: #7a1414; color: #fffaf0; padding: 4px 8px; margin-bottom: 6px; }
+.bz-head b { font-family: "Yuji Syuku", serif; font-size: 17px; letter-spacing: 2px; text-align: center; flex: 1; }
+.bz-east, .bz-west { font-family: "Yuji Syuku", serif; font-size: 20px; width: 28px; text-align: center; }
+.bz-grid { display: flex; flex-direction: column; gap: 4px; }
+.bz-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.bz-cell { position: relative; display: grid; grid-template-columns: 1fr 34px; grid-template-rows: auto auto auto; column-gap: 4px; align-items: center; background: rgba(255,250,240,.55); border: 1px solid #8c5228; padding: 4px 6px; min-height: 58px; }
+.bz-cell.empty { background: transparent; border-style: dashed; }
+.bz-row.sanyaku .bz-cell { border-width: 2px; }
+.bz-row.sanyaku:first-child .bz-cell { background: rgba(245,184,96,.45); }
+.bz-title { grid-column: 1; font-size: 11px; font-weight: 900; color: #7a1414; }
+.bz-shop { grid-column: 1; font-family: "Yuji Syuku", serif; font-size: 14px; line-height: 1.2; color: #2a1a10; }
+.bz-rep { grid-column: 1; font-size: 11px; font-weight: 800; color: #5a3218; }
+.bz-cell .kw-ico { grid-column: 2; grid-row: 1 / 4; width: 34px; height: 34px; border-radius: 6px; }
+.bz-cell.me { background: #b8323a; border: 2px solid #7a1414; box-shadow: 0 0 0 2px #f5b860; }
+.bz-cell.me .bz-title, .bz-cell.me .bz-shop, .bz-cell.me .bz-rep { color: #fffaf0; grid-column: 1 / 3; }
+.bz-move { position: absolute; right: 6px; top: 4px; font-style: normal; font-weight: 900; font-size: 14px; }
+.bz-move.up { color: #ffe6b0; }
+.bz-move.down { color: #9cc4ff; }
+.bz-note { margin-top: 8px; font-size: 13px; font-weight: 800; color: #3a2414; text-align: center; }
+
+/* ---------- 開発用メニュー（?dev） ---------- */
+#scr-dev h3 { margin: 14px 16px 6px; font-size: 15px; color: var(--lantern); }
+.dev-ch { display: flex; align-items: center; gap: 6px; margin: 6px 16px; flex-wrap: wrap; }
+.dev-chb { width: 40px; height: 40px; border-radius: 10px; border: 2px solid var(--line); background: var(--panel2); color: var(--ink); font: inherit; font-weight: 900; font-size: 16px; cursor: pointer; }
+.dev-chb.on { background: var(--lantern); color: #1c1220; border-color: var(--lantern2); }
+.dev-chname { margin: 0 16px; color: var(--ink2); font-weight: 800; }
+.dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px; }
+.dev-foot { margin: 18px 16px 30px; text-align: center; }
+.dev-fab { position: absolute; right: 4px; bottom: calc(4px + var(--safe-b)); z-index: 90; background: rgba(242,74,42,.85); color: #fff; border: 0; border-radius: 6px; padding: 2px 6px; font: 900 10px sans-serif; opacity: .7; cursor: pointer; }

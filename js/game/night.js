@@ -78,6 +78,7 @@
       var rank = type.likes.indexOf(id);
       var w = rank < 0 ? 1 : 1 + cfg().LIKES_BOOST * (1 - rank / type.likes.length);
       if (N && N.ordered && N.ordered[id]) w *= Math.pow(cfg().ORDER_VARIETY, N.ordered[id]);   // 今夜もう頼まれた料理は頼まれにくく
+      if (st().trend === id) w *= cfg().KAWARABAN.trendBoost;   // 瓦版に載った「はやり」のタコス
       if (id === 'chazuke' && late) w *= 4;              // 夜ふけは〆の茶漬け
       var fest = N && N.fest;
       if (fest && fest.order && fest.order[id]) w *= fest.order[id];   // 行事の日に頼まれやすいタコス
