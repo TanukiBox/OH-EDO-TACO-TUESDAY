@@ -65,9 +65,17 @@
     for (var i = 0; i < c.boxes; i++) {
       var ground = pick(gw), fw = {};
       Object.keys(G[ground].fish).forEach(function (k) { if (fishOk(k)) fw[k] = G[ground].fish[k]; });
+      // 漁場の魚がその章で少ないときは、ほかの魚も少し混ざる
+      if (Object.keys(fw).length < c.mixKinds) Object.keys(c.fish).forEach(function (k) { if (fishOk(k) && !fw[k]) fw[k] = c.mixFill; });
       if (!Object.keys(fw).length) fw = { kisu: 1 };
-      var layers = [];
-      for (var l = 0; l < 3; l++) layers.push(layerOf(pick(fw), Math.round(rnd(c.layerPortions[0], c.layerPortions[1]))));
+      var layers = [], got = {};
+      for (var l = 0; l < 3; l++) {
+        var w = {};   // すでに入った魚は、次の段に入りにくく（段ごとに別の魚になりやすい）
+        Object.keys(fw).forEach(function (k) { w[k] = fw[k] * Math.pow(c.sameLayer, got[k] || 0); });
+        var kind = pick(w);
+        got[kind] = (got[kind] || 0) + 1;
+        layers.push(layerOf(kind, Math.round(rnd(c.layerPortions[0], c.layerPortions[1]))));
+      }
       boxes.push({ i: i, ground: ground, layers: layers, peeked: [true, false, false] });
     }
     // 大当たり：鯨組の日は鯨、ふだんはまれにヌシ。中か下の段にまるごと

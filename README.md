@@ -67,6 +67,7 @@
 | 箱の数・覗ける回数 | `AUCTION.boxes` / `peeks` | 5箱 / 3回 |
 | 1段の量（一山の量） | `AUCTION.layerPortions` | `[3, 6]` 人前 × 3段 ＝ 一晩分くらい |
 | 漁場ごとの中身の傾向 | `AUCTION.grounds.○○.fish` | 数字が大きい魚ほど入りやすい（`weight` はその札の箱の出やすさ） |
+| 1箱の中の魚のばらけ方 | `AUCTION.sameLayer` / `mixKinds` / `mixFill` | `sameLayer` を小さくすると段ごとに別の魚に。漁場の魚がその章で少ないときは `mixFill` の重みでほかの魚も混ざる |
 | 魚の相場 | `AUCTION.fish.○○.perPortion` | 1人前の値段（文）。`big: true` の魚が入ると箱が暴れやすい |
 | 大当たり | `AUCTION.jackpotChance`（ヌシ）/ `whaleChance`（鯨） / `fish.nushi.gives` | ヌシや鯨は中か下の段にまるごと入る |
 | 手がかりの当たりやすさ | `AUCTION.clues` | `weightTrue`（重さの演出が正しい確率）、`shakeBig` / `shakeFalse`（ガタッ）、`catGood` / `catFalse`（猫が居座る）、`goodRatio`（良い箱の基準） |
