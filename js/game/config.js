@@ -482,24 +482,77 @@
     KAGO: { chapter: 2, uses: ['tortilla', 'satoimo'], alt: ['morokoshi', 'satoimo'], batch: 4 },
 
     // ---------------------------------------------------------
-    // ミニゲーム「魚河岸の競り」
+    // ミニゲーム「魚河岸の競り」（一山いくら）
+    //   中身の見えない箱が5つ、1つずつ競りに出る。買えるのは1山だけ。
+    //   値段は掛け声とともに下がっていき、最初に「買った！」と手を上げた人のもの（下げ競り）。
+    //   手がかり：漁場の札・重さ（競り人の持ち上げ方）・揺れと音・猫・上の一匹・覗き見（1朝3回）
     // ---------------------------------------------------------
     AUCTION: {
-      seconds: 30,           // 1回の長さ（秒）
-      lotSeconds: 5.5,       // 1匹（1山）が競りにかかっている時間（秒）
-      priceLow: 0.55,        // 値札が下がる一番下（相場の何倍か）
-      priceHigh: 1.55,       // 値札が上がる一番上
-      whaleChance: 0.15,     // 鯨組の大物が入る日の確率（第4章から）
-      // 競りに出る魚。base = 相場（文）、portions = 何人分の具になるか、gives = 在庫に入る食材
+      boxes: 5,                 // 1朝に出る箱の数
+      peeks: 3,                 // 1朝に覗ける回数
+      showSeconds: 4,           // 箱を見せる時間（秒）。このあと値段が下がりはじめる（舞台をタップすると、すぐ始まる）
+      tickSeconds: 0.45,        // 値段が1段下がる間隔（秒）
+      stepRate: 0.045,          // 1段で下がる幅（はじめの値段の割合）
+      startMul: [1.5, 1.8],     // はじめの値段（見た目から見た相場の何倍か。乱数で幅）
+      floorMul: 0.3,            // 値段がここ（はじめの値段の割合）まで下がると、ライバルの誰かが必ず買う
+      overpay: 1.35,            // 中身の値打ちのこの倍より高く買うと、競り人にからかわれる
+      clashWindow: 0.35,        // 自分とライバルがこの秒数以内に手を上げたら「声比べ」
+      clashSeconds: 2.6,        // 声比べの長さ（秒）
+      whaleChance: 0.15,        // 鯨組の大物が入る日の確率（第4章から。その日はどれかの箱に鯨の切り身）
+      jackpotChance: 0.08,      // ふだんの朝に、どれかの箱にヌシ（大鮪）が入る確率
+      layerPortions: [3, 6],    // 1段の量（何人前）。3段で、その夜の営業一晩分くらい
+      sellRate: 0.45,           // 棒手振りに売る値段（1人前の相場のこの割合）
+      // 魚：perPortion = 1人前の相場（文）、gives = 在庫に入る食材、big = 大物（入っていると箱が暴れやすい）、chapter = 何章から
+      //     jackpot = 大当たり（1段まるごと。gives は食材と人前、value は値打ち）
       fish: {
-        tai:    { base: 90, portions: 5, gives: 'tai', weight: 3, chapter: 1 },
-        kisu:   { base: 55, portions: 4, gives: 'kisu_ten', weight: 4, chapter: 1 },
-        tako:   { base: 70, portions: 5, gives: 'tako', weight: 3, chapter: 1 },
-        katsuo: { base: 80, portions: 6, gives: 'katsuo', weight: 2, chapter: 1 },
-        uni:    { base: 120, portions: 4, gives: 'uni', weight: 1.5, chapter: 4 },
-        kujira: { base: 260, portions: 12, gives: 'kujira', weight: 0, chapter: 4, whale: true }
-      }
+        tai:    { perPortion: 18, gives: 'tai', big: true, chapter: 1 },
+        kisu:   { perPortion: 13, gives: 'kisu_ten', chapter: 1 },
+        tako:   { perPortion: 14, gives: 'tako', chapter: 1 },
+        katsuo: { perPortion: 14, gives: 'katsuo', big: true, chapter: 1 },
+        aji:    { perPortion: 9, gives: 'aji_nanban', chapter: 1 },
+        iwashi: { perPortion: 6, gives: 'iwashi', chapter: 1 },
+        maguro: { perPortion: 20, gives: 'akami', big: true, chapter: 2 },
+        uni:    { perPortion: 28, gives: 'uni', chapter: 4 },
+        nushi:  { jackpot: true, big: true, gives: { akami: 4, chutoro: 4, otoro: 3, zuke: 3 }, value: 380, chapter: 1 },
+        kujira: { jackpot: true, big: true, gives: { kujira: 12 }, value: 300, chapter: 4 }
+      },
+      // 漁場の札：漁場ごとに入りやすい魚（数字が大きいほど入りやすい）。weight = その札の箱が出やすさ
+      grounds: {
+        shinagawa: { weight: 3, fish: { kisu: 4, tako: 3, aji: 3, iwashi: 2, tai: 1 } },
+        boshu:     { weight: 2, fish: { katsuo: 4, tai: 3, aji: 2, maguro: 1 } },
+        sagami:    { weight: 2, fish: { aji: 3, iwashi: 3, katsuo: 2, tai: 1, uni: 1 } },
+        tsukuda:   { weight: 2, fish: { iwashi: 4, kisu: 3, tako: 2 } },
+        mujirushi: { weight: 2, fish: { tai: 1, kisu: 1, tako: 1, katsuo: 1, aji: 1, iwashi: 1, maguro: 1, uni: 1 } }   // 印なし：なんでもあり
+      },
+      // 手がかりの出やすさ（中身と連動するが、確実ではない）
+      clues: {
+        weightTrue: 0.8,        // 競り人の持ち上げ方が、本当の重さどおりになる確率（はずれると1つずれる）
+        light: 12,              // 人前の合計がこれ以下なら「軽い」（軽々と持ち上げる）
+        heavy: 15,              // 人前の合計がこれ以上なら「重い」（うなりながら持ち上げる）
+        shakeBig: 0.75,         // 大物入りの箱が、ときどきガタッと暴れる確率
+        shakeFalse: 0.12,       // 大物がなくても暴れる確率
+        goodRatio: 1.2,         // 値打ちが、その朝の箱の平均のこの倍以上なら「良い箱」
+        catGood: 0.7,           // 良い箱に、猫が寄ってきて離れない確率
+        catFalse: 0.12          // 良くない箱でも、猫が居座る確率
+      },
+      // ライバルの仲買。skill = 目利き（中身の見積もりの正しさ 0〜1）、greed = 出す上限（見積もりの何倍まで）、
+      //   likes = 好きな魚（見積もりが上がる）、react = 手を上げるまでの速さ（秒）、
+      //   tell = 良い箱で身を乗り出して（目を見開いて）しまう確率、bluff = 悪い箱でわざと興味のあるふりをする確率、
+      //   feint = 手がぴくっと動くフェイントの多さ、voice = 声比べの強さ（1秒あたりの連打）
+      rivals: {
+        tatsu:     { chapter: 1, skill: 0.75, greed: 1.0, likes: { tai: 1.2, katsuo: 1.2, maguro: 1.3 }, react: 0.3, tell: 0.6, bluff: 0, feint: 0.15, voice: 7.5 },
+        itamae:    { chapter: 1, skill: 0.92, greed: 0.92, likes: { tai: 1.15, uni: 1.2, kisu: 1.1 }, react: 0.45, tell: 0.8, bluff: 0, feint: 0.05, voice: 6 },
+        daidokoro: { chapter: 2, skill: 0.45, greed: 1.12, likes: { tai: 1.4, kujira: 1.5 }, react: 0.6, tell: 0.4, bluff: 0, feint: 0.05, voice: 6.5 },
+        kitsune:   { chapter: 2, skill: 0.8, greed: 0.85, likes: {}, react: 0.28, tell: 0.1, bluff: 0.55, feint: 0.4, voice: 8 }
+      },
+      rivalsPerChapter: [2, 3, 3, 3, 3, 3],   // 章ごとの、その朝のライバルの人数
+      firstDayEasy: 0.8,        // 1日目は、ライバルの出す上限をこの倍に（やさしく）
+      // 常連漁師の耳打ち：夜に漁師の浜蔵さんを満足させると「信頼」が1上がる。翌朝、信頼×perTrust の確率で耳打ち（1回で信頼が1減る）
+      whisper: { perTrust: 0.3, maxTrust: 4, accuracy: 0.9 }
     },
+
+    // 常連の漁師（夜の客）。満足させるほど、朝の競りの前に耳打ちしてくれる
+    FISHER: { type: 'shokunin', fromDay: 2, chance: 0.35, likes: ['katsuo_tataki', 'kohaku', 'tempura', 'takotaco', 'nanbanzuke'], trustStars: 4 },
 
     // ---------------------------------------------------------
     // ミニゲーム「江戸湾の一本釣り」

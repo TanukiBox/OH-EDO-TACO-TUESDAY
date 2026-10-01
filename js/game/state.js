@@ -28,6 +28,7 @@
       totals: { sales: 0, served: 0, stars: 0 },
       rankSeen: 0,            // お知らせ済みの評判ランク
       whaleDay: false,        // 今日は鯨組の大物が競りに入る日か
+      fisherTrust: 0,         // 常連の漁師・浜蔵さんの信頼（朝の競りで耳打ちしてくれる）
       flags: {},              // 物語の進み具合など
       chStart: { 1: 1 },      // 各章になった日
       regulars: {},           // 常連ごとの、星3を出した回数

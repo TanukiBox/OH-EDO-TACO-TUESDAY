@@ -152,7 +152,7 @@ def convert():
 def main():
     p = argparse.ArgumentParser(description="Oh!Edo Taco Tuesday!! のドット絵を作り直す")
     p.add_argument("--skip-render", action="store_true", help="Blender のレンダリングを省略する")
-    p.add_argument("--only", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story,kitchen", help="レンダリングする種類")
+    p.add_argument("--only", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story,kitchen,market", help="レンダリングする種類")
     a = p.parse_args()
     if not a.skip_render:
         render(a.only)

@@ -33,6 +33,7 @@
   Object.keys(A.creatures || {}).forEach(function (k) { file('cr_' + k, 'creatures/' + k + '.png'); });
   for (var i = 1; i <= (A.story || 0); i++) file('story_' + i, 'story/' + i + '.png');
   file('logo', 'logo.png');
+  ((A.market || {}).images || []).forEach(function (k) { file('mk_' + k, 'market/' + k + '.png'); });
 
   var loaded = {};
   OT.sprites = {
@@ -66,7 +67,7 @@
   OT.sprites.personKey = function (g) {
     if (!g) return null;
     if (typeof g === 'string') return A.people && A.people[g] ? g : null;
-    var cand = g.vipGuest || g.regular || (g.traveler ? 'tabibito' : null);
+    var cand = g.vipGuest || g.regular || (g.traveler ? 'tabibito' : null) || (g.fisher ? 'hamazo' : null);
     if (cand && A.people[cand]) return cand;
     var v = (g.variantSeed || 0) % 2 ? '_b' : '_a';
     return A.people[g.typeId + v] ? g.typeId + v : null;
@@ -88,9 +89,9 @@
   };
 
   /** 会話の顔を canvas（48×48）に描く。なければ false */
-  OT.sprites.drawFace = function (canvas, key, happy) {
+  OT.sprites.drawFace = function (canvas, key, happy) {   // happy: true 喜ぶ / 'sad' 悔しがる / なし ふつう
     var F = A.faces || {};
-    var pos = F[key + (happy ? '_happy' : '')] || F[key];
+    var pos = F[key + (happy === 'sad' ? '_sad' : happy ? '_happy' : '')] || F[key];
     if (!pos || !S.has('faces')) return false;
     canvas.width = canvas.height = FACE;
     var ctx = canvas.getContext('2d');

@@ -133,6 +133,21 @@
     return g;
   }
 
+  /** 常連の漁師・浜蔵：魚のタコスが好き。満足させると、朝の競りで耳打ちしてくれる */
+  function makeFisher(seat) {
+    var F = cfg().FISHER;
+    var g = baseGuest(seat, F.type);
+    g.fisher = true;
+    g.name = OT.STORY[OT.i18n.lang].who.hamazo;
+    g.line = OT.t('fisher.hello');
+    var ok = F.likes.filter(function (id) { return menu().indexOf(id) >= 0; });
+    var can = ok.filter(function (id) { return canMake(id); });
+    var list = can.length ? can : ok;
+    if (list.length) { g.order = list[Math.floor(Math.random() * list.length)]; g.variant = null; }
+    else { var o = chooseOrder(g.type); g.order = o.order; g.variant = o.variant; }
+    return g;
+  }
+
   /** 旅の客：ふるさとの名物を持ってきて、それでタコスを頼む */
   function makeTraveler(seat) {
     var T = cfg().TRAVELERS.list, keys = Object.keys(T);
@@ -256,6 +271,9 @@
           st().vipLast = st().day;
           N.queue.unshift(function (seat) { return makeVip(seat, vip); });
         }
+        // 常連の漁師がふらりと来る
+        var FI = cfg().FISHER;
+        if (FI && st().day >= FI.fromDay && Math.random() < FI.chance) N.queue.push(function (seat) { return makeFisher(seat); });
         // 常連がふらりと来る
         var types = unlockedTypes();
         if (!forced && Math.random() < cfg().REGULARS.chance) {
@@ -350,6 +368,12 @@
     }
     // 星4以上が続くと、評判がさらに上がる
     if (res.stars >= 4) { N.streak++; if (N.streak >= 2) res.rep += cfg().REP.streakBonus; } else N.streak = 0;
+    // 漁師：満足させると、朝の競りで耳打ちしてくれるようになる
+    if (g.fisher && res.stars >= cfg().FISHER.trustStars) {
+      var W = cfg().AUCTION.whisper;
+      st().fisherTrust = Math.min(W.maxTrust, (st().fisherTrust || 0) + 1);
+      setTimeout(function () { if (N) OT.ui.toast(OT.t('fisher.trust'), 'tip long'); }, 900);
+    }
     // 常連：星4以上を出すと、なじみが深まる
     if (g.regular && res.stars >= 4) {
       st().regulars[g.regular] = (st().regulars[g.regular] || 0) + 1;
@@ -362,6 +386,7 @@
     if (res.forbidden && g.type.forbid) g.line = OT.say('cust.' + g.typeId + '.forbid');
     else if (g.vip) g.line = OT.t('vip.' + (N.vipResult === 'win' ? 'win' : 'lose'));
     else if (g.traveler) g.line = OT.say('trav.' + say);
+    else if (g.fisher) g.line = OT.t('fisher.' + say);
     else if (g.regular) g.line = OT.say('reg.' + g.regular + '.' + say);
     else g.line = OT.say('cust.' + g.typeId + '.' + say);
     g.lineT = 2.4;

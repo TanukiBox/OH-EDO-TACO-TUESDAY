@@ -33,7 +33,6 @@
 | タコスの値段 | `TACOS.○○.price` | 文 |
 | 食材の味 | `INGREDIENTS.○○.taste` | `[辛, 酸, 旨, 香, 食感]` |
 | 客の好み | `CUSTOMERS.○○.want`（好きな味の強さ）と `weight`（どれを気にするか） | |
-| 競りの値段の上下 | `AUCTION.priceLow` / `priceHigh` / `fish.○○.base` | |
 | 一本釣りの難しさ | `FISHING.reelSpeed` / `tensionUp` / `fish.○○.pull` | reelSpeed を上げるとやさしい |
 | 抜け荷の見つかりやすさ | `SMUGGLE.spotTime` / `walkSpeed` | spotTime を上げるとやさしい |
 | 物語の場面の時期 | `EVENTS` の `chapter`・`chapterDay` | 例：お城の使いは第5章の5日目から |
@@ -61,6 +60,23 @@
 | 星ごとの代金・心付け | `RATING.starPay` / `RATING.tipRate` | 星1〜5。心付けは出す場面で銭をタップして受け取る |
 | タコスごとの星の上限 | `MASTERY.maxStars` | 熟練度 Lv1〜5 で `[3, 4, 5, 5, 5]` |
 
+### 魚河岸の競り（一山いくら）の調整
+| やりたいこと | config.js のどこ | 例・意味 |
+|---|---|---|
+| 箱の数・覗ける回数 | `AUCTION.boxes` / `peeks` | 5箱 / 3回 |
+| 1段の量（一山の量） | `AUCTION.layerPortions` | `[3, 6]` 人前 × 3段 ＝ 一晩分くらい |
+| 漁場ごとの中身の傾向 | `AUCTION.grounds.○○.fish` | 数字が大きい魚ほど入りやすい（`weight` はその札の箱の出やすさ） |
+| 魚の相場 | `AUCTION.fish.○○.perPortion` | 1人前の値段（文）。`big: true` の魚が入ると箱が暴れやすい |
+| 大当たり | `AUCTION.jackpotChance`（ヌシ）/ `whaleChance`（鯨） / `fish.nushi.gives` | ヌシや鯨は中か下の段にまるごと入る |
+| 手がかりの当たりやすさ | `AUCTION.clues` | `weightTrue`（重さの演出が正しい確率）、`shakeBig` / `shakeFalse`（ガタッ）、`catGood` / `catFalse`（猫が居座る）、`goodRatio`（良い箱の基準） |
+| 値段の下がり方 | `AUCTION.tickSeconds` / `stepRate` / `startMul` / `floorMul` | 0.45秒ごとに、はじめの値段の4.5%ずつ下がる |
+| 声比べ | `AUCTION.clashWindow` / `clashSeconds` | 0.35秒以内に手が重なったら、2.6秒の連打勝負 |
+| ライバルの性格 | `AUCTION.rivals.○○` | `skill` 目利き、`greed` 出す上限、`likes` 好きな魚、`react` 手の速さ、`tell` 良い箱で反応する、`bluff` 興味のあるふり、`feint` 手のぴくっ、`voice` 声比べの強さ |
+| ライバルの人数 | `AUCTION.rivalsPerChapter` | 章ごと。寿司の親方の辰五郎はいつもいる |
+| 1日目のやさしさ | `AUCTION.firstDayEasy` | ライバルの出す上限を 0.8 倍に |
+| 棒手振りに売る値段 | `AUCTION.sellRate` | 相場の 45% |
+| 漁師の耳打ち | `AUCTION.whisper` と `FISHER` | 夜に漁師の浜蔵さんを星4以上で満足させると信頼+1。翌朝、信頼×30%で耳打ち（`accuracy` は当たる確率） |
+
 ### 新しいタコスを足すとき
 1. `config.js` の `TACOS` に1行足す（`skin` 皮・`need` 必要な食材・`price` 値段・`chapter` 何章から）。
 2. `text.js` の日本語と英語の両方に `'taco.名前': '表示する名前'` を足す。
@@ -83,7 +99,8 @@
 | `js/game/night.js` | 夜の営業（客の出入り・常連・旅の客・VIP・評価・閉店） |
 | `js/game/serve.js` | タコスを出す場面（できあがり → お客さんが食べる → 評価と心付け）。このあいだ夜の時間は止まる |
 | `js/game/kitchen.js` | 夜の厨房（木札・焼き場・盛り付け・包む・持ち場のボタン・はじめての夜の案内） |
-| `js/game/auction.js` / `fishing.js` / `forage.js` / `hunt.js` / `smuggle.js` | ミニゲーム（競り・一本釣り・採集・山の追い込み・抜け荷） |
+| `js/game/auction.js` | 魚河岸の競り（一山いくら：箱・手がかり・覗き見・下げ競り・声比べ・開ける・答え合わせ・棒手振り・今朝の戦果） |
+| `js/game/fishing.js` / `forage.js` / `hunt.js` / `smuggle.js` | ミニゲーム（一本釣り・採集・山の追い込み・抜け荷） |
 | `js/game/shop.js` | 町の店 |
 | `js/game/dex.js` | タコス図鑑 |
 | `js/game/story.js` / `opening.js` / `ending.js` | 物語の場面・オープニングの紙芝居・エンディング |

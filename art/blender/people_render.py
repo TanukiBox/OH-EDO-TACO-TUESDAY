@@ -64,7 +64,7 @@ def render_person(key, out, anims=None, portrait=True):
     sc = people.CHARACTERS[key].get("scale", 1.0)
     cam = common.add_ortho_camera("Cam", (0, -10, 1.0 * sc + 1.2), look_at=(0, 0, 0.97 * sc), ortho_scale=2.0 * max(1.0, sc), up="Z")
     if anims is None:
-        anims = people.MATEO_ANIMS if key.startswith("mateo") else people.PON_ANIMS if key == "pon" else people.ANIMS
+        anims = people.anims_for(key)
     for anim, n in anims.items():
         for f in range(n):
             p.pose(anim, f)
@@ -80,6 +80,9 @@ def render_person(key, out, anims=None, portrait=True):
         common.render_to(os.path.join(out, "face_%s.png" % key))
         p.set_face("happy")
         common.render_to(os.path.join(out, "face_%s_happy.png" % key))
+        if key in people.RIVALS or key in ("seri", "hamazo", "mateo", "mateo_happi", "pon"):
+            p.set_face("sad" if key != "pon" else "ok")
+            common.render_to(os.path.join(out, "face_%s_sad.png" % key))
         common.set_resolution(CLOSEUP[0] * 4, CLOSEUP[1] * 4)
         cam.data.ortho_scale = 1.45 * sc
         p.pose("happy", 1)

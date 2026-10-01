@@ -928,3 +928,201 @@ def _top_cam_px(w_px, h_px):
     ob.location = (0, 0, 30)
     bpy.context.scene.camera = ob
     return ob
+
+
+# ---------------------------------------------------------------------------
+# 魚河岸の競り（一山いくら）：夜明けの魚河岸（横から）・猫・トロ箱
+#   横から見た2Dの舞台。座標はゲームのドット（384×216、左上 0,0）で置く。
+#   競り人・箱・ライバル・猫の立ち位置は market_spots.json に書き出す。
+# ---------------------------------------------------------------------------
+MARKET_PX = (384, 216)
+MARKET_SPOTS = {
+    "seri": [192, 150],          # 競り人の足もと（競り台の上）
+    "box": [192, 176],           # 箱を置く台の上（箱の中心）
+    "rivals": [[56, 232], [328, 232], [262, 224]],   # ライバルの足もと（手前。下は画面の外）
+    "catY": 212,                 # 猫が歩く床の高さ
+    "botefuri": [330, 214],      # 棒手振り
+}
+
+
+def _mx(x, y, d=0.0):
+    """舞台のドット (x, y) と奥行き d → Blender（正面から見る。y は下が +）"""
+    return (x * 0.1 - 19.2, d, -(y * 0.1 - 10.8))
+
+
+def _market_cam():
+    cd = bpy.data.cameras.new("Cam")
+    cd.type = "ORTHO"
+    cd.ortho_scale = 38.4
+    ob = link(bpy.data.objects.new("Cam", cd))
+    ob.location = (0, -40, 0)
+    ob.rotation_euler = (math.pi / 2, 0, 0)
+    bpy.context.scene.camera = ob
+    return ob
+
+
+def _flat(color):
+    """光に関係なく、そのままの色（空や遠くの景色）"""
+    return M(color, 0.9, 1.0, name="flat_" + color.strip("#"))
+
+
+def job_market(out):
+    import people
+    T = people.mat   # セル調（人物と同じ塗り）
+    rng = rng_for("market")
+    common.reset_scene()
+    common.set_resolution(MARKET_PX[0] * 4, MARKET_PX[1] * 4)
+    bpy.context.scene.cycles.samples = 16
+    common.add_night_world(strength=0.0)
+
+    # 夜明けの空（帯）と朝日
+    bands = [(0, 26, "#172b58"), (26, 52, "#243f7a"), (52, 74, "#5070b0"), (74, 90, "#f0664e"), (90, 104, "#f5b860")]
+    for y0, y1, col in bands:
+        put(cube(38.6, 0.1, (y1 - y0) * 0.1 + 0.02, _mx(192, (y0 + y1) / 2, 30)), _flat(col), "sky")
+    sun = bmesh.new()
+    bmesh.ops.create_cone(sun, cap_ends=True, segments=32, radius1=1.6, radius2=1.6, depth=0.1)
+    transform_bm(sun, rot_x=math.pi / 2, loc=_mx(300, 102, 29))
+    put(sun, _flat("#ffe6b0"), "sun")
+    for k in range(5):   # 雲
+        x, y = rng.uniform(20, 360), rng.uniform(40, 80)
+        put(ball(1.0, _mx(x, y, 28), 3.0, 0.2, 0.5, 1), _flat("#f0664e" if y > 64 else "#5070b0"), "kumo")
+    # 海と、沖の船（影絵）
+    put(cube(38.6, 0.1, 2.6, _mx(192, 116, 27)), _flat("#34569a"), "umi")
+    put(cube(38.6, 0.1, 0.6, _mx(192, 105, 26.9)), _flat("#243f7a"), "umi_oki")
+    for k in range(14):
+        put(cube(rng.uniform(0.6, 1.6), 0.1, 0.12, _mx(rng.uniform(10, 374), rng.uniform(106, 126), 26.8)), _flat("#ffe6b0" if k % 3 == 0 else "#5070b0"), "nami")
+    for x in (60, 150, 255):
+        put(cube(2.2, 0.1, 0.5, _mx(x, 104, 26.5)), _flat("#172b58"), "fune")
+        put(cube(0.12, 0.1, 2.4, _mx(x + 3, 92, 26.4)), _flat("#172b58"), "hobashira")
+        put(cube(1.2, 0.1, 1.4, _mx(x + 9, 94, 26.4)), _flat("#243f7a"), "ho")
+    # 岸の石垣と、魚河岸の床（ぬれた板）
+    put(cube(38.6, 2.0, 3.2, _mx(192, 142, 6)), T("#76726a"), "ishigaki")
+    for k in range(18):
+        put(cube(2.0, 0.1, 0.06, _mx(k * 22 + 8, 132 + (k % 3) * 6, 4.9)), T("#4a4658"), "ishi_me")
+    put(cube(38.6, 4.0, 4.0, _mx(192, 200, 2)), T("#5a3218"), "yuka")
+    for k in range(5):   # 床板のすき間
+        put(cube(38.6, 0.1, 0.08, _mx(192, 186 + k * 7, -0.05)), T("#2e1a12"), "yuka_sen")
+    for k in range(8):   # 水たまりの照り返し
+        put(cube(rng.uniform(1.0, 2.6), 0.1, 0.08, _mx(rng.uniform(20, 364), rng.uniform(192, 214), -0.1)), _flat("#5070b0"), "mizu")
+    # 屋根と柱（手前のふち）
+    put(cube(38.6, 1.0, 2.0, _mx(192, 8, -2)), T("#2e1a12"), "hari")
+    for k in range(20):
+        put(cube(1.8, 0.6, 0.6, _mx(k * 20 + 10, 20, -1.6)), T("#4a4658"), "kawara")
+    for x in (8, 376):
+        put(cube(1.6, 1.0, 21.6, _mx(x, 108, -2)), T("#5a3218"), "hashira")
+    # 提灯（夜明けで、まだ灯っている）と鐘
+    for x in (44, 340):
+        put(ball(0.9, _mx(x, 38, -1.4), 1, 1, 1.3), M("#f24a2a", 0.5, 1.6), "chochin")
+        put(cube(0.9, 0.9, 0.2, _mx(x, 28, -1.4)), T("#1c1220"), "chochin_kasa")
+    put(cyl(0.7, 1.6, _mx(110, 46, -1.2), seg=16, r2=0.5), T("#dca24a"), "kane")
+    put(cube(0.1, 0.1, 1.6, _mx(110, 30, -1.2)), T("#1c1220"), "kane_himo")
+    # 競り台（まん中の奥）
+    put(cube(13.0, 2.6, 0.5, _mx(192, 152, 0.5)), T("#b87838"), "dai_ita")
+    put(cube(12.6, 2.4, 3.2, _mx(192, 170, 0.6)), T("#8c5228"), "dai")
+    for k in range(-2, 3):
+        put(cube(0.12, 0.1, 3.0, _mx(192 + k * 26, 170, -0.7)), T("#5a3218"), "dai_sen")
+    # 箱を置く台（手前のまん中）
+    put(cube(7.0, 1.6, 0.4, _mx(192, 197, -1.0)), T("#dca24a"), "hakodai")
+    put(cube(6.6, 1.4, 1.8, _mx(192, 208, -1.1)), T("#b87838"), "hakodai_ashi")
+    # 両わきに積んだトロ箱
+    for (x, n) in ((24, 4), (366, 4), (92, 2), (296, 2)):
+        for k in range(n):
+            put(cube(4.0, 2.4, 1.5, _mx(x, 188 - k * 15, 1.5)), T("#dca24a"), "tsumi")
+            put(cube(4.1, 2.5, 0.14, _mx(x, 184 - k * 15, 1.4)), T("#8c5228"), "tsumi_obi")
+    _market_cam()
+    common.render_to(os.path.join(out, "bg_market.png"))
+    with open(os.path.join(out, "market_spots.json"), "w", encoding="utf-8") as f:
+        json.dump(MARKET_SPOTS, f)
+
+    # --- 三毛猫（横から。右を向く）48×40 ---
+    def cat(pose, fr):
+        common.reset_scene()
+        common.set_resolution(48 * 4, 40 * 4)
+        bpy.context.scene.cycles.samples = 8
+        common.add_night_world(strength=0.0)
+        W, O, K = T("#fffaf0"), T("#f5b860"), T("#2e1a12")
+        sit = pose in ("sit", "meow")
+        body_rot = 0.5 if sit else 0.0
+        bx, bz = (-0.1, 0.38) if sit else (0.0, 0.32)
+        b = ball(0.36, (bx, 0, bz), 1.25 if not sit else 0.9, 0.7, 0.75 if not sit else 1.0, 3)
+        put(b, W, "karada")
+        put(ball(0.24, (bx - 0.12, -0.08, bz + 0.12), 1.2, 0.8, 0.8, 2), O, "buchi")
+        put(ball(0.17, (bx + 0.16, -0.08, bz + 0.12), 1.0, 0.8, 0.8, 2), K, "buchi2")
+        hx, hz = (0.32, 0.86) if sit else (0.48, 0.55)
+        if pose == "meow":
+            hz += 0.04
+        put(ball(0.24, (hx, -0.02, hz), 1.05, 0.95, 0.9, 3), W, "atama")
+        put(ball(0.13, (hx - 0.07, -0.04, hz + 0.1), 1.0, 0.9, 0.8, 2), O, "atama_buchi")
+        for s in (-1, 1):
+            e = bmesh.new()
+            bmesh.ops.create_cone(e, cap_ends=True, segments=8, radius1=0.08, radius2=0.0, depth=0.16)
+            transform_bm(e, loc=(hx + 0.02 + 0.07 * s, -0.02 + 0.06 * s, hz + 0.25))
+            put(e, O if s < 0 else K, "mimi")
+        put(ball(0.045, (hx + 0.13, -0.2, hz + 0.03), 1, 0.5, 1.3, 1), M("#1c1220", 0.5, 1.0, name="cat_eye"), "me")
+        put(ball(0.035, (hx + 0.25, -0.12, hz - 0.04), 1, 1, 1, 1), M("#f0664e", 0.5, 1.0, name="cat_nose"), "hana")
+        if pose == "meow":
+            put(ball(0.035, (hx + 0.22, -0.15, hz - 0.11), 1, 0.5, 1, 1), M("#7a1414", 0.5, 1.0, name="cat_mouth"), "kuchi")
+        # しっぽ
+        sw = math.sin(fr * math.pi) * 0.15
+        tail = [(bx - 0.4, 0, bz), (bx - 0.6, 0, bz + 0.15), (bx - 0.68 + sw, 0, bz + 0.4), (bx - 0.6 + sw * 1.5, 0, bz + 0.6)]
+        put(bm_tube(tail, [0.07, 0.065, 0.06, 0.05], 8), W, "shippo")
+        put(ball(0.07, tail[-1], 1, 1, 1, 1), K, "shippo_saki")
+        # 足
+        legs = [(-0.28, 0.1), (-0.25, -0.1), (0.25, 0.1), (0.28, -0.1)] if not sit else [(0.1, 0.12), (0.12, -0.12)]
+        for i, (lx, ly) in enumerate(legs):
+            sw2 = (math.sin(fr / 4 * 2 * math.pi + (i % 2) * math.pi) * 0.12) if pose == "walk" else 0.0
+            put(capsule_s((lx + sw2, ly, 0.28), (lx + sw2 * 1.5, ly, 0.03), 0.065), W, "ashi")
+        if sit:
+            for s in (-1, 1):
+                put(ball(0.14, (bx - 0.18, 0.12 * s, 0.12), 1.4, 0.8, 0.6, 2), W, "ushiro_ashi")
+        cd = bpy.data.cameras.new("Cam"); cd.type = "ORTHO"; cd.ortho_scale = 1.8
+        ob = link(bpy.data.objects.new("Cam", cd)); ob.location = (0.0, -10, 0.62); ob.rotation_euler = (math.pi / 2, 0, 0)
+        bpy.context.scene.camera = ob
+        common.render_to(os.path.join(out, "cat_%s_%d.png" % (pose, fr)))
+
+    for f in range(4):
+        cat("walk", f)
+    for f in range(2):
+        cat("sit", f)
+    cat("meow", 0)
+
+    # --- トロ箱：閉じた箱（正面）80×56・箱の一段（中が空）・ふた 128×40 ---
+    def box_scene(w, h):
+        common.reset_scene()
+        common.set_resolution(w * 4, h * 4)
+        bpy.context.scene.cycles.samples = 8
+        common.add_night_world(strength=0.0)
+    box_scene(80, 56)
+    wood, dark, rope = T("#dca24a"), T("#8c5228"), T("#f0e6d2")
+    put(cube(6.4, 3.6, 2.6, (0, 0, -0.6)), wood, "hako")
+    for z in (-1.5, 0.3):
+        put(cube(6.5, 3.7, 0.25, (0, 0, z)), dark, "hako_obi")
+    put(cube(6.6, 3.8, 0.4, (0, 0, 0.85)), wood, "futa")
+    put(cube(0.3, 3.9, 3.2, (-1.2, 0, -0.3)), rope, "nawa")
+    put(cube(0.3, 3.9, 3.2, (1.2, 0, -0.3)), rope, "nawa")
+    put(cube(6.7, 0.3, 0.3, (0, -1.95, 0.2)), rope, "nawa_yoko")
+    common.oblique_camera(8.0, elevation_deg=22)
+    common.render_to(os.path.join(out, "k_hako.png"))
+    # 一段（中が空のトレイ）：上から少しななめ
+    box_scene(128, 40)
+    wood, dark, rope = T("#dca24a"), T("#8c5228"), T("#f0e6d2")   # 場面を作り直すと消えるので、作り直す
+    put(cube(12.4, 3.2, 0.3, (0, 0, -0.75)), dark, "soko")
+    for s in (-1, 1):
+        put(cube(12.8, 0.3, 1.4, (0, 1.6 * s, -0.2)), wood, "yoko")
+        put(cube(0.3, 3.4, 1.4, (6.3 * s, 0, -0.2)), wood, "hashi")
+    put(cube(12.0, 2.9, 0.1, (0, 0, -0.55)), T("#d6ccb8"), "kori")   # 敷いた氷・笹の代わりに白い紙
+    common.oblique_camera(12.8, elevation_deg=55)
+    common.render_to(os.path.join(out, "k_dan.png"))
+    box_scene(128, 40)
+    wood, dark, rope = T("#dca24a"), T("#8c5228"), T("#f0e6d2")
+    put(cube(12.8, 3.4, 0.5, (0, 0, -0.2)), wood, "futa")
+    for x in (-4.0, 0.0, 4.0):
+        put(cube(0.25, 3.5, 0.55, (x, 0, -0.18)), dark, "futa_sen")
+    put(cube(1.6, 0.6, 0.3, (0, -1.5, 0.15)), rope, "totte")
+    common.oblique_camera(12.8, elevation_deg=55)
+    common.render_to(os.path.join(out, "k_futa.png"))
+
+
+def capsule_s(p0, p1, r):
+    pts = [Vector(p0).lerp(Vector(p1), t / 4) for t in range(5)]
+    return bm_tube([tuple(p) for p in pts], [r] * 5, 8)

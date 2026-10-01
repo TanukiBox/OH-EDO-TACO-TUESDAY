@@ -68,6 +68,50 @@
     // 盛り付け：ぱらぱら（撒く）・とろり（回しかける）
     sprinkle: function () { S().noise({ dur: 0.04, vol: 0.07, f0: 6000 + Math.random() * 2000, f1: 4000, q: 3 }); },
     pour: function () { S().tone({ type: 'sine', f0: 240 + Math.random() * 60, f1: 180, dur: 0.12, vol: 0.04 }); },
+    // 魚河岸の競り：鐘・競り人の掛け声・箱が暴れる・重い箱・猫・箱を開ける・大当たり・からかう笑い
+    bell: function () {
+      [0, 0.5].forEach(function (d) {
+        S().synth({ f: 660, dur: 0.5, vol: 0.12, osc: [{ type: 'sine' }, { type: 'sine', mul: 2.76, gain: 0.5 }, { type: 'sine', mul: 5.4, gain: 0.25 }],
+          env: { a: 0.002, d: 0.9, s: 0, r: 0.6 }, reverb: 0.4, delay: d });
+      });
+    },
+    call: function (soft) {   // 「せーの、えいっ！」のような掛け声（声らしく、少し上がって下がる）
+      var f = 210 + Math.random() * 40;
+      S().synth({ f: f, f1: f * (soft ? 0.85 : 1.3), dur: soft ? 0.12 : 0.2, vol: soft ? 0.05 : 0.09, osc: [{ type: 'sawtooth', detune: -6 }, { type: 'square', detune: 6, gain: 0.4 }],
+        env: { a: 0.01, d: 0.1, s: 0.6, r: 0.08 }, filter: { type: 'bandpass', f: 900, q: 2.5 } });
+    },
+    gata: function () {   // ガタッ
+      S().noise({ dur: 0.08, vol: 0.3, f0: 900, f1: 300, q: 1.5 });
+      S().tone({ type: 'square', f0: 120, f1: 70, dur: 0.1, vol: 0.12 });
+      S().noise({ dur: 0.06, vol: 0.2, f0: 1400, f1: 500, q: 2, delay: 0.09 });
+    },
+    thud: function () {   // ずしり
+      S().tone({ type: 'sine', f0: 110, f1: 45, dur: 0.25, vol: 0.2 });
+      S().noise({ dur: 0.1, vol: 0.15, f0: 600, f1: 150, q: 1 });
+    },
+    meow: function () {   // にゃあ
+      S().synth({ f: 620, f1: 900, dur: 0.16, vol: 0.07, osc: [{ type: 'triangle' }, { type: 'sine', mul: 2, gain: 0.3 }], env: { a: 0.02, d: 0.1, s: 0.7, r: 0.1 }, filter: { type: 'bandpass', f: 1400, q: 1.5 } });
+      S().synth({ f: 900, f1: 520, dur: 0.22, vol: 0.06, osc: [{ type: 'triangle' }], env: { a: 0.01, d: 0.15, s: 0.5, r: 0.12 }, filter: { type: 'bandpass', f: 1200, q: 1.5 }, delay: 0.15 });
+    },
+    open: function () {   // ふたを開ける（木がきしんで、ぱかっ）
+      S().noise({ dur: 0.18, vol: 0.12, f0: 500, f1: 1800, q: 4 });
+      S().noise({ dur: 0.05, vol: 0.22, f0: 2200, f1: 900, q: 1, delay: 0.17 });
+    },
+    laugh: function () {  // わっはっは
+      [0, 0.14, 0.28].forEach(function (d, i) {
+        S().synth({ f: 260 - i * 15, f1: 220 - i * 15, dur: 0.1, vol: 0.07, osc: [{ type: 'sawtooth' }], env: { a: 0.01, d: 0.06, s: 0.4, r: 0.05 }, filter: { type: 'bandpass', f: 800, q: 2 }, delay: d });
+      });
+    },
+    jackpot: function () {   // 大当たり：太鼓と、上がっていく音と、長い和音
+      S().tone({ type: 'sine', f0: 90, f1: 40, dur: 0.5, vol: 0.3 });
+      S().noise({ dur: 0.2, vol: 0.2, f0: 300, f1: 80, q: 0.8 });
+      [523, 659, 784, 1047, 1319, 1568].forEach(function (f, i) {
+        S().synth({ f: f, dur: 0.12, vol: 0.08, osc: [{ type: 'square', gain: 0.5 }, { type: 'triangle' }], env: { a: 0.003, d: 0.1, s: 0.5, r: 0.1 }, delay: 0.35 + i * 0.08, reverb: 0.2 });
+      });
+      [523, 659, 784].forEach(function (f) {
+        S().synth({ f: f, dur: 1.2, vol: 0.06, osc: [{ type: 'triangle' }, { type: 'sine', mul: 2, gain: 0.3 }], env: { a: 0.02, d: 0.4, s: 0.6, r: 0.6 }, delay: 0.85, reverb: 0.35 });
+      });
+    },
     tick: function () { S().tone({ type: 'square', f0: 1200, dur: 0.03, vol: 0.05 }); }
   };
 })(window);

@@ -95,6 +95,12 @@ CHARACTERS = {
     "gonta":      dict(body="happi", cloth="#243f7a", cloth2="#34569a", obi="#f0e6d2", hair="mage", extra=["hachimaki"]),
     "genba":      dict(body="kimono", cloth="#fffaf0", cloth2="#d6ccb8", obi="#76726a", hair="mage", extra=["eboshi"], old=True, brows="thick"),
     "messenger":  dict(body="samurai", cloth="#2e1a12", cloth2="#4a4658", obi="#f0e6d2", hair="mage", extra=["swords"]),
+    # 魚河岸の競り（競り人・仲買のライバル）と、常連の漁師
+    "seri":       dict(body="happi", cloth="#8c5228", cloth2="#fffaf0", obi="#1c1220", hair="mage", extra=["hachimaki_red"], brows="thick"),
+    "itamae":     dict(body="kimono", cloth="#f0e6d2", cloth2="#d6ccb8", obi="#5a3218", hair="mage", extra=["maekake", "tasuki"]),
+    "daidokoro":  dict(body="samurai", cloth="#7a1414", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage_gray", extra=["swords", "crest_gold", "fan"], old=True, brows="thick", scale=1.05),
+    "kitsune":    dict(body="happi", cloth="#4a4658", cloth2="#d6ccb8", obi="#dca24a", hair="mage", extra=["tenugui_kubi"], eyes="fox"),
+    "hamazo":     dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#dca24a", hair="mage", extra=["hachimaki_twist"], brows="thick", stubble=True),
     # 主人公
     "mateo":      dict(body="modern", cloth="#2e1a12", cloth2="#fffaf0", obi="#c42618", hair="short", extra=["bandana", "apron_modern"], brows="thick", stubble=True),
     "mateo_happi": dict(body="happi", cloth="#c42618", cloth2="#fffaf0", obi="#243f7a", hair="short", extra=["hachimaki_red", "crest_taco"], brows="thick", stubble=True),
@@ -106,6 +112,26 @@ ANIMS = {"walk": 4, "wait": 2, "worry": 2, "eat": 2, "happy": 2, "angry": 2}
 # マテオだけの動き：cook 調理中の手元 / greet いらっしゃい / pose 決めポーズ / spin 着替えの回転
 MATEO_ANIMS = {"cook": 2, "greet": 2, "pose": 2, "spin": 2, "wait": 2, "happy": 2, "walk": 4}
 PON_ANIMS = {"wait": 2, "happy": 2}
+# 競りのライバル（仲買）：lean 身を乗り出す / twitch 手がぴくっ / raise 手を上げる / carry 箱を担ぐ / sad 悔しがる / shout 声比べ
+RIVALS = ["tatsu", "itamae", "daidokoro", "kitsune"]
+RIVAL_ANIMS = {"wait": 2, "lean": 2, "twitch": 2, "raise": 2, "carry": 2, "sad": 2, "shout": 2}
+# 競り人：call 掛け声 / lift 箱を軽々と持ち上げる / heavy うなりながら持ち上げる / laugh からかって笑う
+SERI_ANIMS = {"wait": 2, "call": 2, "lift": 2, "heavy": 2, "laugh": 2}
+
+
+def anims_for(key):
+    """その人物がレンダリングする動き"""
+    if key.startswith("mateo"):
+        return MATEO_ANIMS
+    if key == "pon":
+        return PON_ANIMS
+    if key == "seri":
+        return SERI_ANIMS
+    if key in RIVALS:
+        out = dict(ANIMS)
+        out.update(RIVAL_ANIMS)
+        return out
+    return ANIMS
 
 
 # ---------------------------------------------------------------------------
@@ -440,6 +466,7 @@ class Person:
         self.face(c, H)
         self.extras(c, H)
         self.prop_taco()
+        self.prop_box()
 
     # --- たぬき（ポン吉） ---
     def tanuki(self):
@@ -485,6 +512,26 @@ class Person:
         obj("leaf_stem", capsule((0.0, 0.0, 0.58), (-0.04, 0.0, 0.53), 0.014), mat("#1f6a2c"), H)
         self.face({"eyes": None, "tanuki": True}, H)
         self.prop_taco()
+
+    # --- 魚の箱（競り人が持ち上げる・ライバルが担ぐ。ふだんは隠す） ---
+    def prop_box(self):
+        B = empty("box_root", (0, 0, 0), self.root)
+        wood, dark, rope = mat("#dca24a"), mat("#8c5228"), mat("#f0e6d2")
+        B.scale = (0.8, 0.8, 0.8)
+        obj("box", rbox(0.62, 0.42, 0.3, loc=(0, 0, 0), round_=0.85), wood, B)
+        obj("box_band", box(0.64, 0.44, 0.04, loc=(0, 0, 0.08)), dark, B)
+        obj("box_band2", box(0.64, 0.44, 0.04, loc=(0, 0, -0.08)), dark, B)
+        obj("box_rope", box(0.05, 0.46, 0.34, loc=(0.0, 0, 0.0)), rope, B)
+        obj("box_fuda", box(0.16, 0.02, 0.12, loc=(0.18, -0.225, 0.02)), mat("#fffaf0"), B)
+        self.box = B
+        for o in B.children:
+            o.hide_render = True
+
+    def show_box(self, loc, rot=(0, 0, 0)):
+        self.box.location = loc
+        self.box.rotation_euler = Euler(rot)
+        for o in self.box.children:
+            o.hide_render = False
 
     # --- 食べるタコス（右手に持つ。ふだんは隠す） ---
     def prop_taco(self):
@@ -550,12 +597,14 @@ class Person:
         fy = -0.3 if not tan else -0.33
         ex = 0.115 if not tan else 0.13
         F = {}
-        calm = c.get("eyes") == "calm"
+        calm = c.get("eyes") in ("calm", "fox")
+        fox = c.get("eyes") == "fox"
         # 目：黒目がちの大きな目と、光の点
         e_open = []
         for s in (-1, 1):
             if calm:
-                b = capsule((ex * s - 0.045, fy, ey - 0.005), (ex * s + 0.045, fy, ey - 0.005), 0.014)
+                tilt = 0.03 if fox else 0.0   # 狐目：外側がつり上がる
+                b = capsule((ex * s - 0.045 * s, fy, ey - 0.005 - tilt), (ex * s + 0.045 * s, fy, ey - 0.005 + tilt), 0.014)
                 e_open.append(obj("eye_calm", b, dark, H, noline=True))
             else:
                 e_open.append(obj("eye", sphere(0.05, 0.8, 0.4, 1.25, loc=(ex * s, fy, ey)), dark, H, noline=True))
@@ -568,6 +617,10 @@ class Person:
             pts = [(ex * s - 0.05, fy, ey - 0.01), (ex * s, fy - 0.005, ey + 0.035), (ex * s + 0.05, fy, ey - 0.01)]
             e_happy.append(obj("eye_happy", bm_tube(pts, [0.015] * 3, 6), dark, H, noline=True))
         F["eyes_happy"] = e_happy
+        F["eyes_wide"] = []
+        for s in (-1, 1):
+            F["eyes_wide"].append(obj("eye_wide_w", sphere(0.07, 0.95, 0.4, 1.15, loc=(ex * s, fy + 0.005, ey + 0.01)), white, H, noline=True))
+            F["eyes_wide"].append(obj("eye_wide", sphere(0.035, 1, 0.45, 1.1, loc=(ex * s, fy - 0.01, ey + 0.01)), dark, H, noline=True))
         F["eyes_closed"] = [obj("eye_closed", capsule((ex * s - 0.045, fy, ey - 0.01), (ex * s + 0.045, fy, ey - 0.01), 0.013), dark, H) for s in (-1, 1)]
         # 眉
         if not tan:
@@ -590,6 +643,7 @@ class Person:
         F["mouth_angry"] = [obj("mouth_angry", box(0.11, 0.02, 0.045, loc=(0, mfy, my)), red, H, noline=True),
                             obj("teeth", box(0.09, 0.021, 0.014, loc=(0, mfy - 0.004, my + 0.012)), white, H, noline=True)]
         F["mouth_worry"] = [obj("mouth_w", bm_tube([(-0.04, mfy, my - 0.01), (0.0, mfy - 0.005, my + 0.012), (0.04, mfy, my - 0.01)], [0.011] * 3, 6), red, H)]
+        F["mouth_o"] = [obj("mouth_o", sphere(0.035, 1.0, 0.3, 1.1, loc=(0, mfy, my - 0.005)), red, H, noline=True)]
         F["mouth_chew"] = [obj("mouth_chew", sphere(0.04, 1.3, 0.3, 0.55, loc=(0, mfy, my)), red, H, noline=True)]
         if c.get("stubble"):   # マテオのひげ
             obj("mustache", bm_tube([(-0.08, fy + 0.015, my + 0.05), (0.0, fy - 0.01, my + 0.06), (0.08, fy + 0.015, my + 0.05)], [0.018, 0.024, 0.018], 8), mat(HAIR), H)
@@ -611,6 +665,11 @@ class Person:
             "eat": ["eyes_happy", "brows_ok", "mouth_chew" if frame else "mouth_open", "blush"],
             "angry": ["eyes_open", "brows_angry", "mouth_angry", "angry_face"] + (["steam"] if frame else []),
             "talk": ["eyes_open", "brows_ok", "mouth_open"],
+            "wide": ["eyes_wide", "brows_worry", "mouth_o"],
+            "shout": ["eyes_closed", "brows_angry", "mouth_open"],
+            "smug": ["eyes_closed", "brows_angry", "mouth_smile"],
+            "sad": ["eyes_closed", "brows_worry", "mouth_worry", "sweat"],
+            "strain": ["eyes_closed", "brows_angry", "mouth_angry", "sweat"],
         }[expr]
         for k, objs in self.faces.items():
             for o in objs:
@@ -649,6 +708,14 @@ class Person:
                 obj("kuma", box(0.13, 0.02, 0.02, loc=(0.12 * s, -0.31, 0.39), ry=0.5 * s), mat("#f24a2a", emit=1), H)
                 obj("kuma2", box(0.11, 0.02, 0.02, loc=(0.15 * s, -0.29, 0.22), ry=-0.4 * s), mat("#f24a2a", emit=1), H)
         chest, hips = self.chest, self.hips
+        if "maekake" in ex:   # 板前の紺の前掛け
+            obj("maekake", rbox(0.36, 0.035, 0.46, loc=(0, -0.235, -0.5)), mat("#243f7a"), chest)
+            obj("maekake_himo", box(0.4, 0.035, 0.03, loc=(0, -0.235, -0.28)), mat("#fffaf0"), chest)
+        if "tasuki" in ex:    # 袖をたすきで留める
+            for s in (-1, 1):
+                obj("tasuki", capsule((0.22 * s, -0.17, 0.06), (-0.12 * s, -0.2, -0.26), 0.018), mat("#c42618"), chest)
+        if "tenugui_kubi" in ex:   # 首に手ぬぐい
+            obj("tenugui_kubi", bm_tube([(0.17 * math.cos(a), -0.02 + 0.15 * math.sin(a), 0.07 - 0.02 * math.sin(a)) for a in [i * math.pi / 10 for i in range(21)]], [0.035] * 21, 8, cap=False), mat("#dca24a", pattern="kasuri", pat="#8c5228"), chest)
         if "haori" in ex:   # 羽織（前が開いている）
             obj("haori", lathe([(0.0, -0.55), (0.3, -0.55), (0.27, -0.2), (0.25, 0.1), (0.23, 0.3), (0.12, 0.38), (0.0, 0.38)], loc=(0, 0.02, 0), sy=0.86), mat(c["cloth2"]), chest)
             for s in (-1, 1):
@@ -707,6 +774,9 @@ class Person:
             self.leg[s].rotation_euler = Euler((0, 0, 0))
         for o in self.taco:
             o.hide_render = True
+        if hasattr(self, "box"):
+            for o in self.box.children:
+                o.hide_render = True
         bob = 0.0
 
         def arm(s, x, y=0.0, z=0.0, fx=-0.25, fz=0.0, fy=0.0):
@@ -777,5 +847,63 @@ class Person:
                 arm(s, 0.1, -0.8 * s, 0.0, fx=-0.2, fy=1.9 * s)
             hips.rotation_euler = Euler((0, 0.04 * (frame * 2 - 1), 0))
             self.set_face("angry", frame)
+        elif anim == "lean":   # 身を乗り出して、目を見開く
+            self.chest.rotation_euler = Euler((0.32, 0, 0))
+            self.headp.rotation_euler = Euler((-0.25, 0, 0.05 * (frame * 2 - 1)))
+            arm(1, -0.5, 0.25, 0.2, fx=-0.9)
+            arm(-1, -0.5, -0.25, -0.2, fx=-0.9)
+            self.set_face("wide")
+        elif anim == "twitch":   # 手がぴくっと上がりかける
+            arm(1, -0.9 - 0.45 * frame, -0.25, 0, fx=-0.9 + 0.3 * frame)
+            self.headp.rotation_euler = Euler((-0.05, 0, 0))
+            self.set_face("ok" if frame == 0 else "talk")
+        elif anim == "raise":    # 「買った！」と手を上げる
+            arm(1, -0.2, -2.75, 0, fx=-0.1, fy=-0.1)
+            arm(-1, -0.6, -0.1, -0.3, fx=-1.0)
+            bob = 0.03 * frame
+            self.headp.rotation_euler = Euler((-0.12, 0, 0))
+            self.set_face("talk")
+        elif anim == "carry":    # 競り落とした箱を肩に担いで、得意げ
+            arm(1, -0.2, -2.3, 0, fx=-0.6, fy=-0.9)
+            arm(-1, 0.1, 0.8, 0, fx=-0.2, fy=-1.9)
+            self.show_box((0.42, 0.05, 1.12 + 0.03 * frame), (0, 0.35, 0.2))
+            bob = 0.02 * frame
+            self.set_face("smug")
+        elif anim == "sad":      # がっくり
+            self.headp.rotation_euler = Euler((0.3, 0, 0.08 * (frame * 2 - 1)))
+            self.chest.rotation_euler = Euler((0.12, 0, 0))
+            arm(1, 0.0, -0.05, 0, fx=-0.1)
+            arm(-1, 0.0, 0.05, 0, fx=-0.1)
+            bob = -0.02
+            self.set_face("sad")
+        elif anim == "shout":    # 声比べ：口に手をあてて叫ぶ
+            arm(1, -1.5, 0.35, 0.3, fx=-1.5)
+            arm(-1, -1.5, -0.35, -0.3, fx=-1.5)
+            self.headp.rotation_euler = Euler((-0.15 - 0.06 * frame, 0, 0))
+            self.chest.rotation_euler = Euler((-0.08, 0, 0))
+            self.set_face("shout")
+        elif anim == "call":     # 競り人の掛け声：手を振り上げる
+            arm(1, -0.4, -2.2 + 0.5 * frame, 0, fx=-0.6, fy=-0.3)
+            arm(-1, -1.3, 0.3, 0.3, fx=-1.5)
+            self.headp.rotation_euler = Euler((-0.1, 0, 0.06 * (frame * 2 - 1)))
+            self.set_face("talk" if frame == 0 else "shout")
+        elif anim == "lift":     # 軽々と頭の上へ
+            for s in (-1, 1):
+                arm(s, 0, -2.75 * s, 0, fx=-0.25, fy=0.55 * s)
+            self.show_box((0.0, 0.0, 1.76 + 0.04 * frame))
+            bob = 0.03 * frame
+            self.set_face("happy")
+        elif anim == "heavy":    # うなりながら、やっと胸まで
+            for s in (-1, 1):
+                arm(s, -1.0, 0.15 * s, 0, fx=-0.7)
+            self.show_box((0.0, -0.32, 0.72 + 0.02 * frame))
+            bob = -0.06 + 0.015 * frame
+            self.chest.rotation_euler = Euler((0.12, 0, 0.04 * (frame * 2 - 1)))
+            self.set_face("strain")
+        elif anim == "laugh":    # からかって笑う
+            arm(1, -0.6, 0.3, 0.2, fx=-1.2)
+            arm(-1, -0.2, 0.6, 0, fx=-0.4, fy=-1.4)
+            self.headp.rotation_euler = Euler((-0.25, 0, 0.08 * (frame * 2 - 1)))
+            self.set_face("happy")
         hips.location = (0, 0, hip_z + bob)
         bpy.context.view_layer.update()

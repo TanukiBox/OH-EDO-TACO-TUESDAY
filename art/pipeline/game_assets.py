@@ -49,6 +49,11 @@ def people_atlases(R, out, man):
             return parse("MATEO_ANIMS")
         if key == "pon":
             return parse("PON_ANIMS")
+        if key == "seri":
+            return parse("SERI_ANIMS")
+        rivals = re.findall(r'"(\w+)"', re.search(r'RIVALS = \[([^\]]*)\]', src).group(1))
+        if key in rivals:
+            return parse("ANIMS") + parse("RIVAL_ANIMS")[1:]   # wait は ANIMS と同じなので重ねない
         return parse("ANIMS")
 
     man["people"] = {}
@@ -70,7 +75,7 @@ def people_atlases(R, out, man):
                 sheet.alpha_composite(fr, (i * PF[0], 0))
             _save(sheet, os.path.join(out, "people", key + ".png"))
             man["people"][key] = layout
-        for suffix in ("", "_happy"):
+        for suffix in ("", "_happy", "_sad"):
             name = "face_%s%s.png" % (key, suffix)
             if _exists(R, name):
                 faces.append((key + suffix, _px(os.path.join(R, name), (FACE, FACE))))
@@ -188,6 +193,27 @@ def scene_images(R, out, man):
             man["kitchen"]["images"].append(k)
     if _exists(R, "kitchen_slots.json"):
         man["kitchen"]["slots"] = json.load(open(os.path.join(R, "kitchen_slots.json"), encoding="utf-8"))
+    # 魚河岸の競り（一山いくら）：夜明けの魚河岸・猫・トロ箱
+    man["market"] = {"images": []}
+    if _exists(R, "bg_market.png"):
+        _save(_px(os.path.join(R, "bg_market.png"), (384, 216), False), os.path.join(out, "market", "bg.png"))
+        man["market"]["images"].append("bg")
+    cats = [n[:-4] for n in sorted(os.listdir(R)) if n.startswith("cat_") and n.endswith(".png")]
+    if cats:
+        sheet = Image.new("RGBA", (48 * len(cats), 40), (0, 0, 0, 0))
+        man["market"]["cat"] = {}
+        for i, n in enumerate(cats):
+            sheet.alpha_composite(_px(os.path.join(R, n + ".png"), (48, 40)), (i * 48, 0))
+            pose = n[4:].rsplit("_", 1)[0]
+            man["market"]["cat"].setdefault(pose, []).append(i)
+        _save(sheet, os.path.join(out, "market", "cat.png"))
+        man["market"]["images"].append("cat")
+    for k, sz in (("k_hako", (80, 56)), ("k_dan", (128, 40)), ("k_futa", (128, 40))):
+        if _exists(R, k + ".png"):
+            _save(_px(os.path.join(R, k + ".png"), sz), os.path.join(out, "market", k[2:] + ".png"))
+            man["market"]["images"].append(k[2:])
+    if _exists(R, "market_spots.json"):
+        man["market"]["spots"] = json.load(open(os.path.join(R, "market_spots.json"), encoding="utf-8"))
     # 紙芝居
     man["story"] = 0
     for i in range(1, 10):
