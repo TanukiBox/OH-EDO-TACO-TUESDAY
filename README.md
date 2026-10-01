@@ -76,6 +76,7 @@
 | ライバルの人数 | `AUCTION.rivalsPerChapter` | 章ごと。寿司の親方の辰五郎はいつもいる |
 | 1日目のやさしさ | `AUCTION.firstDayEasy` | ライバルの出す上限を 0.8 倍に |
 | 棒手振りに売る値段 | `AUCTION.sellRate` | 相場の 45% |
+| 自分の山の判定・答え合わせの札 | `AUCTION.verdict` | 値打ち÷値段が `great`（1.3）以上で「当たり」、`good`（1.0）以上「まずまず」、`fair`（0.85）以上「ちょっと高くついた」、それ未満「はずれ」。`regretMin`・`regretRate` でほかの箱の「あっちのほうが得だった…」、`reliefRate` で「見送って正解！」の出やすさ |
 | 漁師の耳打ち | `AUCTION.whisper` と `FISHER` | 夜に漁師の浜蔵さんを星4以上で満足させると信頼+1。翌朝、信頼×30%で耳打ち（`accuracy` は当たる確率） |
 
 ### 新しいタコスを足すとき

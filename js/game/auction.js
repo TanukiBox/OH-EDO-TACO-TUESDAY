@@ -601,6 +601,7 @@
   // 競りのあと：開ける → 答え合わせ → 棒手振り → 今朝の戦果
   // ---------------------------------------------------------------
   function afterLots() {
+    if (OT.tut) OT.tut.done('a2');   // 競りが終わったら「買った！」の案内は消す
     A.box = null;
     A.phase = 'after';
     A.seri.anim = 'wait';
@@ -630,7 +631,17 @@
       OT.sfx.open();
       if (L.jackpot) jackpotFx(L.kind);
       opened++;
-      if (opened >= 3) { next.style.visibility = 'visible'; if (OT.tut) OT.tut.point('a4', '#scr-auction .ak-next'); }
+      if (opened >= 3) {
+        setTimeout(function () {
+          if (!A) return;
+          var card = mineCard(b, false);
+          box.parentNode.insertBefore(card, box);   // 箱の上に出して、すぐ見えるように
+          A.lower.scrollTop = 0;
+          verdictSound(verdictOf(b));
+          next.style.visibility = 'visible';
+          if (OT.tut) OT.tut.point('a4', '#scr-auction .ak-next');
+        }, L.jackpot ? 2900 : 450);
+      }
     });
     setLower([title, box, OT.el('div', { class: 'ak-sub', text: OT.t('ak.openHint') }), next]);
   }
@@ -654,37 +665,82 @@
     setTimeout(function () { if (fx.parentNode) fx.parentNode.removeChild(fx); }, 3000);
   }
 
+  /** 自分の山の判定：jackpot 大当たり / great 当たり / good まずまず / fair ちょっと高くついた / bad はずれ */
+  function verdictOf(b) {
+    var V = C().verdict, r = b.value / Math.max(1, b.price);
+    if (b.jackpot) return 'jackpot';
+    return r >= V.great ? 'great' : r >= V.good ? 'good' : r >= V.fair ? 'fair' : 'bad';
+  }
+  /** 5箱の中で、何番目にお得だったか（得 = 値打ち − 値段） */
+  function rankOf(b) {
+    var gains = A.boxes.map(function (x) { return x.value - (x.price || 0); }).sort(function (x, y) { return y - x; });
+    return gains.indexOf(b.value - b.price) + 1;
+  }
+  /** 自分の山の札：中身・値打ち・払った値段・得か損か・判定 */
+  function mineCard(b, compact) {
+    var v = verdictOf(b), gain = b.value - b.price, rank = rankOf(b);
+    var face = OT.ui.pixelCanvas(48, 48, 'ak-mine-face');
+    OT.sprites.drawFace(face, 'mateo_happi', v === 'fair' || v === 'bad' ? 'sad' : true);
+    return OT.el('div', { class: 'ak-mine v-' + v + (compact ? ' compact' : '') }, [
+      OT.el('div', { class: 'ak-mine-head' }, [face, OT.el('div', {}, [
+        OT.el('div', { class: 'ak-mine-title', text: OT.t('ak.mine') + '：' + OT.t('ak.v.' + v) }),
+        OT.el('div', { class: 'ak-mine-gain ' + (gain >= 0 ? 'plus' : 'minus'), text: gain >= 0 ? OT.t('ak.profit', { n: gain }) : OT.t('ak.loss', { n: -gain }) })
+      ])]),
+      compact ? OT.el('div', { class: 'body' }, b.layers.map(function (L) { return layerIcons(L); })) : null,
+      OT.el('div', { class: 'ak-mine-rows' }, [
+        OT.el('span', { text: OT.t('ak.value', { n: b.value }) }),
+        OT.el('span', { text: OT.t('ak.paid', { n: b.price }) }),
+        OT.el('b', { text: rank === 1 ? OT.t('ak.rankTop') : OT.t('ak.rank', { n: rank, m: A.boxes.length }) })
+      ])
+    ]);
+  }
+  function verdictSound(v) {
+    if (v === 'jackpot' || v === 'great') OT.sfx.happy(5);
+    else if (v === 'good') OT.sfx.happy(3);
+    else OT.sfx.lost();
+  }
+
   /** 答え合わせ：ライバルが買った箱も開けて見せる */
   function answer() {
+    if (OT.tut) OT.tut.done('a4');   // 答え合わせに来たら「開け終わったら…」の案内は消す
     var title = OT.el('div', { class: 'ak-after-title', text: OT.t('ak.answer') });
-    var list = OT.el('div', { class: 'ak-answers' });
+    var V = C().verdict;
     var mine = A.bought, myGain = mine ? mine.value - mine.price : 0;
-    var regret = false;
+    var top = mine ? mineCard(mine, true) : OT.el('div', { class: 'ak-mine v-none' }, [OT.el('div', { class: 'ak-mine-title', text: OT.t('ak.verdictNone') })]);
+    var list = OT.el('div', { class: 'ak-answers' });
+    var regrets = 0, k = 0;
     A.boxes.forEach(function (b, i) {
+      if (b.owner === 'me') return;
       var gain = b.value - (b.price || 0);
       var verdict = '';
-      if (b.owner !== 'me') {
-        if (b.jackpot || gain > myGain + 40) { verdict = 'regret'; regret = true; }
-        else if (gain < 0 || gain < myGain - 20) verdict = 'relief';
-      }
+      if (gain - myGain >= Math.max(V.regretMin, b.value * V.regretRate)) { verdict = 'regret'; regrets++; }
+      else if (b.jackpot) { verdict = 'jpmiss'; regrets++; }   // 大当たりの箱を見送った（得かどうかは別）
+      else if (gain < -b.value * V.reliefRate) verdict = 'relief';   // ライバルが、はっきり高値をつかんだ
       var face = OT.ui.pixelCanvas(48, 48, 'ak-ans-face');
-      var happy = b.owner === 'me' ? gain >= 0 : gain >= 0;
-      OT.sprites.drawFace(face, b.owner === 'me' ? 'mateo_happi' : b.owner, b.owner !== 'me' && gain < 0 ? 'sad' : happy);
-      var card = OT.el('div', { class: 'ak-ans ' + (b.owner === 'me' ? 'mine ' : '') + verdict, style: 'animation-delay:' + (i * 0.25) + 's' }, [
+      OT.sprites.drawFace(face, b.owner, gain < 0 ? 'sad' : true);
+      var card = OT.el('div', { class: 'ak-ans ' + verdict, style: 'animation-delay:' + (0.3 + k++ * 0.25) + 's' }, [
         OT.el('div', { class: 'head' }, [OT.el('span', { class: 'n', text: String(i + 1) }), OT.el('span', { class: 'g', text: OT.t('ak.g.' + b.ground) }), face,
-          OT.el('span', { class: 'who', text: b.owner === 'me' ? OT.t('ak.me') : who(b.owner) }), OT.el('span', { class: 'pr', text: OT.t('ui.money', { n: b.price || 0 }) })]),
+          OT.el('span', { class: 'who', text: who(b.owner) }), OT.el('span', { class: 'pr', text: OT.t('ui.money', { n: b.price || 0 }) })]),
         OT.el('div', { class: 'body' }, b.layers.map(function (L) { return layerIcons(L); })),
         OT.el('div', { class: 'foot' }, [OT.el('span', { text: OT.t('ak.value', { n: b.value }) }), verdict ? OT.el('b', { text: OT.t('ak.' + verdict) }) : null].filter(Boolean))
       ]);
       list.appendChild(card);
     });
-    setTimeout(function () { if (!A) return; if (regret) { OT.sfx.lost(); flashMsg(OT.t('ak.regretBig'), 'lost'); } else { OT.sfx.happy(4); flashMsg(OT.t('ak.reliefBig'), 'won'); } }, A.boxes.length * 250 + 200);
+    // まとめのひとこと：まず自分の山。ほかに、はっきり得な箱があったときだけ悔しがる
+    setTimeout(function () {
+      if (!A) return;
+      if (mine) { var v = verdictOf(mine); flashMsg(OT.t('ak.v.' + v), v === 'fair' || v === 'bad' ? 'lost' : 'won'); }
+      else if (regrets) { OT.sfx.lost(); flashMsg(OT.t('ak.regretBig'), 'lost'); }
+      else { OT.sfx.happy(3); flashMsg(OT.t('ak.reliefBig'), 'won'); }
+    }, 300);
+    var others = OT.el('div', { class: 'ak-sub', text: OT.t('ak.others') });
     var next = OT.button(A.bought ? OT.t('ak.toSell') : OT.t('ak.toResult'), function () { if (A.bought) sell(); else result(); }, 'primary big ak-next');
-    setLower([title, list, next]);
+    setLower([title, top, others, list, next]);
   }
 
   /** 棒手振り（与吉）に、要らない魚を安く売る */
   function sell() {
+    if (OT.tut) OT.tut.clear();
     var b = A.bought;
     A.keep = [];
     b.layers.forEach(function (L) { L.items.forEach(function (it) { A.keep.push({ id: it.id, n: it.n, unit: Math.max(1, Math.round(L.unit * C().sellRate)) }); }); });
@@ -734,9 +790,11 @@
       rows.appendChild(OT.el('div', { class: 'ak-res-row' }, [OT.el('span', { text: OT.t('ak.spent') }), OT.el('b', { text: OT.t('ui.money', { n: b.price }) })]));
       if (A.sold) rows.appendChild(OT.el('div', { class: 'ak-res-row' }, [OT.el('span', { text: OT.t('ak.soldBote') }), OT.el('b', { text: '+' + OT.t('ui.money', { n: A.sold }) })]));
       rows.appendChild(OT.el('div', { class: 'ak-res-row' }, [OT.el('span', { text: OT.t('ak.value2') }), OT.el('b', { text: OT.t('ui.money', { n: b.value }) })]));
+      var gain = b.value - b.price;
+      rows.appendChild(OT.el('div', { class: 'ak-res-row verdict v-' + verdictOf(b) }, [OT.el('span', { text: OT.t('ak.v.' + verdictOf(b)) }), OT.el('b', { text: gain >= 0 ? OT.t('ak.profit', { n: gain }) : OT.t('ak.loss', { n: -gain }) })]));
     } else rows.appendChild(OT.el('div', { class: 'ak-res-row' }, [OT.el('span', { text: OT.t('ak.none') })]));
     // ライバルの顔：自分が得をしたほど悔しがる
-    var good = b && b.value - b.price > 0;
+    var good = b && (verdictOf(b) === 'jackpot' || verdictOf(b) === 'great' || verdictOf(b) === 'good');
     var faces = OT.el('div', { class: 'ak-res-faces' });
     A.rivals.forEach(function (r) {
       var f = OT.ui.pixelCanvas(48, 48, 'ak-res-face');
