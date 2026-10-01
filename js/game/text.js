@@ -50,7 +50,7 @@
 
       // ---------- 仕入れ先 ----------
       'sup.uogashi': '魚河岸',
-      'sup.uogashi.desc': '朝の競り。鯛・鱚・蛸・鰹',
+      'sup.uogashi.desc': '朝の競り「一山いくら」。中身の見えない箱を読んで競り落とす',
       'sup.ipponzuri': '江戸湾の一本釣り',
       'sup.ipponzuri.desc': '鯵・鰯・鮪・鰻',
       'sup.satoyama': '田んぼと里山',
@@ -74,20 +74,7 @@
 
       // ---------- 魚河岸の競り ----------
       'auc.title': '魚河岸の競り',
-      'auc.howto': '値札の数字は上がったり下がったり。安いと思ったらタップで競り落とそう！',
       'auc.start': '競りをはじめる',
-      'auc.market': '相場 {n}文',
-      'auc.portions': '{n}人前',
-      'auc.tap': 'タップで買う！',
-      'auc.won': '競り落とした！ {n}文',
-      'auc.lost': 'ほかの店に取られた…',
-      'auc.poor': 'お金が足りない！',
-      'auc.cheap': '安い！',
-      'auc.pricey': '高い…',
-      'auc.timeLeft': 'のこり {n}秒',
-      'auc.result': '競りの結果',
-      'auc.none': '何も買わなかった',
-      'auc.got': '{name} ×{n}人前（{price}文）',
       'auc.done': '仕入れ先を選ぶ画面へ',
 
       // ---------- 夜：営業 ----------
@@ -215,7 +202,6 @@
       'season.summer': '夏',
       'season.autumn': '秋',
       'season.winter': '冬',
-      'auc.whale': '鯨組の大物だ！',
       'fish.uni': '雲丹',
       'fish.kujira': '鯨（鯨組の大物）',
       'fish.title': '江戸湾の一本釣り',
@@ -744,7 +730,7 @@
       'morning.kind.shop': 'Shop',
 
       'sup.uogashi': 'Fish Market',
-      'sup.uogashi.desc': 'Morning auction: sea bream, whiting, octopus, bonito',
+      'sup.uogashi.desc': 'Morning auction: read the sealed boxes and bid on one',
       'sup.ipponzuri': 'Edo Bay Fishing',
       'sup.ipponzuri.desc': 'Horse mackerel, sardine, tuna, eel',
       'sup.satoyama': 'Paddies & Hills',
@@ -767,20 +753,7 @@
       'sup.nagasaki.desc': 'Secret night deals',
 
       'auc.title': 'Fish Market Auction',
-      'auc.howto': 'The price tag goes up and down. Tap when it looks cheap to win the bid!',
       'auc.start': 'Start the auction',
-      'auc.market': 'Usual {n} mon',
-      'auc.portions': '{n} servings',
-      'auc.tap': 'Tap to bid!',
-      'auc.won': 'Sold to you! {n} mon',
-      'auc.lost': 'Another buyer got it…',
-      'auc.poor': 'Not enough money!',
-      'auc.cheap': 'Cheap!',
-      'auc.pricey': 'Pricey…',
-      'auc.timeLeft': '{n}s left',
-      'auc.result': 'Auction results',
-      'auc.none': 'You bought nothing',
-      'auc.got': '{name} x{n} servings ({price} mon)',
       'auc.done': 'Back to the map',
 
       'night.open': 'Open!',
@@ -900,7 +873,6 @@
       'season.summer': 'Summer',
       'season.autumn': 'Autumn',
       'season.winter': 'Winter',
-      'auc.whale': "The whaling crew's big catch!",
       'fish.uni': 'Sea urchin',
       'fish.kujira': 'Whale (big catch)',
       'fish.title': 'Edo Bay Fishing',
@@ -1424,8 +1396,9 @@
       ],
       day1: [
         ['pon', 'おはよう、マテオ！ タコスには具が要るよね。まずは魚河岸の競りに行こう！'],
-        ['pon', '値札の数字は上がったり下がったり。安いと思ったらタップで競り落とすんだ'],
-        ['mateo', '江戸の魚か……鯛、鱚、蛸、鰹。タコスにしたら、きっとうまいぞ']
+        ['pon', '魚河岸の競りは「一山いくら」。中身の見えない箱が5つ出て、買えるのは1山だけなんだ'],
+        ['pon', '漁場の札、競り人の持ち上げ方、ガタッと暴れる音、それに猫！ 手がかりを読んで、値段が下がったところで「買った！」だよ'],
+        ['mateo', '箱の中身を読むのか……鯛、鱚、蛸が入ってるといいな']
       ],
       first_night: [
         ['pon', '開店だ！ お客さん、来るかなあ'],
@@ -1656,8 +1629,9 @@
       ],
       day1: [
         ['pon', "Morning, Mateo! Tacos need fillings. Let's hit the fish market auction!"],
-        ['pon', 'The price tag goes up and down. Tap when it looks cheap!'],
-        ['mateo', 'Edo fish… sea bream, whiting, octopus, bonito. They would make great tacos.']
+        ['pon', "The fish market sells by the box: five sealed boxes, and you can only buy one."],
+        ['pon', "Read the clues: the fishing-ground tag, how the auctioneer lifts it, any rattling, and the cat! As the price drops, shout \"Mine!\""],
+        ['mateo', 'Reading what is inside a box… I hope there is sea bream, whiting or octopus.']
       ],
       first_night: [
         ['pon', "We're open! Will anyone come?"],

@@ -314,6 +314,10 @@
     CUSTOMER_JITTER: 1,
     // 客の種類が来る割合（章ごとに解禁された種類から選ぶ）
     CUSTOMER_MIX: { chonin: 5, shokunin: 3, samurai: 2, bozu: 1.3, rikishi: 1.1, tsujin: 1.2 },
+    // 注文の決め方：好物（likes の前ほど）は 1 + LIKES_BOOST 倍まで頼まれやすい（likes にないものは 1）
+    LIKES_BOOST: 1.6,
+    // 同じ夜にすでに頼まれた料理は、1回頼まれるごとに、この倍だけ頼まれにくくなる（同じ注文が続かないように）
+    ORDER_VARIETY: 0.5,
     // 客がひとこと感想を言う確率
     COMMENT_CHANCE: 0.4,
 
@@ -502,15 +506,16 @@
       jackpotChance: 0.08,      // ふだんの朝に、どれかの箱にヌシ（大鮪）が入る確率
       layerPortions: [3, 6],    // 1段の量（何人前）。3段で、その夜の営業一晩分くらい
       sellRate: 0.45,           // 棒手振りに売る値段（1人前の相場のこの割合）
-      // 魚：perPortion = 1人前の相場（文）、gives = 在庫に入る食材、big = 大物（入っていると箱が暴れやすい）、chapter = 何章から
+      // 魚：perPortion = 1人前の相場（文）、gives = 在庫に入る食材、big = 大物（入っていると箱が暴れやすい）、
+      //     chapter = 何章から箱に入るか（その章のタコスで使う魚から。鰯は安い外れの魚として第2章から）
       //     jackpot = 大当たり（1段まるごと。gives は食材と人前、value は値打ち）
       fish: {
         tai:    { perPortion: 18, gives: 'tai', big: true, chapter: 1 },
         kisu:   { perPortion: 13, gives: 'kisu_ten', chapter: 1 },
         tako:   { perPortion: 14, gives: 'tako', chapter: 1 },
-        katsuo: { perPortion: 14, gives: 'katsuo', big: true, chapter: 1 },
-        aji:    { perPortion: 9, gives: 'aji_nanban', chapter: 1 },
-        iwashi: { perPortion: 6, gives: 'iwashi', chapter: 1 },
+        katsuo: { perPortion: 14, gives: 'katsuo', big: true, chapter: 2 },
+        aji:    { perPortion: 9, gives: 'aji_nanban', chapter: 2 },
+        iwashi: { perPortion: 6, gives: 'iwashi', chapter: 2 },
         maguro: { perPortion: 20, gives: 'akami', big: true, chapter: 2 },
         uni:    { perPortion: 28, gives: 'uni', chapter: 4 },
         nushi:  { jackpot: true, big: true, gives: { akami: 4, chutoro: 4, otoro: 3, zuke: 3 }, value: 380, chapter: 1 },

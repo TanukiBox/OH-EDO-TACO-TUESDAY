@@ -76,12 +76,14 @@
     var late = N && N.time > cfg().DAY.nightSeconds * cfg().DAY.lateNight;
     var order = pickWeighted(m, function (id) {
       var rank = type.likes.indexOf(id);
-      var w = rank < 0 ? 1 : (type.likes.length - rank) + 1;
+      var w = rank < 0 ? 1 : 1 + cfg().LIKES_BOOST * (1 - rank / type.likes.length);
+      if (N && N.ordered && N.ordered[id]) w *= Math.pow(cfg().ORDER_VARIETY, N.ordered[id]);   // 今夜もう頼まれた料理は頼まれにくく
       if (id === 'chazuke' && late) w *= 4;              // 夜ふけは〆の茶漬け
       var fest = N && N.fest;
       if (fest && fest.order && fest.order[id]) w *= fest.order[id];   // 行事の日に頼まれやすいタコス
       return canMake(id) ? w : w * 0.12;                  // 作れないものは頼まれにくい
     });
+    if (N) { N.ordered = N.ordered || {}; N.ordered[order] = (N.ordered[order] || 0) + 1; }
     var r = cfg().TACOS[order], variant = null;
     if (r.variants) {
       variant = makeableVariant(order);

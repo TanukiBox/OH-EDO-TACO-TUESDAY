@@ -33,6 +33,7 @@
 | タコスの値段 | `TACOS.○○.price` | 文 |
 | 食材の味 | `INGREDIENTS.○○.taste` | `[辛, 酸, 旨, 香, 食感]` |
 | 客の好み | `CUSTOMERS.○○.want`（好きな味の強さ）と `weight`（どれを気にするか） | |
+| 注文のかたより | `LIKES_BOOST`（好物が頼まれやすい度合い）/ `ORDER_VARIETY`（同じ夜に同じ料理が続かない度合い） | `ORDER_VARIETY` を 1 にすると続きやすく、0.3 にするとばらける |
 | 一本釣りの難しさ | `FISHING.reelSpeed` / `tensionUp` / `fish.○○.pull` | reelSpeed を上げるとやさしい |
 | 抜け荷の見つかりやすさ | `SMUGGLE.spotTime` / `walkSpeed` | spotTime を上げるとやさしい |
 | 物語の場面の時期 | `EVENTS` の `chapter`・`chapterDay` | 例：お城の使いは第5章の5日目から |
