@@ -3,6 +3,7 @@ import math
 import os
 
 import bpy
+from mathutils import Vector
 
 import common
 import people
@@ -42,15 +43,21 @@ def render_person(key, out, anims=None, portrait=True):
         # 会話の顔（ふつう・喜ぶ）と、星3の大写し
         common.set_resolution(PORTRAIT[0] * 4, PORTRAIT[1] * 4)
         cam.data.ortho_scale = 1.05 * sc
-        cam.location = (0, -10, 1.36 * sc + 1.2)
         p.pose("wait", 0)
+        face_z, close_z = 1.36 * sc, 1.22 * sc
+        if people.CHARACTERS[key].get("body") == "tanuki":
+            # ポン吉は頭の高さが人とちがうので、頭の中心に合わせて枠に収める
+            bpy.context.view_layer.update()
+            head_c = (p.headp.matrix_world @ Vector((0, 0, 0.3))).z
+            face_z, close_z = head_c, head_c - 0.12
+        cam.location = (0, -10, face_z + 1.2)
         p.set_face("talk")
         common.render_to(os.path.join(out, "face_%s.png" % key))
         p.set_face("happy")
         common.render_to(os.path.join(out, "face_%s_happy.png" % key))
         common.set_resolution(CLOSEUP[0] * 4, CLOSEUP[1] * 4)
         cam.data.ortho_scale = 1.35 * sc
-        cam.location = (0, -10, 1.22 * sc + 1.2)
+        cam.location = (0, -10, close_z + 1.2)
         p.pose("happy", 1)
         common.render_to(os.path.join(out, "close_%s.png" % key))
 

@@ -88,6 +88,9 @@ def people_atlases(R, out, man):
             _save(sheet, os.path.join(out, "people", key + ".png"))
 
 
+RED_RAW = {"katsuo", "kujira"}   # 生のときに濃い赤になる具（赤身）
+
+
 def food_atlases(R, out, man, food_keys):
     """食材：アイコン（32×32、輪郭あり）と、かけら（36×36、輪郭なし・3通り）"""
     cols = 16
@@ -115,7 +118,8 @@ def food_atlases(R, out, man, food_keys):
             if look is None or k in cooked:
                 for v in range(3):
                     if _exists(R, "piece_%s_%d.png" % (k, v)):
-                        sheet.alpha_composite(_px(os.path.join(R, "piece_%s_%d.png" % (k, v)), (36, 36), False, look), (x0 + v * 36, y0))
+                        how = "raw_red" if look == "raw" and k in RED_RAW else look
+                        sheet.alpha_composite(_px(os.path.join(R, "piece_%s_%d.png" % (k, v)), (36, 36), False, how), (x0 + v * 36, y0))
             man["pieces"][k] = [x0, y0, counts.get(k, 5)]
         _save(sheet, os.path.join(out, fname))
 
@@ -165,7 +169,7 @@ def scene_images(R, out, man):
             _save(_px(os.path.join(R, k + ".png"), sz), os.path.join(out, "creatures", k + ".png"))
             man["creatures"][k] = list(sz)
     # 夜の厨房（焼き場・炎・木札・紐・捨て桶・鉢・徳利）
-    kitchen = {"k_grill": ((256, 176), False), "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
+    kitchen = {"k_shichirin": ((256, 160), False), "k_fryer": ((256, 160), False), "k_wara": ((256, 160), False), "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
                "k_ticket": ((56, 72), True), "k_rope": ((128, 12), False), "k_trash": ((40, 40), True), "k_bowl": ((32, 32), True), "k_jug": ((32, 32), True)}
     man["kitchen"] = {"images": []}
     for k, (sz, ol) in kitchen.items():

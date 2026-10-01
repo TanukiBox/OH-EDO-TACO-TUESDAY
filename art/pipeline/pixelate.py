@@ -88,6 +88,8 @@ def recolor_image(img, how):
     rgb_ = a[..., :3]
     if how == "raw":
         rgb_ = rgb_ * np.array([0.5, 0.45, 0.45]) + np.array([245, 175, 160]) * np.array([0.5, 0.55, 0.55])
+    elif how == "raw_red":   # 赤身の魚（鰹など）の生：濃い赤
+        rgb_ = rgb_ * np.array([0.45, 0.25, 0.28]) + np.array([200, 30, 40]) * np.array([0.55, 0.75, 0.72])
     elif how == "burnt":
         rgb_ = rgb_ * np.array([0.34, 0.26, 0.24]) + np.array([22, 12, 10])
     a[..., :3] = np.clip(rgb_, 0, 255)

@@ -48,14 +48,15 @@
 | 揚げ時間 | `KITCHEN.fry.time` | 7秒 |
 | 藁焼き | `KITCHEN.sear.done` | 押している合計の秒数 `[1.2, 1.9]` |
 | 食材ごとの焼き時間 | `KITCHEN.timeMul` | 蒲焼 1.3 = 3割長い |
-| 網・油鍋の数 | `KITCHEN.grillSlots` / `fryerSlots` / `searSlots` | 章ごと。ランクが上がると増える |
+| 網・油鍋の数 | `KITCHEN.grillSlots` / `fryerSlots` / `searSlots` | 章ごと。ランクが上がると増える（七輪は1つに2切れ、2つ目の七輪は第3章から） |
+| 焼き場の絵と置き場所 | `art/blender/scenes.py` の `job_kitchen` | 七輪・油鍋・藁焼きの3枚。置き場所は絵といっしょに自動で書き出される |
 | 焼き上がりの置き場 | `KITCHEN.warmTray` | 6 |
 | 食材の調理法 | `INGREDIENTS.○○.cook` | `'grill'` 焼く / `'fry'` 揚げる / `'sear'` 炙る / 書かない＝そのまま盛り付け |
 | 盛り付け方 | `INGREDIENTS.○○.use` | `'drop'` 置く / `'sprinkle'` 撒く / `'drizzle'` 回しかける |
 | のせる順番（木札の絵） | `TACOS.○○.need` の並び | 皮のあと、この順にのせると盛り付け点が満点 |
 | 採点の重み | `SCORE.weights`（注文あり）/ `SCORE.omakaseWeights`（おまかせ） | 待ち時間・焼き加減・盛り付け・好み。おまかせは好みが重い |
 | 盛り付けの中の重み | `SCORE.plate` | 順番・量・均等さ |
-| 薬味・たれのちょうど良い量 | `SCORE.sprinkleTarget`（撒く回数）/ `drizzleTarget`（たれの長さ） | 6回 / 150 |
+| 薬味・たれのちょうど良い量 | `SCORE.sprinkleTarget`（撒く回数）/ `drizzleTarget`（たれの長さ） | 6回 / 200（皮の幅が約90なので、左右に2往復くらい） |
 | 待ち時間の点 | `SCORE.waitGrace` / `waitFloor` | 待てる時間の4割までに出せば満点 |
 | 星ごとの代金・心付け | `RATING.starPay` / `RATING.tipRate` | 星1〜5。心付けは閉店後に壺から所持金へ |
 | タコスごとの星の上限 | `MASTERY.maxStars` | 熟練度 Lv1〜5 で `[3, 4, 5, 5, 5]` |

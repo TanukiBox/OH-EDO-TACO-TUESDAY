@@ -695,84 +695,171 @@ def job_story(out, textures):
 
 
 # ---------------------------------------------------------------------------
-# 夜の厨房：焼き場（真上から）・藁焼きの炎・木札・紐・捨て桶・薬味の鉢・たれの徳利
-#   焼き場の置き場所（網・油鍋・藁焼き）は kitchen_slots.json に書き出し、ゲームはそれを使う
+# 夜の厨房：焼き場は3つの画面に分ける
+#   七輪（丸い珪藻土の七輪を2つ、斜め上から）・油鍋（天ぷら鍋と油切りの網）・藁焼き（鉄の火鉢に藁、横から）
+#   それぞれの置き場所（画面の 0〜1）は kitchen_slots.json に書き出し、ゲームはそれを使う
+#   ほか：藁焼きの炎・木札・紐・捨て桶・薬味の鉢・たれの徳利
 # ---------------------------------------------------------------------------
-KITCHEN_PX = (256, 176)
-KITCHEN_SLOTS = {
-    "grill": [[46, 58], [84, 58], [46, 124], [84, 124]],
-    "fry": [[154, 62], [154, 126]],
-    "sear": [[222, 100]],
-}
-
-
-def _kx(x, y, z=0.0):
-    """焼き場の座標（左上 0,0・ドット）→ Blender（真上から見る）"""
-    return (x * 0.1 - 12.8, -(y * 0.1 - 8.8), z)
-
-
-def _kitchen_cam(w_px, h_px):
-    cd = bpy.data.cameras.new("Cam")
-    cd.type = "ORTHO"
-    cd.ortho_scale = max(w_px, h_px) * 0.1
-    ob = link(bpy.data.objects.new("Cam", cd))
-    ob.location = (0, 0, 30)
-    bpy.context.scene.camera = ob
-    return ob
+KVIEW_PX = (256, 160)
 
 
 def _small_scene(w, h, samples=24):
     common.reset_scene()
     common.set_resolution(w * 4, h * 4)
     bpy.context.scene.cycles.samples = samples
-    common.add_lantern_light(direction_from=(-1.0, 0.8, 1.4), strength=3.4)
+    common.add_lantern_light(direction_from=(-1.0, -1.2, 1.4), strength=3.2)
     night_world(strength=0.7, color=(0.7, 0.72, 0.85))
+
+
+def _proj(cam, p):
+    v = world_to_camera_view(bpy.context.scene, cam, Vector(p))
+    return [round(v.x, 4), round(1 - v.y, 4)]
+
+
+def _counter(rng, w=16.0, d=9.0, z=0.0, tag="k"):
+    """手前の板の台と、奥の屋台の板壁"""
+    for k in range(10):
+        put(cube(w, d / 10 * 0.98, 0.3, (0, -d / 2 + d / 10 * (k + 0.5), z - 0.15)),
+            noiseM("%s_board%d" % (tag, k % 2), [(0, "#b87838"), (0.6, "#8c5228"), (1, "#5a3218")], 3 + k % 2), "board")
+    put(cube(w, 0.3, 8.0, (0, d / 2 + 0.1, z + 3.8)), noiseM("%s_wall" % tag, [(0, "#5a3218"), (1, "#2e1a12")], 2), "wall")
+    for k in range(-4, 5):
+        put(cube(0.12, 0.2, 8.0, (k * 1.9, d / 2 - 0.05, z + 3.8)), M("#2e1a12"), "wall_beam")
+
+
+def _shichirin(cx, rng, lit=True):
+    """丸い七輪：珪藻土の胴・上下の金具・下の空気窓・炭・丸い焼き網"""
+    clay = noiseM("k_keisodo", [(0, "#f0e6d2"), (0.5, "#d6ccb8"), (1, "#b08a4a")], 6)
+    prof = [(0.0, 0.0), (1.05, 0.0), (1.12, 0.15), (1.18, 1.4), (1.2, 1.55), (1.0, 1.55), (0.98, 1.2), (0.0, 1.2)]
+    body = common.bm_lathe(prof, 40)
+    transform_bm(body, loc=(cx, 0, 0))
+    put(body, clay, "shichirin")
+    for z, h, r in ((1.38, 0.1, 1.205), (0.1, 0.12, 1.135)):   # 帯（ふたにならないよう、輪の形に）
+        band = common.bm_lathe([(r, z), (r + 0.02, z), (r + 0.02, z + h), (r, z + h)], 40)
+        transform_bm(band, loc=(cx, 0, 0))
+        put(band, M("#1c1220", 0.35), "kanagu")
+    # 空気窓（手前の下）と、半分あいた小窓の戸
+    put(cube(0.62, 0.2, 0.42, (cx, -1.08, 0.48)), M("#2e1a12"), "mado")
+    if lit:
+        put(cube(0.5, 0.1, 0.3, (cx, -1.12, 0.46)), M("#f24a2a", 0.8, 2.0), "mado_hi")
+    put(cube(0.36, 0.08, 0.46, (cx + 0.26, -1.2, 0.48)), M("#76726a", 0.35), "mado_to")
+    # 炭（光る）：下の熾火（おきび）が、炭のすき間から赤く見える
+    if lit:
+        put(cyl(0.96, 0.04, (cx, 0, 1.22), seg=40), M("#c42618", 0.8, 1.2), "okibi")
+    for k in range(30):
+        a, d = rng.uniform(0, math.pi * 2), math.sqrt(rng.random()) * 0.82
+        hot = lit and rng.random() < 0.35
+        put(ball(rng.uniform(0.17, 0.26), (cx + math.cos(a) * d, math.sin(a) * d, 1.32), 1.3, 0.9, 0.7, 1),
+            M("#f5b860" if hot and rng.random() < 0.2 else "#f24a2a" if hot else "#1c1220", 0.8, 2.0 if hot else 0), "sumi")
+    if lit:
+        point_light((cx, 0, 1.9), color=(1.0, 0.45, 0.2), power=90, radius=0.8)
+    # 丸い焼き網（ふちの輪と、格子の針金）
+    R = 1.08
+    rim = common.bm_torus(R, 0.035, 48, 6)
+    transform_bm(rim, loc=(cx, 0, 1.6))
+    put(rim, M("#aaa292", 0.3), "ami_fuchi")
+    for k in range(-6, 7):
+        t = k * 0.16
+        half = math.sqrt(max(0.0, R * R - t * t))
+        if half < 0.05:
+            continue
+        put(cube(half * 2, 0.025, 0.025, (cx, t, 1.6)), M("#76726a", 0.3), "ami")
+        put(cube(0.025, half * 2, 0.025, (cx + t, 0, 1.61)), M("#76726a", 0.3), "ami")
+
+
+def _kview_cam(scale, elev):
+    cam = common.oblique_camera(scale, elevation_deg=elev)
+    return cam
 
 
 def job_kitchen(out):
     rng = rng_for("kitchen")
-    # --- 焼き場（真上から）256×176 ---
-    _small_scene(*KITCHEN_PX, samples=32)
-    # 板の台
-    for k in range(9):
-        put(cube(25.6, 1.9, 0.3, _kx(128, 10 + k * 20, -0.4)), noiseM("k_board%d" % (k % 2), [(0, "#b87838"), (0.6, "#8c5228"), (1, "#5a3218")], 3 + k % 2), "board")
-    # 七輪（長い切り出し七輪）：土の枠・炭・網
-    put(cube(10.2, 13.6, 1.0, _kx(65, 91, 0)), noiseM("k_clay", [(0, "#f4cc62"), (0.5, "#dca24a"), (1, "#b87838")], 4), "konro")
-    put(cube(8.6, 12.0, 1.1, _kx(65, 91, 0.1)), M("#2e1a12"), "konro_in")
-    for k in range(70):
-        x, y = rng.uniform(26, 104), rng.uniform(34, 148)
-        hot = rng.random() < 0.45
-        put(ball(rng.uniform(0.35, 0.6), _kx(x, y, 0.5), 1, 1, 0.5, 1), M("#f24a2a" if hot else "#1c1220", 0.8, 2.5 if hot else 0), "sumi")
-    for k in range(11):   # 網（金網）
-        put(cube(8.6, 0.08, 0.08, _kx(65, 36 + k * 11, 0.75)), M("#76726a", 0.3), "ami_x")
-    for k in range(9):
-        put(cube(0.08, 12.0, 0.08, _kx(26 + k * 9.8, 91, 0.78)), M("#76726a", 0.3), "ami_y")
-    point_light(_kx(65, 91, 2.0), color=(1.0, 0.5, 0.25), power=260, radius=2.0)
-    # 油鍋（鉄の丸鍋）
-    put(cyl(4.4, 0.9, _kx(154, 94, 0), seg=40), M("#4a4658", 0.35), "nabe")
-    put(cyl(4.0, 0.95, _kx(154, 94, 0.05), seg=40), noiseM("k_oil", [(0, "#f5b860"), (0.5, "#dca24a"), (1, "#b87838")], 2), "oil")
+    slots = {}
+
+    # --- 七輪（2つ。斜め上から）---
+    _small_scene(*KVIEW_PX, samples=32)
+    _counter(rng)
+    for i, cx in enumerate((-1.75, 1.75)):
+        _shichirin(cx, rng, lit=True)
+    # 団扇（うちわ）と火箸
+    put(cube(0.9, 1.1, 0.04, (-4.1, -1.6, 0.05), rz=0.4), M("#f0e6d2", 0.5), "uchiwa")
+    put(cube(0.1, 0.9, 0.06, (-3.6, -2.4, 0.05), rz=0.4), M("#8c5228"), "uchiwa_e")
+    for s in (0, 0.12):
+        put(cube(0.05, 2.0, 0.05, (3.9 + s, -1.8, 0.05), rz=0.25), M("#76726a", 0.3), "hibashi")
+    cam = _kview_cam(6.6, 52)
+    cam.location = cam.location + Vector((0, 0, 0.9))
+    common.render_to(os.path.join(out, "k_shichirin.png"))
+    slots["grill"] = [_proj(cam, (cx + dx, 0, 1.66)) for cx in (-1.75, 1.75) for dx in (-0.5, 0.5)]
+
+    # --- 油鍋（天ぷら鍋。斜め上から）---
+    _small_scene(*KVIEW_PX, samples=32)
+    _counter(rng, tag="f")
+    # かまど（土の台）
+    put(cyl(2.0, 1.0, (-0.9, 0.2, 0), seg=40, r2=1.9), noiseM("k_kamado", [(0, "#d6ccb8"), (0.5, "#b08a4a"), (1, "#8c5228")], 5), "kamado")
+    put(cube(0.8, 0.2, 0.5, (-0.9, -1.85, 0.4)), M("#2e1a12"), "kamado_mado")
+    put(cube(0.6, 0.1, 0.34, (-0.9, -1.9, 0.38)), M("#f24a2a", 0.8, 2.0), "kamado_hi")
+    # 鉄の天ぷら鍋（厚いふち・両耳）
+    pot = common.bm_lathe([(0.0, 0.0), (1.4, 0.0), (1.85, 0.45), (2.05, 0.95), (2.1, 1.0), (1.98, 1.0), (1.92, 0.9), (1.32, 0.12), (0.0, 0.12)], 48)
+    transform_bm(pot, loc=(-0.9, 0.2, 1.0))
+    put(pot, M("#4a4658", 0.35), "nabe")
     for s in (-1, 1):
-        put(cube(0.5, 1.4, 0.4, _kx(154 + s * 46, 94, 0.6)), M("#1c1220", 0.4), "nabe_ear")
-    for k in range(14):   # 泡
-        put(ball(0.18, _kx(154 + rng.uniform(-30, 30), 94 + rng.uniform(-30, 30), 1.0), 1, 1, 0.4, 1), M("#ffe6b0", 0.3), "awa")
-    # 藁焼き（鉄の火鉢に藁）
-    put(cyl(2.5, 0.8, _kx(222, 100, 0), seg=32), M("#4a4658", 0.4), "hibachi")
-    put(cyl(2.2, 0.85, _kx(222, 100, 0.05), seg=32), M("#2e1a12"), "hibachi_in")
-    for k in range(40):
-        a = rng.uniform(0, math.pi * 2)
-        x, y = 222 + math.cos(a) * rng.uniform(0, 18), 100 + math.sin(a) * rng.uniform(0, 18)
-        put(cube(rng.uniform(0.8, 1.6), 0.08, 0.08, _kx(x, y, 0.95), rz=rng.uniform(0, math.pi)), M(rng.choice(["#f4cc62", "#dca24a", "#fbe39a"])), "wara")
-    # 藁の束（そば）
+        put(cube(0.5, 0.3, 0.12, (-0.9 + s * 2.2, 0.2, 1.9)), M("#1c1220", 0.4), "nabe_mimi")
+    # 油（ごま油の琥珀色。まん中が明るく、ふちが暗い）
+    for r, z, col in ((1.92, 1.74, "#8c5228"), (1.7, 1.76, "#b87838"), (1.25, 1.77, "#dca24a"), (0.7, 1.78, "#f5b860")):
+        put(cyl(r, 0.03, (-0.9, 0.2, z), seg=48), M(col, 0.08), "abura")
+    put(ball(0.25, (-1.6, 0.9, 1.84), 1.6, 0.6, 0.1, 1), M("#ffe6b0", 0.1, 0.6), "tsuya")   # 照り返し
+    # 油切りの網とバット、菜箸、衣の鉢
+    put(cube(2.6, 1.8, 0.12, (3.4, -0.4, 0.06)), M("#aaa292", 0.3), "batto")
+    put(cube(2.3, 1.5, 0.04, (3.4, -0.4, 0.16)), M("#fffaf0", 0.6), "tengami")
     for k in range(6):
-        put(cube(3.0, 0.14, 0.14, _kx(222, 146 + k * 1.6, 0.2), rz=0.1 * k), M("#f4cc62"), "wara_taba")
-    put(cube(0.3, 1.2, 0.2, _kx(222, 150, 0.4)), M("#b8323a"), "himo")
-    # 串打ち用の皿・火箸
-    put(cube(0.12, 5.0, 0.12, _kx(118, 160, 0.3), rz=0.2), M("#76726a", 0.3), "hibashi")
-    put(cube(0.12, 5.0, 0.12, _kx(121, 160, 0.3), rz=0.25), M("#76726a", 0.3), "hibashi")
-    _kitchen_cam(*KITCHEN_PX)
-    common.render_to(os.path.join(out, "k_grill.png"))
+        put(cube(2.3, 0.03, 0.03, (3.4, -1.1 + k * 0.28, 0.24)), M("#76726a", 0.3), "ami")
+    for s in (0, 0.14):
+        put(cube(0.06, 3.2, 0.06, (2.0 + s, 1.6, 0.1), rz=-0.5), M("#dca24a"), "saibashi")
+    put(cyl(0.7, 0.5, (3.6, 2.0, 0), seg=28, r2=0.85), M("#5070b0", 0.3), "koromo_hachi")
+    put(cyl(0.72, 0.04, (3.6, 2.0, 0.48), seg=28), M("#fbe39a", 0.5), "koromo")
+    point_light((-0.9, 0.2, 3.0), color=(1.0, 0.75, 0.45), power=60, radius=1.0)
+    cam = _kview_cam(8.6, 58)
+    cam.location = cam.location + Vector((0.2, 0, 1.4))
+    common.render_to(os.path.join(out, "k_fryer.png"))
+    slots["fry"] = [_proj(cam, (-0.9 + dx, 0.2, 1.8)) for dx in (-0.85, 0.85)]
+    c0 = _proj(cam, (-0.9, 0.2, 1.8)); ex = _proj(cam, (-0.9 + 1.9, 0.2, 1.8)); ey = _proj(cam, (-0.9, 0.2 + 1.9, 1.8))
+    slots["oil"] = [c0[0], c0[1], round(ex[0] - c0[0], 4), round(c0[1] - ey[1], 4)]
+
+    # --- 藁焼き（鉄の火鉢に藁。横から少し見下ろす）---
+    _small_scene(*KVIEW_PX, samples=32)
+    common.add_lantern_light(direction_from=(1.0, -1.0, 0.8), strength=1.2, color=(0.6, 0.7, 1.0))
+    # 地面（石畳）と奥の板塀
+    put(cube(18, 10, 0.2, (0, 2, -0.1)), noiseM("w_ground2", [(0, "#5a3218"), (0.5, "#2e1a12"), (1, "#1c1220")], 3), "ground")
+    put(cube(18, 0.3, 9, (0, 5.5, 4.4)), noiseM("w_wall", [(0, "#5a3218"), (1, "#2e1a12")], 2), "wall")
+    for k in range(-5, 6):
+        put(cube(0.1, 0.2, 9, (k * 1.6, 5.3, 4.4)), M("#1c1220"), "wall_beam")
+    # 鉄の火鉢（大きく浅い鉄の器・脚つき）
+    bowl = common.bm_lathe([(0.0, 0.3), (2.0, 0.3), (2.9, 1.1), (3.0, 1.25), (2.88, 1.25), (1.95, 0.42), (0.0, 0.42)], 48)
+    put(bowl, noiseM("w_tetsu", [(0, "#4a4658"), (0.6, "#2e1a12"), (1, "#5a3218")], 4), "tetsu")
+    for k in range(3):
+        a = k / 3 * 2 * math.pi + 0.5
+        put(cube(0.18, 0.18, 0.5, (math.cos(a) * 1.6, math.sin(a) * 1.6, 0.1)), M("#1c1220"), "ashi")
+    # 藁（黄色い茎を山に。ところどころ焦げて赤い）
+    for k in range(160):
+        a, d = rng.uniform(0, math.pi * 2), math.sqrt(rng.random()) * 2.5
+        z = 0.5 + (1 - d / 2.6) * 0.7 * rng.random()
+        c = rng.random()
+        mt = M("#7a1414", 0.8, 1.5) if c < 0.08 else M("#2e1a12") if c < 0.18 else M(rng.choice(["#f4cc62", "#dca24a", "#fbe39a", "#b08a4a"]))
+        put(cube(rng.uniform(0.6, 1.4), 0.05, 0.05, (math.cos(a) * d, math.sin(a) * d, z), rz=rng.uniform(0, math.pi), ry=rng.uniform(-0.4, 0.4)), mt, "wara")
+    # わきの藁束と、水の桶
+    for k in range(9):
+        put(cube(0.06, 0.06, 2.2, (5.0 + (k % 3) * 0.12, 1.2 + (k // 3) * 0.12, 1.1), ry=0.08 * (k % 3 - 1)), M("#f4cc62"), "taba")
+    put(cube(0.5, 0.5, 0.2, (5.12, 1.32, 1.2)), M("#b8323a"), "taba_himo")
+    put(cyl(0.8, 0.9, (-5.0, 0.6, 0), seg=28, r2=0.9), noiseM("w_oke", [(0, "#b87838"), (1, "#8c5228")], 4), "oke")
+    put(cyl(0.82, 0.03, (-5.0, 0.6, 0.85), seg=28), M("#5070b0", 0.2), "mizu")
+    point_light((0, -0.5, 1.5), color=(1.0, 0.45, 0.2), power=70, radius=1.2)
+    cam = _kview_cam(8.6, 28)
+    cam.location = cam.location + Vector((0, 0, 1.4))
+    common.render_to(os.path.join(out, "k_wara.png"))
+    slots["sear"] = [_proj(cam, (0, -0.4, 2.6))]
+    slots["searHandle"] = _proj(cam, (3.4, -2.6, 2.2))
+
     with open(os.path.join(out, "kitchen_slots.json"), "w", encoding="utf-8") as f:
-        json.dump({k: [[round(x / KITCHEN_PX[0], 3), round(y / KITCHEN_PX[1], 3)] for x, y in v] for k, v in KITCHEN_SLOTS.items()}, f)
+        json.dump(slots, f)
 
     # --- 藁焼きの炎（横から・3コマ）48×48 ---
     for fr in range(3):
@@ -795,12 +882,12 @@ def job_kitchen(out):
     put(cube(4.8, 6.4, 0.3, (0, -0.2, 0)), noiseM("k_fuda", [(0, "#fbe39a"), (0.5, "#f4cc62"), (1, "#dca24a")], 3), "fuda")
     put(cube(4.8, 0.3, 0.32, (0, 2.9, 0.02)), M("#b87838"), "fuda_top")
     put(cyl(0.3, 0.4, (0, 2.6, 0)), M("#2e1a12"), "ana")
-    _kitchen_cam(56, 72)
+    _top_cam_px(56, 72)
     common.render_to(os.path.join(out, "k_ticket.png"))
     _small_scene(128, 12)
     for k in range(20):
         put(ball(0.36, (-6.2 + k * 0.66, 0, 0), 1.3, 0.8, 0.8, 1), M("#dca24a" if k % 2 else "#b87838"), "nawa")
-    _kitchen_cam(128, 12)
+    _top_cam_px(128, 12)
     common.render_to(os.path.join(out, "k_rope.png"))
 
     # --- 捨て桶 40×40（斜め上から） ---
@@ -831,3 +918,13 @@ def job_kitchen(out):
     put(cyl(0.83, 0.3, (0, 0, -0.55), seg=28), M("#34569a", 0.4), "tokkuri_obi")
     common.oblique_camera(3.2, elevation_deg=20)
     common.render_to(os.path.join(out, "k_jug.png"))
+
+
+def _top_cam_px(w_px, h_px):
+    cd = bpy.data.cameras.new("Cam")
+    cd.type = "ORTHO"
+    cd.ortho_scale = max(w_px, h_px) * 0.1
+    ob = link(bpy.data.objects.new("Cam", cd))
+    ob.location = (0, 0, 30)
+    bpy.context.scene.camera = ob
+    return ob

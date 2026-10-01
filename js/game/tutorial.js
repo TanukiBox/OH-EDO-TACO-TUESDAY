@@ -8,7 +8,7 @@
   var OT = global.OT = global.OT || {};
   var doc = global.document;
 
-  var box = null, timer = null, current = null;
+  var box = null, timer = null, current = null, curSel = null;
 
   function active() {
     var s = OT.state.get();
@@ -31,9 +31,9 @@
       if (!opts.force && !active()) return;
       var s = OT.state.get();
       if (!opts.force && s.flags['tut_' + key]) return;
-      if (current === key && box) return;   // 同じ案内は出し直さない
+      if (current === key && box) { curSel = selector; return; }   // 同じ案内は出し直さない（光らせる場所だけ変える）
       clear();
-      current = key;
+      current = key; curSel = selector;
       var head = OT.el('div', { class: 'tut-head' }, [OT.el('b', { text: '🦝 ' + OT.t('pon.name') })]);
       if (opts.index) head.appendChild(OT.el('span', { class: 'tut-step', text: opts.index + ' / ' + opts.total }));
       var closeBtn = OT.el('button', { class: 'tut-x', text: '×', 'aria-label': OT.t('tut.close'),
@@ -50,7 +50,7 @@
       doc.getElementById('app').appendChild(box);
       var ring = box.firstChild;
       function place() {
-        var el = null, list = doc.querySelectorAll(selector);
+        var el = null, list = doc.querySelectorAll(curSel);
         for (var i = 0; i < list.length; i++) if (list[i].offsetParent) { el = list[i]; break; }
         var app = doc.getElementById('app').getBoundingClientRect();
         if (!el) { ring.style.display = 'none'; bub.style.top = '38%'; bub.style.bottom = 'auto'; return; }

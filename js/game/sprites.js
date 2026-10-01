@@ -179,6 +179,38 @@
     ctx.restore();
   };
 
+  /**
+   * 焼き場の具の絵（かけら2つを重ねた1切れ）を、scale 倍の canvas にして返す（作った絵は覚えておく）。
+   * state は raw / good / burnt。marks = true で網の焼き目（ななめの焦げ筋）をつける。
+   */
+  var pieceCache = {};
+  OT.sprites.pieceImage = function (id, state, marks, scale) {
+    scale = scale || 2;
+    var key = id + '|' + state + '|' + (marks ? 1 : 0) + '|' + scale;
+    if (pieceCache[key]) return pieceCache[key];
+    var pos = (A.pieces || {})[id], sheet = pieceSheet(id, state);
+    if (!pos || !sheet || !sheet.complete || !sheet.naturalWidth) return null;
+    var size = Math.round(48 * scale);
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var g = c.getContext('2d');
+    g.imageSmoothingEnabled = false;
+    var w = Math.round(36 * scale);
+    for (var k = 0; k < 2; k++) g.drawImage(sheet, pos[0] + k * 36, pos[1], 36, 36, Math.round((k * 10 + 1) * scale / 2 + (size - w) / 2 - 3 * scale), Math.round((k * 6 + 1) * scale / 2 + (size - w) / 2 - 2 * scale), w, w);
+    if (marks) {
+      // 網の焼き目：ななめの筋の上だけ、色を暗くする
+      var img = g.getImageData(0, 0, size, size), d = img.data, per = Math.max(6, Math.round(7 * scale)), th = Math.max(2, Math.round(1.6 * scale));
+      for (var y = 0; y < size; y++) for (var x = 0; x < size; x++) {
+        var i = (y * size + x) * 4;
+        if (d[i + 3] < 128 || ((x + y) % per) >= th) continue;
+        d[i] = Math.round(d[i] * 0.32 + 18); d[i + 1] = Math.round(d[i + 1] * 0.25 + 10); d[i + 2] = Math.round(d[i + 2] * 0.22 + 8);
+      }
+      g.putImageData(img, 0, 0);
+    }
+    pieceCache[key] = c;
+    return c;
+  };
+
   /** 撒いている途中のかけら（落ちてくる動き） */
   OT.sprites.drawPieceMini = function (ctx, id, x, y) {
     var pos = (A.pieces || {})[id];

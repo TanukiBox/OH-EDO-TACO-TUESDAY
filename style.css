@@ -471,3 +471,40 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .st-order { justify-content: flex-start; background: linear-gradient(#3a2010, #2e1a12); }
 .st-order .st-hint { background: rgba(13,24,48,.7); border-radius: 10px; margin: 8px 16px 0; }
 .ticket.old { animation: none; }
+
+/* 焼き場を3つの画面に：七輪 / 油鍋 / 藁焼き */
+.fire-tabs { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px 0 4px; }
+.fire-tab { position: relative; display: flex; align-items: center; justify-content: center; gap: 4px; min-height: 38px; border-radius: 10px; border: 2px solid #5a3218; background: #3a2010; color: var(--ink2); font-weight: 800; font-size: 13px; cursor: pointer; }
+.fire-tab .ico { font-size: 15px; }
+.fire-tab .fire-count { font-style: normal; font-size: 10px; color: var(--muted); }
+.fire-tab.on { background: linear-gradient(#8c5228, #5a3218); color: var(--ink); border-color: #f5b860; }
+.fire-tab.alert { animation: stAlert .7s infinite; }
+.fire-tab.alert::after { content: '!'; position: absolute; top: -6px; right: 6px; background: #f24a2a; color: #fff; border-radius: 9px; width: 16px; height: 16px; font-size: 11px; line-height: 16px; text-align: center; }
+.fire-view { position: relative; flex: none; }
+.fire-view .grill-canvas { display: block; width: 100%; max-height: none; aspect-ratio: 256 / 160; }
+.slot-tags { position: absolute; inset: 0; pointer-events: none; }
+.slot-tag { position: absolute; display: none; transform: translate(-50%, -235%); white-space: nowrap; font-size: 12px; font-weight: 900; padding: 1px 7px; border-radius: 8px; background: #fffaf0; color: #1c1220; box-shadow: 0 2px 0 rgba(0,0,0,.4); }
+.slot-tag.on { display: block; }
+.slot-tag.k-sear { transform: translate(-50%, 150%); }
+.slot-tag.flip { background: #ffe6b0; animation: tagHop .5s infinite; }
+.slot-tag.ready { background: #a8e05a; animation: tagHop .5s infinite; }
+.slot-tag.burn { background: #f24a2a; color: #fff; animation: blink .4s infinite; }
+.slot-tag.hold { background: rgba(13,24,48,.85); color: var(--lantern2); }
+@keyframes tagHop { 50% { margin-top: -3px; } }
+.sear-ctrl { display: none; position: absolute; left: 8px; right: 8px; bottom: 6px; gap: 8px; grid-template-columns: 2fr 1fr; }
+.fire-view.v-sear .sear-ctrl { display: grid; }
+.sear-ctrl button { min-height: 46px; border-radius: 12px; font-weight: 900; font-size: 15px; cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.sear-hold { touch-action: none; background: linear-gradient(#f24a2a, #c42618); color: #fff; border: 2px solid #ffb8a4; box-shadow: 0 3px 0 #7a1414; }
+.sear-hold.on { transform: translateY(3px); box-shadow: 0 0 16px #f5b860; background: linear-gradient(#f5b860, #f24a2a); }
+.sear-take { background: #fffaf0; color: #1c1220; border: 2px solid #b87838; box-shadow: 0 3px 0 #5a3218; }
+.sear-ctrl button:disabled { opacity: .45; }
+.st-grill .k-chip .k-ico { width: 36px; height: 36px; }
+
+/* 盛り付け：列は横にスクロール。タップで「持つ」 */
+.k-row { touch-action: pan-x; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+.k-chip { touch-action: pan-x; }
+.k-chip.held { border-color: #fffaf0; box-shadow: 0 0 0 2px #f24a2a, 0 0 12px #f5b860; transform: translateY(-3px); }
+.plate-board-wrap.tool-on { box-shadow: 0 0 0 3px rgba(245,184,96,.8), 0 0 18px rgba(245,184,96,.6); }
+.plate-board-wrap.tool-on .plate-info { background: #c42618; color: #fff; }
+.st-plate .plate-rows .k-row { -webkit-mask-image: linear-gradient(90deg, #000 88%, rgba(0,0,0,.25)); mask-image: linear-gradient(90deg, #000 88%, rgba(0,0,0,.25)); }
+.drag-ghost.sprinkle, .drag-ghost.drizzle { transform: translate(-50%, -120%) rotate(-30deg); }
