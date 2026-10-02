@@ -17,6 +17,7 @@ import people_render  # noqa: E402
 import foods_render  # noqa: E402
 import scenes  # noqa: E402
 import landscapes  # noqa: E402
+import wildlife  # noqa: E402
 from ingredients import INGREDIENTS  # noqa: E402
 
 # 元画像は完成サイズの 4 倍で描き、あとで縮小する
@@ -107,7 +108,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,story,kitchen,market")
+    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,wildlife,story,kitchen,market")
     p.add_argument("--foods", default="", help="食材をしぼる（カンマ区切り）")
     p.add_argument("--people", default="", help="人物をしぼる（カンマ区切り）")
     a = p.parse_args(argv)
@@ -143,6 +144,9 @@ def main():
     if "creatures" in jobs:
         print("== 生き物", flush=True)
         scenes.job_creatures(a.out)
+    if "wildlife" in jobs:
+        print("== 山の獣と里山の採集もの", flush=True)
+        wildlife.job_wildlife(a.out)
     if "story" in jobs:
         print("== 紙芝居", flush=True)
         scenes.job_story(a.out, a.textures)

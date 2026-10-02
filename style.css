@@ -748,3 +748,49 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 16px; }
 .dev-foot { margin: 18px 16px 30px; text-align: center; }
 .dev-fab { position: absolute; right: 4px; bottom: calc(4px + var(--safe-b)); z-index: 90; background: rgba(242,74,42,.85); color: #fff; border: 0; border-radius: 6px; padding: 2px 6px; font: 900 10px sans-serif; opacity: .7; cursor: pointer; }
+
+/* ---------- 一本釣りの釣り道具 ---------- */
+.gear { margin: 14px 0 0; padding: 10px 12px; background: var(--panel); border: 2px solid var(--line); border-radius: 12px; text-align: left; }
+.gear h3 { margin: 0 0 6px; font-size: 15px; color: var(--lantern); }
+.gear-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px dashed var(--line); }
+.gear-row:first-of-type { border-top: 0; }
+.gear-now { display: flex; flex-direction: column; min-width: 0; }
+.gear-now b { font-size: 14px; }
+.gear-now span { font-size: 11px; color: var(--ink2); }
+.gear-row .btn { flex: none; white-space: nowrap; }
+.gear-row .btn.off { opacity: .45; }
+.gear-max { font-size: 12px; color: var(--muted); flex: none; }
+
+/* ---------- 抜け荷の船の荷 ---------- */
+.smug-head { margin: 10px 0 4px; font-size: 14px; color: var(--lantern); text-align: left; }
+.smug-crates { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 6px 16px; }
+.smug-crates.intro { margin: 0 0 12px; }
+.smug-crate { position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 5px 3px; background: var(--panel2); border: 2px solid var(--line); border-radius: 10px; color: var(--ink); font: inherit; cursor: pointer; }
+.smug-crate .chip-icon { width: 32px; height: 32px; image-rendering: pixelated; }
+.smug-name { font-size: 11px; font-weight: 800; line-height: 1.2; text-align: center; }
+.smug-load { position: absolute; top: 2px; right: 3px; font-size: 9px; font-weight: 900; padding: 0 3px; border-radius: 4px; background: #34569a; color: #fffaf0; }
+.smug-crate.heavy .smug-load { background: #8c5228; }
+.smug-crate.on { border-color: var(--lantern); box-shadow: 0 0 0 2px var(--lantern); background: #3a3020; }
+.smug-crate.carry { opacity: .45; }
+.smug-help { margin: 4px 16px 0; font-size: 13px; font-weight: 800; color: var(--ink2); text-align: center; min-height: 18px; }
+
+/* ---------- 番付外 ---------- */
+.bz-cell.me.out { margin-top: 6px; grid-template-columns: 1fr; background: rgba(184,50,58,.18); border: 2px dashed #b8323a; box-shadow: none; }
+.bz-cell.me.out .bz-title, .bz-cell.me.out .bz-shop, .bz-cell.me.out .bz-rep { color: #7a1414; }
+
+/* ---------- 里山の採集：捕るもの4つの札と、捕ったときの名前 ---------- */
+.fg-wrap { position: relative; }
+.fg-legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin: 8px 16px; }
+.fg-legend.intro { margin: 8px 0 12px; }
+.fg-chip { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; background: var(--panel2); border: 2px solid var(--line); border-radius: 10px; }
+.fg-ico { width: 36px; height: 48px; image-rendering: pixelated; }
+.fg-chip b { font-size: 12px; line-height: 1.2; text-align: center; }
+.fg-where { font-size: 9px; color: var(--ink2); text-align: center; line-height: 1.2; }
+.fg-count { font-size: 15px; font-weight: 900; color: var(--lantern); }
+.fg-chip.hit { animation: fgHit .4s ease-out; }
+@keyframes fgHit { 0% { transform: scale(1.18); border-color: var(--lantern); } 100% { transform: scale(1); } }
+.fg-pop { position: absolute; transform: translate(-50%, -100%); font-size: 13px; font-weight: 900; color: #fffaf0; text-shadow: 0 2px 0 #1c1220, 0 0 4px #1c1220; white-space: nowrap; pointer-events: none; animation: fgPop .9s ease-out forwards; }
+@keyframes fgPop { 0% { opacity: 0; margin-top: 4px; } 15% { opacity: 1; } 100% { opacity: 0; margin-top: -26px; } }
+
+/* ---------- 山の追い込みのこつ ---------- */
+.hunt-tips { margin: 6px 0 12px; padding-left: 1.2em; text-align: left; font-size: 13px; line-height: 1.6; color: var(--ink2); }

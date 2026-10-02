@@ -2,7 +2,7 @@
 
 ゲームの座標に合わせて作る（変えるとゲームの当たり判定とずれる所）：
   ・一本釣り（横）  海面 y=40、小舟 x 8〜42、魚は y 70〜82 を泳ぐ
-  ・里山（真上）    木 (28,28) (96,24) (164,32)・蜂の巣はその下、道 y 56〜68、田んぼ y 70〜115、池 x 110〜192 y 100〜128
+  ・里山（横）      木 x=28,96,164（蜂の巣は FORAGE_SPOTS の枝の下）、山椒のやぶ、あぜ道 y 60〜70、田んぼ x 0〜116、池 x 122〜192（forage.js の SPOTS と同じ）
   ・山（真上）      罠 x 78〜114 y 6〜22（下が入口）、獣は y 100〜116 から上へ走る
   ・長崎（横・夜）  役人の足もと y=56、道（マテオの足もと）y=100、船 x=172、荷車 x=22
   ・地図            PLACES（地名の場所）を絵の上に置き、画面の位置を map_places.json に書き出す
@@ -499,97 +499,112 @@ def _fishing(out, rng):
     common.render_to(os.path.join(out, "bg_fishing.png"))
 
 
+# 里山の採集ものが出る場所（forage.js の SPOTS と同じにする）
+FORAGE_NESTS = [(42, 50), (110, 46), (150, 50)]          # 蜂の巣（枝の先からさがる）
+FORAGE_BUSHES = [12, 54, 74, 124, 140, 184]               # 山椒のやぶ（あぜ道の奥、y=54）
+
+
 def _forage(out, rng):
-    """田んぼと里山（真上）：実った田んぼ・あぜ道の彼岸花・里山の木・池とマコモ"""
+    """田んぼと里山（横から）：青空・遠い山・里山と農家・大きな木（蜂の巣）・山椒のやぶ・あぜ道・実った田んぼ・池とマコモ"""
     bg_scene(*GAME_PX)
-    common.noline(put(cube(19.2, 12.8, 0.1, _px(96, 64, -0.06)), T3("forage_grass", "#a8e05a", "#46b03a", "#1f6a2c", noise=0.25, scale=3), "grass"))
-    # 田んぼ：区画（泥）＋ 稲の株の列（黄金色）
-    plots = [(0, 70, 54, 128), (58, 70, 106, 128), (110, 70, 192, 98)]
-    for x0, y0, x1, y1 in plots:
-        flat(cube((x1 - x0) * 0.1, (y1 - y0) * 0.1, 0.06, _px((x0 + x1) / 2, (y0 + y1) / 2, 0.0)), "#8c5228", "paddy_mud")
-        tufts_d, tufts_l = Batch(), Batch()
-        for yy in range(y0 + 3, y1 - 1, 4):
-            for xx in range(x0 + 3, x1 - 1, 4):
-                p = _px(xx + rng.uniform(-0.4, 0.4), yy + rng.uniform(-0.4, 0.4), 0.05)
-                tufts_d.ball(0.2, p, 1, 1, 0.8)
-                tufts_l.ball(0.12, (p[0] - 0.05, p[1] + 0.05, p[2] + 0.14), 1, 1, 0.6)
-        tufts_d.put(T("#dca24a"), "rice", line=False)
-        tufts_l.put(T("#fbe39a"), "rice_hi", line=False)
-    # あぜ（田んぼの間の土手）と彼岸花
-    ridge = Batch()
-    for x0, y0, x1, y1 in ((54, 70, 58, 128), (106, 70, 110, 128), (110, 98, 192, 100)):
-        ridge.cube((x1 - x0) * 0.1, (y1 - y0) * 0.1, 0.12, _px((x0 + x1) / 2, (y0 + y1) / 2, 0.06))
-    ridge.put(T("#46b03a"), "aze")
-    lily = Batch()
-    for k in range(22):
-        x, y = rng.choice([(56, rng.uniform(72, 126)), (108, rng.uniform(72, 96)), (rng.uniform(4, 188), 69)])
-        lily.ball(0.09, _px(x + rng.uniform(-0.6, 0.6), y, 0.18), 1, 1, 0.6)
-    lily.put(T("#f24a2a"), "higanbana")
-    # あぜ道（山椒は道ばたに出る）
-    put(cube(19.2, 1.0, 0.06, _px(96, 62, 0.01)), T3("road", "#f4cc62", "#dca24a", "#b87838", noise=0.35, scale=5), "road")
-    ruts = Batch()
-    for y in (60, 64):
-        ruts.cube(19.2, 0.08, 0.02, _px(96, y, 0.05))
-    pebbles = Batch()
-    for k in range(30):
-        pebbles.ball(0.06, _px(rng.uniform(0, 192), rng.uniform(58, 66), 0.06), 1.3, 1, 0.5)
-    ruts.put(FLAT("#b87838"), "ruts", line=False)
-    pebbles.put(T("#aaa292"), "pebbles")
-    # 池（マコモは池のまわりに出る）
-    pond = bmesh.new()
-    bmesh.ops.create_circle(pond, cap_ends=True, segments=24, radius=1.0)
-    transform_bm(pond, scale=(4.6, 1.8, 1), loc=_px(152, 116, 0.07))
-    put(pond, T3("pond", "#5070b0", "#34569a", "#243f7a", noise=0.2, scale=4, line="#172b58"), "pond")
-    rim = Batch()
-    for k in range(18):
-        a = k / 18 * 6.28
-        rim.ball(0.22, _px(152 + math.cos(a) * 47, 116 + math.sin(a) * 18.5, 0.08), 1.3, 1, 0.5)
-    rim.put(T("#aaa292"), "pond_stones")
-    pads = Batch()
-    for k in range(7):
-        pads.cone(0.3, 0.3, 0.02, _px(rng.uniform(124, 182), rng.uniform(108, 124), 0.09), seg=10)
-    pads.put(T("#46b03a"), "lily_pads")
-    reeds = Batch()
-    for k in range(40):
-        a = rng.uniform(3.4, 6.0)
-        reeds.cone(0.05, 0.0, 0.6, _px(152 + math.cos(a) * rng.uniform(40, 50), 116 + math.sin(a) * rng.uniform(15, 21), 0.05), seg=4)
-    reeds.put(T("#1f6a2c"), "reeds")
-    # 里山：木（蜂の巣がさがる3本）・竹やぶ・わらぶきの家
-    trees = (Batch(), Batch(), Batch())
-    for tx in (28, 96, 164):
-        ty = 28
-        tr = Batch()
-        tr.cone(0.28, 0.22, 1.0, _px(tx, 44, 0), seg=8)
-        tr.cube(0.18, 1.0, 0.14, _px(tx, 38, 1.0))
-        tr.put(T("#5a3218"), "trunk")
-        b = Batch()
-        b.ball(1.35, _px(tx, ty, 1.4), 1, 1, 0.6)
-        b.put(T("#1f6a2c"), "canopy")
-        hi = Batch()
-        for k in range(4):
-            a = k * 1.6 + 0.4
-            hi.ball(0.55, _px(tx - 3 + math.cos(a) * 5, ty - 4 + math.sin(a) * 4, 2.0), 1, 1, 0.6)
-        hi.put(T("#46b03a"), "canopy_hi")
-    for k in range(26):
-        x, y = rng.uniform(0, 192), rng.uniform(0, 14)
-        if any(abs(x - tx) < 16 for tx in (28, 96, 164)) and y > 4:
-            continue
-        tree(*trees, *_px(x, y)[:2], rng.uniform(0.5, 0.8), 0.0, rng, trunk=False)
-    trees[1].put(T("#1f6a2c"), "woods")
-    trees[2].put(T("#a8e05a"), "woods_hi")
-    bamboo = Batch()
-    for k in range(14):
-        bamboo.cone(0.06, 0.06, 1.2, _px(rng.uniform(176, 192), rng.uniform(36, 54), 0), seg=5)
-        bamboo.ball(0.3, _px(rng.uniform(176, 192), rng.uniform(36, 54), 1.2), 1, 1, 0.5)
-    bamboo.put(T("#a8e05a"), "bamboo")
-    put(cube(1.5, 1.0, 0.4, _px(132, 47, 0.2)), T("#d6ccb8"), "farm_wall")
+    fband(0, 46, "#5070b0", d=18)
+    cl = (Batch(), Batch(), Batch())
+    for x, y, w in ((22, 8, 26), (126, 6, 30), (184, 14, 18)):
+        cloud(*cl, x, y, w, d=17, rng=rng)
+    cl[0].put(FLAT("#fffaf0"), "cloud_hi", line=False)
+    cl[1].put(FLAT("#fffaf0"), "cloud")
+    cl[2].put(FLAT("#d6ccb8"), "cloud_lo", line=False)
+    far = Batch()
+    for x, w, h in ((10, 40, 16), (60, 46, 22), (120, 40, 14), (176, 50, 20)):
+        far.ball(1.0, _fx(x, 44, 16), w * 0.06, 0.2, h * 0.1)
+    far.put(T3("far_hills", "#5070b0", "#34569a", "#243f7a"), "far_hills")
+    hills = Batch()
+    for x, w, h in ((-6, 50, 18), (44, 56, 14), (110, 60, 16), (180, 50, 20)):
+        hills.ball(1.0, _fx(x, 56, 14), w * 0.06, 0.2, h * 0.1)
+    hills.put(T("#46b03a"), "hills")
+    clumps = (Batch(), Batch(), Batch())
+    for k in range(16):
+        x = rng.uniform(0, 192)
+        clumps[1].ball(rng.uniform(0.35, 0.6), _fx(x, rng.uniform(40, 48), 13), 1.2, 0.3, 1.0)
+    clumps[1].put(T("#1f6a2c"), "clumps")
+    # 農家（わらぶき）
+    put(cube(2.0, 0.6, 0.9, _fx(138, 47, 12.5)), T("#d6ccb8"), "farm_wall")
     th = Batch()
-    th.roof(2.0, 1.4, 0.8, _px(132, 47, 0.4), hip=0.5)
+    th.roof(2.6, 1.0, 0.9, _fx(138, 42.5, 12.5), hip=0.6)
     th.put(T("#b87838"), "farm_thatch")
-    # かかし
-    put(cube(0.1, 0.9, 0.05, _px(80, 100, 0.4)), T("#8c5228"), "kakashi_arm")
-    put(ball(0.28, _px(80, 99, 0.6), 1, 1, 0.5), T("#dca24a"), "kakashi_hat", smooth=True)
-    _top_cam()
+    put(cube(0.5, 0.05, 0.5, _fx(132, 48, 12.15)), T("#2e1a12"), "farm_door")
+    # 大きな木（幹・葉・蜂の巣がさがる枝）
+    trunks, leaves_d, leaves_l = Batch(), Batch(), Batch()
+    for tx in (28, 96, 164):
+        trunks.cube(0.55, 0.5, 3.4, _fx(tx, 46, 9))
+        for k in range(7):
+            a = k / 7 * 6.28
+            leaves_d.ball(rng.uniform(0.75, 0.95), _fx(tx + math.cos(a) * 11, 24 + math.sin(a) * 7, 8.6), 1.2, 0.4, 1.0)
+        leaves_d.ball(1.1, _fx(tx, 24, 8.7), 1.4, 0.4, 1.0)
+        for k in range(4):
+            leaves_l.ball(0.55, _fx(tx - 6 + k * 3.5, 17 + (k % 2) * 3, 8.2), 1.2, 0.4, 0.9)
+    for (nx, ny), tx in zip(FORAGE_NESTS, (28, 96, 164)):
+        trunks.cube(abs(nx - tx) * 0.1 + 0.4, 0.3, 0.22, _fx((nx + tx) / 2 + (2 if nx > tx else -2), ny - 13, 8.8))
+    trunks.put(T("#5a3218"), "trunks")
+    leaves_d.put(T("#1f6a2c"), "leaves")
+    leaves_l.put(T("#46b03a"), "leaves_hi")
+    # 山椒のやぶ（あぜ道の奥）
+    bush_d, bush_l = Batch(), Batch()
+    for bx in FORAGE_BUSHES:
+        bush_d.ball(0.9, _fx(bx, 58, 7), 1.3, 0.4, 0.75)
+        bush_l.ball(0.45, _fx(bx - 3, 54, 6.8), 1.2, 0.4, 0.8)
+    bush_d.put(T("#1f6a2c"), "bushes")
+    bush_l.put(T("#46b03a"), "bushes_hi")
+    # 草とあぜ道（池の奥も草地）
+    fband(46, 96, "#46b03a", d=10)
+    put(cube(19.2, 0.4, 1.0, _fx(96, 65, 6)), T3("aze_road", "#f4cc62", "#dca24a", "#b87838", noise=0.3, scale=5), "road")
+    ruts = Batch()
+    for y in (63, 67):
+        ruts.cube(19.2, 0.05, 0.08, _fx(96, y, 5.7))
+    ruts.put(FLAT("#b87838"), "ruts", line=False)
+    pebbles = Batch()
+    for k in range(18):
+        pebbles.ball(0.12, _fx(rng.uniform(0, 192), rng.uniform(62, 69), 5.6), 1.3, 0.3, 0.7)
+    pebbles.put(T("#aaa292"), "pebbles")
+    lily = Batch()   # 彼岸花（あぜの赤い花）
+    for k in range(10):
+        x = rng.uniform(4, 188)
+        lily.cube(0.04, 0.05, 0.5, _fx(x, 69, 5.4))
+        lily.ball(0.16, _fx(x, 66.5, 5.3), 1.2, 0.3, 0.8)
+    lily.put(T("#f24a2a"), "higanbana")
+    # 田んぼ（手前・左）：泥と水の上に、実った稲の株の列
+    put(cube(11.8, 0.4, 6.0, _fx(58, 99, 4.5)), T3("paddy_mud", "#b87838", "#8c5228", "#5a3218", noise=0.3, scale=4), "paddy_mud")
+    for row, base in enumerate((80, 92, 104, 116, 128)):
+        stalks, heads = Batch(), Batch()
+        size = 0.75 + row * 0.12
+        x = rng.uniform(0, 3)
+        while x < 116:
+            h = rng.uniform(10, 14) * size
+            stalks.cube(0.08 * size, 0.05, h * 0.1, _fx(x, base - h / 2, 4.0 - row * 0.5))
+            heads.ball(0.22 * size, _fx(x + 1.4 * size, base - h + 1.5, 3.95 - row * 0.5), 0.8, 0.3, 1.3)
+            x += rng.uniform(2.6, 3.6) * size
+        stalks.put(T("#b87838"), "stalks", line=False)
+        heads.put(T("#f4cc62"), "rice_heads")
+    # 田んぼと池のあいだの土手
+    put(cube(0.9, 0.4, 5.0, _fx(119, 104, 4.0)), T("#46b03a"), "bank")
+    # 池（手前・右）：水面・さざなみ・奥のアシ
+    reeds = Batch()
+    for k in range(26):
+        x = rng.uniform(124, 192)
+        h = rng.uniform(10, 18)
+        reeds.cube(0.1, 0.05, h * 0.1, _fx(x, 90 - h / 2, 4.6))
+    reeds.put(T("#1f6a2c"), "reeds")
+    fband(88, 92, "#5070b0", d=4.4, x0=122, x1=192)
+    fband(92, 128, "#34569a", d=4.4, x0=122, x1=192)
+    rip = Batch()
+    for k in range(14):
+        rip.cube(rng.uniform(0.3, 0.7), 0.05, 0.06, _fx(rng.uniform(124, 190), rng.uniform(95, 126), 4.2))
+    rip.put(FLAT("#5070b0"), "ripples", line=False)
+    pads = Batch()
+    for k in range(5):
+        pads.ball(0.4, _fx(rng.uniform(128, 188), rng.uniform(100, 124), 4.1), 1.4, 0.3, 0.25)
+    pads.put(T("#46b03a"), "lily_pads")
+    _front_cam()
     common.render_to(os.path.join(out, "bg_forage.png"))
 
 

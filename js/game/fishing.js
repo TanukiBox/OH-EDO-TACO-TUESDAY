@@ -25,17 +25,49 @@
   }
 
   function holding() { return F.hold || (OT.input && OT.input.down); }
+  /** いまの釣り道具：{ tension: 切れるまでの張り, reel: 巻く速さ } */
+  function gearNow() {
+    var g = st().gear || { line: 0, rod: 0 }, G = cfg().gear;
+    return { tension: G.line[g.line || 0].tension, reel: G.rod[g.rod || 0].reel };
+  }
+  /** 釣り道具の店：糸と竿を1段ずつ良くする */
+  function gearPanel() {
+    var box = OT.el('div', { class: 'gear' }, [OT.el('h3', { text: OT.t('gear.title') })]);
+    ['line', 'rod'].forEach(function (kind) {
+      var s = st(), lv = (s.gear || {})[kind] || 0, list = cfg().gear[kind], next = list[lv + 1];
+      var row = OT.el('div', { class: 'gear-row' }, [
+        OT.el('div', { class: 'gear-now' }, [
+          OT.el('b', { text: OT.t('gear.' + kind + lv) + ' ' + '★'.repeat(lv + 1) + '☆'.repeat(list.length - lv - 1) }),
+          OT.el('span', { text: OT.t('gear.' + kind + '.desc') })
+        ])
+      ]);
+      if (next) {
+        row.appendChild(OT.button(OT.t('gear.buy', { name: OT.t('gear.' + kind + (lv + 1)), price: next.price }), function () {
+          if (s.money < next.price) { OT.sfx.denied(); return; }
+          s.money -= next.price;
+          s.gear = s.gear || { line: 0, rod: 0 };
+          s.gear[kind] = lv + 1;
+          OT.state.save();
+          OT.sfx.buy();
+          OT.fishing.enter();
+        }, 'small' + (s.money < next.price ? ' off' : '')));
+      } else row.appendChild(OT.el('span', { class: 'gear-max', text: OT.t('gear.max') }));
+      box.appendChild(row);
+    });
+    return box;
+  }
 
   OT.fishing = {
     enter: function () {
       var root = OT.ui.screen('fishing');
       root.innerHTML = '';
-      F = { root: root, time: 0, state: 'intro', caught: [], hold: false };
+      F = { root: root, time: 0, state: 'intro', caught: [], hold: false, snaps: 0 };
       root.appendChild(OT.ui.hud());
       root.appendChild(OT.el('h2', { class: 'scr-title', text: '🎣 ' + OT.t('fish.title') }));
       F.intro = OT.el('div', { class: 'auc-intro' }, [
         OT.el('p', { text: OT.t('fish.howto') }),
-        OT.button(OT.t('fish.start'), start, 'primary big')
+        OT.button(OT.t('fish.start'), start, 'primary big'),
+        gearPanel()
       ]);
       root.appendChild(F.intro);
     },
@@ -80,7 +112,7 @@
 
   function hook() {
     var kind = pick(), info = cfg().fish[kind];
-    F.fish = { kind: kind, info: info, dist: cfg().startDistance, tension: 20, surgeT: 1 + Math.random() * 1.5, surging: 0, t: 0 };
+    F.fish = { kind: kind, info: info, dist: cfg().startDistance, tension: 20, surgeT: 1 + Math.random() * 1.5, surging: 0, t: 0, gear: gearNow() };
     F.state = 'fight';
     flash(kind === 'nushi' ? OT.t('fish.nushi') : OT.t('fish.hooked'), kind === 'nushi' ? 'lost' : 'won');
     OT.sfx.clack(1);
@@ -97,6 +129,7 @@
   }
 
   function lose(key) {
+    if (key === 'fish.snap') F.snaps++;
     F.state = 'after'; F.afterT = 1.1;
     OT.sfx.lost();
     flash(OT.t(key), 'lost');
@@ -126,17 +159,19 @@
       f.surgeT -= dt;
       if (f.surgeT <= 0 && !f.surging) { f.surging = 0.7; f.surgeT = 1.4 + Math.random() * 1.8; }
       if (f.surging) f.surging = Math.max(0, f.surging - dt);
-      var pull = f.info.pull + (f.surging ? f.info.surge : 0);
+      // かかってから時間がたつほど、魚は疲れて引く力が弱まる
+      var tire = Math.max(f.info.tireMin || c.tireMin, 1 - f.t / c.tireTime);
+      var pull = (f.info.pull + (f.surging ? f.info.surge : 0)) * tire;
       if (holding()) {
-        f.dist -= c.reelSpeed * dt;
-        f.tension += (c.tensionUp + (f.surging ? f.info.surge * 2.2 : 0)) * dt;
-        f.dist += (f.surging ? f.info.surge * 0.35 : 0) * dt;
+        f.dist -= f.gear.reel * dt;
+        f.tension += (c.tensionUp + (f.surging ? f.info.surge * 2.2 * tire : 0)) * dt;
+        f.dist += (f.surging ? f.info.surge * 0.35 * tire : 0) * dt;
       } else {
         f.tension -= c.tensionDown * dt;
         f.dist += pull * dt;
       }
       f.tension = Math.max(0, f.tension);
-      if (f.tension >= 100) lose('fish.snap');
+      if (f.tension >= f.gear.tension) lose('fish.snap');
       else if (f.dist >= c.startDistance * 1.6) lose('fish.escape');
       else if (f.dist <= 0) land();
       else if (F.time > c.seconds + 10) lose('fish.escape');
@@ -147,7 +182,7 @@
       F.state = 'end';
     }
     // 張りのメーター
-    var ten = F.state === 'fight' ? F.fish.tension : 0;
+    var ten = F.state === 'fight' ? F.fish.tension / F.fish.gear.tension * 100 : 0;   // 糸が切れるまでの何%か
     F.gauge.firstChild.style.height = Math.min(100, ten) + '%';
     F.gauge.className = 'tension' + (ten > 75 ? ' danger' : '');
     F.help.textContent = F.state === 'ready' ? OT.t('fish.tapCast') : F.state === 'wait' ? OT.t('fish.waiting') :
@@ -210,9 +245,16 @@
   /** 絵の背景のときの、小舟・マテオ・竿・糸・魚 */
   function drawBoatAndLine(ctx, P, t) {
     var by = 38 + Math.round(Math.sin(t * 2) * 1);
-    ctx.fillStyle = P.brown2; ctx.fillRect(8, by, 34, 5); ctx.fillStyle = P.brown1; ctx.fillRect(10, by + 5, 30, 2);
     var mate = OT.sprites.get('people_mini_mateo');
-    if (mate && mate.complete) ctx.drawImage(mate, 0, 0, 24, 30, 14, by - 28, 24, 30);
+    if (mate && mate.complete) {   // 小さなマテオの絵は左向きなので、裏返して海（右）を向かせる
+      ctx.save(); ctx.translate(26, 0); ctx.scale(-1, 1);
+      ctx.drawImage(mate, 0, 0, 24, 30, -12, by - 26, 24, 30);
+      ctx.restore();
+    }
+    // 小舟（へさきが右）
+    ctx.fillStyle = P.brown3; ctx.fillRect(6, by + 1, 36, 2);
+    ctx.fillStyle = P.brown2; ctx.fillRect(7, by + 3, 34, 3); ctx.fillRect(41, by + 1, 3, 3); ctx.fillRect(44, by, 2, 2);
+    ctx.fillStyle = P.brown1; ctx.fillRect(9, by + 6, 30, 2);
     ctx.fillStyle = P.brown3; for (var r = 0; r < 30; r++) ctx.fillRect(Math.round(29 + r), Math.round(by - 12 - r * 0.4), 1, 1);
     var tipX = 60, tipY = by - 24, fx = null, fy = null;
     if (F.state === 'wait') { fx = 120; fy = 42 + Math.round(Math.sin(t * 6) * 1); ctx.fillStyle = P.red1; ctx.fillRect(fx - 1, fy - 2, 3, 3); }
@@ -253,6 +295,9 @@
       list.appendChild(OT.el('li', { text: OT.t('sea.' + k) + ' → ' + parts }));
     });
     root.appendChild(list);
+    // 糸が切れたことがあれば、釣り道具をすすめる
+    var g = st().gear || {};
+    if (F.snaps && ((g.line || 0) < cfg().gear.line.length - 1 || (g.rod || 0) < cfg().gear.rod.length - 1)) root.appendChild(OT.el('p', { class: 'lead', text: OT.t('gear.hint') }));
     st().gamesToday += 1;
     OT.state.save();
     root.appendChild(OT.button(OT.t('auc.done'), function () { OT.fishing.leave(); OT.flow.morning(); }, 'primary big'));

@@ -35,8 +35,11 @@
 | 食材の味 | `INGREDIENTS.○○.taste` | `[辛, 酸, 旨, 香, 食感]` |
 | 客の好み | `CUSTOMERS.○○.want`（好きな味の強さ）と `weight`（どれを気にするか） | |
 | 注文のかたより | `LIKES_BOOST`（好物が頼まれやすい度合い）/ `ORDER_VARIETY`（同じ夜に同じ料理が続かない度合い） | `ORDER_VARIETY` を 1 にすると続きやすく、0.3 にするとばらける |
-| 一本釣りの難しさ | `FISHING.reelSpeed` / `tensionUp` / `fish.○○.pull` | reelSpeed を上げるとやさしい |
-| 抜け荷の見つかりやすさ | `SMUGGLE.spotTime` / `walkSpeed` | spotTime を上げるとやさしい |
+| 一本釣りの難しさ | `FISHING.gear`（釣り道具：糸の強さ・竿の巻く速さ・値段）/ `tireTime` / `fish.○○.pull` | 道具は釣りの前の画面で買える。tireTime を短くすると魚が早く疲れてやさしい |
+| 抜け荷の見つかりやすさ | `SMUGGLE.spotTime` / `walkSpeed` / `caughtLimit` | spotTime を上げるとやさしい。見つかると荷は船にもどり、`caughtLimit` 回でその夜はおしまい（`caughtRep` で評判を下げることもできる） |
+| 抜け荷の船の荷 | `SMUGGLE.crates`（荷の数）/ `goods.○○`（`n` 何人前・`heavy` 重い・`light` 軽い）/ `heavySpeed` / `lightSpeed` | 荷ははじめに見え、えらんで運ぶ |
+| 山の追い込みの難しさ | `HUNT.push`（1回の追いたて）/ `fleeBias`（森へ逃げる強さ）/ `wary`（罠に気づく距離）/ `panicPerPush`（続けて追うと暴れる）/ `maxAnimals` / `animals.○○.charge`・`leap`・`veer` | push を上げる・fleeBias を下げるとやさしい |
+| 里山の採集 | `FORAGE.items.○○`（`life` 出ている秒・`weight` 出やすさ・`gives`）/ `maxOnField` | 出る場所は forage.js の `NESTS`（蜂の巣）・`BUSHES`（山椒）と背景の絵で同じ |
 | 物語の場面の時期 | `EVENTS` の `chapter`・`chapterDay` | 例：お城の使いは第5章の5日目から |
 
 ### 夜の厨房（注文・焼き場・盛り付け）の調整
@@ -87,6 +90,7 @@
 | ほかの店の評判 | `BANZUKE.shops.○○` | `rep` はじめの評判、`grow` 1日に増える評判、`chapter` 何章から番付に載るか。店の名前は text.js の `'bz.s.○○'` |
 | 番付の動きの大きさ | `BANZUKE.jitter` / `eventChance` / `eventSize` | 毎日のゆれ / ほかの店のできごとが瓦版に載る確率 / そのときに上がる・下がる評判 |
 | 三役の数 | `BANZUKE.sanyaku` | 上から6軒が大関・関脇・小結（東西）。あとは前頭 |
+| 番付に載る評判 | `BANZUKE.entryRep` | 30。それまでは「番付外」。載った日の瓦版に記事が出る |
 | はやりのタコス | `KAWARABAN.trendChance` / `trendBoost` | 瓦版に「いま江戸では○○がはやり」が載る確率 / その日にそのタコスが頼まれやすくなる倍率 |
 
 瓦版は2日目から毎朝いちど自動で開きます（朝の画面の「📰 瓦版」「🏯 番付」でいつでも見られます）。

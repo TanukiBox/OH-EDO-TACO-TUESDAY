@@ -582,7 +582,8 @@
       jitter: 4,              // 毎日の評判のゆれ（±）
       eventChance: 0.6,       // 瓦版に、ほかの店のできごとが載る確率（載ると評判が上がる・下がる）
       eventSize: [8, 20],     // できごとで上がる・下がる評判
-      sanyaku: 6              // 上から何番目までが三役（大関・関脇・小結の東西）。あとは前頭
+      sanyaku: 6,             // 上から何番目までが三役（大関・関脇・小結の東西）。あとは前頭
+      entryRep: 30            // 多幸寿が番付に載る評判（それまでは「番付外」。一度載ったら外れない）
     },
     KAWARABAN: {
       trendChance: 0.6,       // 「江戸でいま○○がはやり」が載る確率
@@ -599,18 +600,25 @@
     // ---------------------------------------------------------
     FISHING: {
       seconds: 40,           // 1回の長さ（秒）
-      reelSpeed: 34,         // 押している間、1秒に近づく距離
       tensionUp: 55,         // 押している間、1秒に上がる張り
       tensionDown: 70,       // 離している間、1秒に下がる張り
       startDistance: 100,
       nushiChance: 0.08,     // ヌシの大鮪がかかる確率（第2章から）
-      // pull: 魚が引く強さ（1秒に離れる距離）、surge: ときどき強く引く強さ、weight: かかりやすさ
+      tireTime: 30,          // 魚は、かかってからこの秒数で疲れきる（引く力が tireMin まで弱まる）
+      tireMin: 0.5,          // 疲れきったときの引く力（はじめの何倍か）
+      // 釣り道具（釣りの前の画面で買う）。糸 = 切れるまでの張り、竿 = 1秒に巻ける距離
+      //   試した目安（反応0.25秒の人）：はじめの道具で鮪は6割。糸と竿が2段目でヌシが半分、3段目で9割
+      gear: {
+        line: [{ tension: 100, price: 0 }, { tension: 125, price: 300 }, { tension: 150, price: 900 }],   // 麻糸 → 絹糸 → 天蚕糸
+        rod:  [{ reel: 34, price: 0 }, { reel: 39, price: 250 }, { reel: 45, price: 800 }]               // 竹竿 → 継ぎ竿 → 名人の和竿
+      },
+      // pull: 魚が引く強さ（1秒に離れる距離）、surge: ときどき強く引く強さ、weight: かかりやすさ、tireMin: その魚だけの疲れにくさ
       fish: {
         aji:    { pull: 10, surge: 18, gives: { aji_nanban: 4 }, weight: 4 },
         iwashi: { pull: 7, surge: 12, gives: { iwashi: 5 }, weight: 4 },
         maguro: { pull: 18, surge: 34, gives: { zuke: 3, akami: 2 }, weight: 2 },
         unagi:  { pull: 12, surge: 40, gives: { kabayaki: 4 }, weight: 2 },
-        nushi:  { pull: 24, surge: 44, gives: { akami: 6, chutoro: 5, otoro: 4, zuke: 5 }, weight: 0 }
+        nushi:  { pull: 26, surge: 50, tireMin: 0.7, gives: { akami: 6, chutoro: 5, otoro: 4, zuke: 5 }, weight: 0 }
       }
     },
 
@@ -622,14 +630,25 @@
     // ---------------------------------------------------------
     HUNT: {
       seconds: 40,
-      push: 170,             // スワイプ1回で獲物を押す強さ
-      reach: 34,             // スワイプの線から、この距離までの獲物を押せる（ドット）
-      nushiChance: 0.12,     // 山の主（大猪）が出る確率
-      // speed: うろつく速さ、hits: 何回押せば罠に向かうか（大きいほど重い）
+      push: 85,              // スワイプ1回で獲物を追いたてる強さ（1回で約30ドット）
+      boostTime: 0.5,        // 追いたてられて走る時間（秒）
+      reach: 26,             // スワイプの線から、この距離までの獲物を追える（ドット）
+      maxAnimals: 2,         // 同時に出る獲物の数
+      secondAfter: 3,        // はじめてから2頭目が出るまで（秒）
+      spawnEvery: [1.2, 2.4],   // つかまえた・逃げたあと、次が出るまで（秒）
+      fleeBias: 0.45,
+      wary: 36,              // 罠の入口にこの距離まで近づくと、獲物は罠に気づいて横へよける（追いたてた直後はよけない）
+      waryDodge: 1.4,        // よけるときの速さ（うろつく速さの何倍か）        // うろつくとき、森（左右と下の端）へ逃げようとする強さ。端から出ると逃げられる
+      panicPerPush: 0.55,     // 1回追うごとにたまる「あせり」。1 をこえると暴れて思わぬ方へ走る
+      panicDecay: 0.6,       // あせりが1秒で減る量（落ちついて1回ずつ追えばたまらない）
+      boltSpeed: 1.8, boltTime: 0.7,    // 暴れたときの速さ（うろつく速さの何倍か）と時間
+      chargeSpeed: 2.2, chargeTime: 0.8, chargeResist: 0.5,   // 猪の突進：速さ・時間・突進中の追いたての効き
+      nushiChance: 0.12,     // 山の主（大猪）が出る確率（1回に1頭まで）
+      // speed: うろつく速さ、charge: 突進する確率、leap: 横へ跳ぶ確率、veer: 追われた向きからのぶれ（ラジアン）、heavy: 重さ
       animals: {
-        boar:  { speed: 26, weight: 3, gives: { inoshishi: 3, ino_bara: 2, ino_shita: 1, ino_mimi: 2 } },
-        deer:  { speed: 40, weight: 2, gives: { shika: 4 } },
-        nushi: { speed: 20, weight: 0, heavy: 2.4, gives: { kashira: 10, inoshishi: 4, ino_bara: 3 } }
+        boar:  { speed: 30, weight: 3, charge: 0.3, veer: 0.45, gives: { inoshishi: 3, ino_bara: 2, ino_shita: 1, ino_mimi: 2 } },
+        deer:  { speed: 44, weight: 2, leap: 0.35, veer: 0.85, gives: { shika: 4 } },
+        nushi: { speed: 24, weight: 0, heavy: 2.2, charge: 0.45, veer: 0.2, gives: { kashira: 10, inoshishi: 4, ino_bara: 3 } }
       }
     },
 
@@ -638,20 +657,23 @@
     // ---------------------------------------------------------
     SMUGGLE: {
       seconds: 45,
-      walkSpeed: 34,         // 1秒に進むドット数
-      pathLength: 150,       // 船から屋台の荷車までの道の長さ（ドット）
-      spotTime: 0.35,        // 明かりの中にこの秒数いると見つかる（止まっていても）
-      caughtRep: -6,         // 見つかったときの評判
+      walkSpeed: 34,         // 1秒に進むドット数（ふつうの荷）
+      heavySpeed: 0.75,      // 重い荷のときの歩く速さ（何倍か）
+      lightSpeed: 1.2,       // 軽い荷のときの歩く速さ
+      spotTime: 0.45,        // 明かりの中にこの秒数いると見つかる（止まっていても）
+      caughtRep: 0,          // 見つかったときの評判（前は -6。今は荷が船にもどるだけ）
+      caughtLimit: 3,        // この回数見つかると、その夜はおしまい
       lanterns: 3,           // 見回りの役人の数
-      // 1回運ぶごとに、この中から1つ手に入る（weight = 出やすさ、n = 何人前）
+      crates: 6,             // 今夜の船の荷の数（はじめに中身が見え、えらんで運ぶ）
+      // 船の荷になる品（weight = 船にのっている出やすさ、n = 何人前、heavy = 重い・遅い、light = 軽い・速い）
+      //   第5章でトウモロコシの種がまだなら、船の荷に必ず入る
       goods: {
-        kosho: { weight: 3, n: 6 }, nikkei: { weight: 2, n: 6 }, choji: { weight: 2, n: 6 },
-        sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4 }, gyuniku: { weight: 2, n: 4 },
-        cheese: { weight: 2, n: 4 }, butter: { weight: 2, n: 5 }, tomato: { weight: 2, n: 4 },
-        avocado: { weight: 1.5, n: 4 }, mole: { weight: 1, n: 4 }, honba_chili: { weight: 2, n: 6 },
-        corn: { weight: 1, n: 6 }
-      },
-      cornGuaranteeAfter: 3  // 第5章で、トウモロコシの種がまだなら、この回数運んだら必ず出る
+        kosho: { weight: 3, n: 6, light: true }, nikkei: { weight: 2, n: 6, light: true }, choji: { weight: 2, n: 6, light: true },
+        sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4, heavy: true }, gyuniku: { weight: 2, n: 4, heavy: true },
+        cheese: { weight: 2, n: 4, heavy: true }, butter: { weight: 2, n: 5 }, tomato: { weight: 2, n: 4 },
+        avocado: { weight: 1.5, n: 4 }, mole: { weight: 1, n: 4 }, honba_chili: { weight: 2, n: 6, light: true },
+        corn: { weight: 1, n: 6, heavy: true }
+      }
     },
 
     // ---------------------------------------------------------

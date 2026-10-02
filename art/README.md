@@ -212,6 +212,7 @@ python build.py
 | トルティーヤ以外の皮の折りたたみ | `blender/taco.py` の `SKIN_LOOKS` | `output/game/skins/*.png` |
 | 夜の屋台（年中行事の飾り）・生き物・紙芝居・厨房・魚河岸 | `blender/scenes.py` | `output/game/stall/`、`creatures/`、`story/`、`kitchen/`、`market/` |
 | 町の地図・ミニゲームの背景（一本釣り・里山・山・長崎） | `blender/landscapes.py`（ゲームの座標に合わせた置き場所は、ファイルの先頭に） | `output/game/map.png`、`bg/` |
+| 山の獣（猪・鹿・山の主の走る4コマ）・里山の採集もの（イナゴ・蜂の巣・山椒・マコモダケ） | `blender/wildlife.py` | `output/game/creatures/animal_*`、`forage_*` |
 | タイトルロゴ・X用の絵・アイコン | `pipeline/game_assets.py`（フォントから作る） | `output/game/logo.png`、`ogp.png`、`icon-*.png` |
 
 **塗り方（セル調）**：人物・食材・地図・ミニゲームの背景・生き物は、同じ塗り方でそろえています。

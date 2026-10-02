@@ -21,11 +21,11 @@
     return s.shopRep;
   }
 
-  /** 番付：評判の高い順。[{ id, rep, me }]（その章でまだ出てこない店は入れない） */
+  /** 番付：評判の高い順。[{ id, rep, me }]（その章でまだ出てこない店は入れない。多幸寿は番付に載ってから） */
   function ranking() {
     var R = shopReps(), B = C().shops, ch = OT.state.chapter();
     var list = Object.keys(B).filter(function (id) { return B[id].chapter <= ch; }).map(function (id) { return { id: id, rep: Math.round(R[id]) }; });
-    list.push({ id: 'me', rep: st().rep, me: true });
+    if (st().bzListed) list.push({ id: 'me', rep: st().rep, me: true });
     list.sort(function (a, b) { return b.rep - a.rep || (a.me ? -1 : 1); });
     return list;
   }
@@ -38,7 +38,9 @@
     var m = Math.floor((i - C().sanyaku) / 2) + 1;
     return side + OT.t('bz.maegashira') + (m === 1 ? OT.t('bz.hitto') : OT.t('bz.mai', { n: m }));
   }
-  function myPos() { var r = ranking(); for (var i = 0; i < r.length; i++) if (r[i].me) return i; return r.length - 1; }
+  /** 多幸寿の番付の位（0 から）。まだ番付外なら -1 */
+  function myPos() { var r = ranking(); for (var i = 0; i < r.length; i++) if (r[i].me) return i; return -1; }
+  function toEntry() { return Math.max(1, C().entryRep - st().rep); }
 
   function shopName(id) { return id === 'me' ? OT.t('bz.me') : OT.t('bz.s.' + id); }
 
@@ -59,15 +61,21 @@
       R[id] = Math.max(5, R[id] + (up ? 1 : -1) * Math.round(rnd(B.eventSize[0], B.eventSize[1])));
       items.push({ k: 'rival', id: id, up: up });
     }
-    // 多幸寿の番付
-    var first = s.bzPos === undefined;   // はじめての瓦版（1日目、または瓦版のなかったころのセーブ）
-    var pos = myPos(), prev = first ? (s.day === 1 ? pos : ranking().length - 1) : s.bzPos;
-    if (first) items.unshift({ k: 'intro' });
-    if (first && s.day > 1 && pos < prev) items.push({ k: 'rankup', pos: pos });
-    else if (pos < prev) items.unshift({ k: 'rankup', pos: pos });   // （はじめての瓦版は上で）
-    else if (pos > prev) items.unshift({ k: 'rankdown', pos: pos });
-    s.bzPrev = prev;
-    s.bzPos = pos;
+    // 多幸寿の番付（評判が entryRep になるまでは番付外。一度載ったら外れない）
+    var firstNews = !s.newsBegun && s.bzPos === undefined;
+    s.newsBegun = true;
+    var wasListed = !!s.bzListed;
+    if (!wasListed && s.rep >= B.entryRep) s.bzListed = true;
+    var pos = myPos();
+    if (firstNews && !s.bzListed) items.unshift({ k: 'intro' });
+    else if (s.bzListed && !wasListed) { items.unshift({ k: 'debut', pos: pos }); delete s.bzPrev; }
+    else if (s.bzListed) {
+      var prev = s.bzPos === undefined ? pos : s.bzPos;
+      if (pos < prev) items.unshift({ k: 'rankup', pos: pos });
+      else if (pos > prev) items.unshift({ k: 'rankdown', pos: pos });
+      s.bzPrev = prev;
+    }
+    if (s.bzListed) s.bzPos = pos; else delete s.bzPos;
     // ゆうべの多幸寿
     var r = s.lastResult;
     if (s.day > 1 && r) items.push({ k: 'yesterday', served: r.served, best: r.best, variant: r.bestVariant, omakase: r.bestIsOmakase });
@@ -108,12 +116,12 @@
   function article(it) {
     var head = '', body = '', pic = null, cls = '';
     if (it.k === 'intro') { head = OT.t('news.introH'); body = OT.t('news.intro'); cls = 'top'; pic = OT.ui.ponFace('kw-pic'); }
-    else if (it.k === 'rankup' || it.k === 'rankdown') {
+    else if (it.k === 'rankup' || it.k === 'rankdown' || it.k === 'debut') {
       head = OT.t('news.' + it.k + 'H', { title: titleOf(it.pos) });
       body = OT.t('news.' + it.k, { title: titleOf(it.pos), n: it.pos + 1 });
-      cls = it.k === 'rankup' ? 'top' : '';
+      cls = it.k === 'rankdown' ? '' : 'top';
       pic = OT.ui.pixelCanvas(48, 48, 'kw-pic');
-      OT.sprites.drawFace(pic, 'mateo_happi', it.k === 'rankup' ? true : 'sad');
+      OT.sprites.drawFace(pic, 'mateo_happi', it.k === 'rankdown' ? 'sad' : true);
     } else if (it.k === 'yesterday') {
       head = OT.t('news.yesterdayH');
       body = it.served ? OT.t('news.yesterday', { n: it.served, best: it.best ? OT.tacoName(it.best, it.variant) : OT.t('night.omakaseName') }) : OT.t('news.yesterdayNone');
@@ -142,7 +150,7 @@
       OT.el('div', { class: 'kw-mast' }, [OT.el('span', { class: 'kw-name', text: OT.t('news.title') }), OT.el('span', { class: 'kw-date', text: OT.seasonMark[OT.state.season()] + ' ' + OT.t('ui.day', { n: s.day }) })]),
       OT.el('div', { class: 'kw-body' }, s.news.items.map(article)),
       OT.el('div', { class: 'kw-foot' }, [
-        OT.el('span', { text: OT.t('news.myRank', { title: titleOf(s.bzPos) }) }),
+        OT.el('span', { text: s.bzListed ? OT.t('news.myRank', { title: titleOf(myPos()) }) : OT.t('news.notListed', { n: toEntry() }) }),
         OT.el('button', { class: 'kw-bz', text: '🏯 ' + OT.t('bz.open'), onclick: function () { OT.sfx.tap(); openBanzuke(); } })
       ])
     ]);
@@ -178,8 +186,13 @@
     var paper = OT.el('div', { class: 'bz-paper' }, [
       OT.el('div', { class: 'bz-head' }, [OT.el('span', { class: 'bz-east', text: OT.t('bz.east') }), OT.el('b', { text: OT.t('bz.title') }), OT.el('span', { class: 'bz-west', text: OT.t('bz.west') })]),
       grid,
-      OT.el('div', { class: 'bz-note', text: OT.t('bz.note', { title: titleOf(me), n: me + 1, m: list.length }) })
-    ]);
+      me < 0 ? OT.el('div', { class: 'bz-cell me out' }, [
+        OT.el('span', { class: 'bz-title', text: OT.t('bz.out') }),
+        OT.el('span', { class: 'bz-shop', text: shopName('me') }),
+        OT.el('span', { class: 'bz-rep', text: OT.t('bz.rep', { n: s.rep }) })
+      ]) : null,
+      OT.el('div', { class: 'bz-note', text: me < 0 ? OT.t('bz.noteOut', { n: toEntry() }) : OT.t('bz.note', { title: titleOf(me), n: me + 1, m: list.length }) })
+    ].filter(Boolean));
     var box = OT.el('div', { class: 'kw-wrap bz' });
     box.appendChild(paper);
     box.appendChild(closeBtn(function () { close(box); }));

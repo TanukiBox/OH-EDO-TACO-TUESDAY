@@ -576,46 +576,7 @@ def _job_creatures(out):
             bpy.context.scene.camera = cam
             common.render_to(os.path.join(out, "sea_%s_%d.png" % (key[2:], f)))
 
-    # 山の獣（真上から、歩く2コマ）
-    for key, (w, h, col, big) in {"boar": (24, 18, "#5a3218", 1.0), "deer": (24, 18, "#b87838", 1.0), "nushi": (40, 30, "#2e1a12", 1.7)}.items():
-        for f in range(2):
-            common.reset_scene()
-            common.set_resolution(w * 4, h * 4)
-            common.add_lantern_light(direction_from=(-1, 0.6, 1.5), strength=3.2)
-            night_world(strength=0.9, color=(0.8, 0.85, 0.9))
-            b = big
-            put(ball(0.5 * b, (0, 0, 0.3), 1.0, 0.6, 0.55), noiseM("fur_" + key, [(0, col), (1, "#1c1220")], 6), "body")
-            put(ball(0.25 * b, (-0.5 * b, 0, 0.35), 1.2, 0.8, 0.8), noiseM("fur_" + key, [(0, col), (1, "#1c1220")], 6), "head")
-            if key == "deer":
-                for s in (-1, 1):
-                    put(bm_tube([(-0.6, 0.1 * s, 0.5), (-0.7, 0.3 * s, 0.9), (-0.8, 0.4 * s, 1.0)], [0.03] * 3, 4), M("#dca24a"), "antler")
-            else:
-                for s in (-1, 1):
-                    put(bm_tube([(-0.75 * b, 0.08 * s, 0.25), (-0.85 * b, 0.14 * s, 0.35)], [0.03 * b, 0.015 * b], 4), M("#fffaf0"), "tusk")
-            for s in (-1, 1):
-                for k in (-1, 1):
-                    put(ball(0.1 * b, (0.25 * k * b + (0.08 * s * (1 if f else -1)), 0.28 * s * b, 0.08)), M("#1c1220"), "leg")
-            cd = bpy.data.cameras.new("Cam"); cd.type = "ORTHO"; cd.ortho_scale = 1.9 * b
-            cam = link(bpy.data.objects.new("Cam", cd)); cam.location = (0, 0, 10); bpy.context.scene.camera = cam
-            common.render_to(os.path.join(out, "animal_%s_%d.png" % (key, f)))
-
-    # 里山：イナゴ・蜂の巣・山椒・マコモダケ（真上）16×16
-    items = {
-        "inago": lambda: [put(ball(0.25, (0, 0, 0.1), 1.0, 0.35, 0.3), M("#46b03a")), put(bm_tube([(0.1, 0.1, 0.1), (0.3, 0.25, 0.15), (0.45, 0.2, 0.0)], [0.03] * 3, 4), M("#1f6a2c")),
-                          put(bm_tube([(0.1, -0.1, 0.1), (0.3, -0.25, 0.15), (0.45, -0.2, 0.0)], [0.03] * 3, 4), M("#1f6a2c"))],
-        "hachi": lambda: [put(ball(0.35, (0, 0, 0.3), 0.8, 0.8, 1.1), noiseM("hive", [(0, "#dca24a"), (0.5, "#b87838"), (1, "#5a3218")], 12))],
-        "sansho": lambda: [put(ball(0.18, (math.cos(k * 1.26) * 0.25, math.sin(k * 1.26) * 0.25, 0.1), 1, 0.6, 0.3), M("#46b03a")) for k in range(5)] + [put(ball(0.05, (0.05 * k - 0.1, 0.0, 0.2)), M("#f24a2a")) for k in range(5)],
-        "makomo": lambda: [put(ball(0.12, (0, 0, 0.1), 3.0, 1.0, 1.0), M("#f0e6d2")), put(ball(0.08, (-0.35, 0, 0.1), 3.0, 0.5, 0.5), M("#46b03a")), put(ball(0.03, (0.05, 0, 0.2)), M("#2e1a12"))],
-    }
-    for key, fn in items.items():
-        common.reset_scene()
-        common.set_resolution(24 * 4, 24 * 4)
-        common.add_lantern_light(direction_from=(-1, 0.6, 1.5), strength=3.2)
-        night_world(strength=0.9, color=(0.8, 0.85, 0.9))
-        fn()
-        cd = bpy.data.cameras.new("Cam"); cd.type = "ORTHO"; cd.ortho_scale = 1.1
-        cam = link(bpy.data.objects.new("Cam", cd)); cam.location = (0, 0, 10); bpy.context.scene.camera = cam
-        common.render_to(os.path.join(out, "forage_%s.png" % key))
+    # 山の獣と里山の採集ものは wildlife.py
 
 
 # ---------------------------------------------------------------------------

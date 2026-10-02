@@ -174,10 +174,12 @@ def scene_images(R, out, man):
     # 生き物
     man["creatures"] = {}
     specs = {"fish_tai": (96, 64), "fish_kisu": (96, 64), "fish_katsuo": (96, 64), "fish_tako": (96, 64), "fish_uni": (96, 64), "fish_kujira": (96, 64),
-             "forage_inago": (24, 24), "forage_hachi": (24, 24), "forage_sansho": (24, 24), "forage_makomo": (24, 24)}
+             "forage_inago": (24, 16), "forage_hachi": (24, 30), "forage_sansho": (24, 24), "forage_makomo": (20, 32)}   # 横から見た採集もの（wildlife.py）
     for f in range(2):
-        for k, sz in {"sea_aji": (24, 12), "sea_iwashi": (20, 10), "sea_maguro": (44, 18), "sea_unagi": (44, 12), "sea_nushi": (72, 28),
-                      "animal_boar": (24, 18), "animal_deer": (24, 18), "animal_nushi": (40, 30)}.items():
+        for k, sz in {"sea_aji": (24, 12), "sea_iwashi": (20, 10), "sea_maguro": (44, 18), "sea_unagi": (44, 12), "sea_nushi": (72, 28)}.items():
+            specs["%s_%d" % (k, f)] = sz
+    for f in range(4):   # 山の獣：少し上から見た横向き、走る4コマ（wildlife.py）
+        for k, sz in {"animal_boar": (36, 26), "animal_deer": (32, 28), "animal_nushi": (52, 38)}.items():
             specs["%s_%d" % (k, f)] = sz
     for k, sz in specs.items():
         if _exists(R, k + ".png"):
