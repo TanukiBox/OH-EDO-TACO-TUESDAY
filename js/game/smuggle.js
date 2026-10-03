@@ -43,6 +43,17 @@
   }
   function priceOf(cr, mul) { return Math.max(5, Math.round(cr.list * mul)); }
 
+  /** この荷の勝負で、銀次がイカサマをする回（0 から）。しないなら -1 */
+  function planCheat() {
+    var c = cfg();
+    if (Math.random() >= c.cheatCrate) return -1;
+    var w = c.cheatRound, sum = 0, r;
+    w.forEach(function (x) { sum += x; });
+    r = Math.random() * sum;
+    for (var i = 0; i < w.length; i++) { r -= w[i]; if (r <= 0 && w[i] > 0) return i; }
+    return w.length - 1;
+  }
+
   OT.smuggle = {
     enter: function () {
       var root = OT.ui.screen('smuggle');
@@ -79,7 +90,8 @@
     leave: function () { if (Y && Y.raf) cancelAnimationFrame(Y.raf); if (Y) Y.root.classList.remove('ym'); Y = null; },
     _peek: function () { return Y; },        // テスト用
     _pick: function (slot) { pickCup(slot); },
-    _cheat: function () { callCheat(); }
+    _cheat: function () { callCheat(); },
+    _plan: function () { return planCheat(); }
   };
 
   // ---------------------------------------------------------------
@@ -139,7 +151,7 @@
     var steps = cfg().steps;
     Y.lower.appendChild(OT.el('p', { class: 'ym-rule', text: OT.t('smug.rule', { a: priceOf(cr, steps[0]), b: priceOf(cr, steps[1]), c: priceOf(cr, steps[2]), lose: priceOf(cr, cfg().losePrice) }) }));
     Y.lower.appendChild(OT.el('div', { class: 'ym-btns' }, [
-      OT.button('🎲 ' + OT.t('smug.play'), function () { cr.wins = 0; startRound(); }, 'primary big'),
+      OT.button('🎲 ' + OT.t('smug.play'), function () { cr.wins = 0; cr.cheatRound = planCheat(); startRound(); }, 'primary big'),
       buyBtn(cr, cr.list),
       OT.button(OT.t('smug.pass'), function () { cr.status = 'passed'; say(OT.say('ym.pass'), 1600); showList(); }, 'ghost small')
     ]));
@@ -180,8 +192,8 @@
     Y.swapTime = R.swapTime;
     // はじめての2回目の勝負：必ずイカサマをする（だまされたあとに、ポン吉が教える）
     Y.lesson = !st().flags.ymLesson && r >= 1;
-    Y.cheatAt = Y.lesson ? Math.max(2, Math.floor(R.swaps / 2)) :
-      Math.random() < (c.cheatChance[r] || 0) ? 1 + Math.floor(Math.random() * Math.max(1, R.swaps - 2)) : -1;
+    var cheat = Y.lesson || (r === Y.cur.cheatRound && !Y.cur.cheatDone);
+    Y.cheatAt = Y.lesson ? Math.max(2, Math.floor(R.swaps / 2)) : cheat ? 1 + Math.floor(Math.random() * Math.max(1, R.swaps - 2)) : -1;
     Y.replay = null;
     Y.cheated = false;
     Y.sw = 0; Y.swT = 0;
@@ -200,7 +212,7 @@
     Y.phase = 'pick';
     Y.lower.innerHTML = '';
     Y.lower.appendChild(OT.el('p', { class: 'ym-rule big', text: OT.t('smug.pick') }));
-    if ((cfg().cheatChance[Y.round] || 0) > 0 && st().flags.ymLesson && !Y.lesson) {   // 教わってから
+    if (Y.round >= 1 && st().flags.ymLesson && !Y.lesson) {   // 2回目から（教わってから）。イカサマがない回にも出す
       Y.lower.appendChild(OT.button('🫵 ' + OT.t('smug.cheatBtn'), callCheat, 'ym-cheat'));
       Y.lower.appendChild(OT.el('p', { class: 'ym-hint', text: OT.t('smug.cheatHint') }));
     }
@@ -339,6 +351,7 @@
           Y.glint = { cup: Y.ball, t: 0, big: Y.lesson };   // はじめての時は、少しだけ分かりやすく
           Y.replay = { cups: Y.cups.slice(), cup: Y.ball };
           Y.cheated = true;
+          Y.cur.cheatDone = true;   // イカサマは、1つの荷で1回だけ
           Y.ball = -1;
           act('call', 0.35);
         }

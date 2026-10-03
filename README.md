@@ -37,7 +37,7 @@
 | 注文のかたより | `LIKES_BOOST`（好物が頼まれやすい度合い）/ `ORDER_VARIETY`（同じ夜に同じ料理が続かない度合い） | `ORDER_VARIETY` を 1 にすると続きやすく、0.3 にするとばらける |
 | 一本釣りの難しさ | `FISHING.gear`（釣り道具：糸の強さ・竿の巻く速さ・値段）/ `tireTime` / `fish.○○.pull` | 道具は釣りの前の画面で買える。tireTime を短くすると魚が早く疲れてやさしい |
 | 長崎の抜け荷（闇商人との椀の玉当て）の値段 | `SMUGGLE.markup`（言い値 = 値打ち×何人前×この倍率）/ `steps`（1勝・2勝・3勝の値段）/ `losePrice`（負けたときの値段）/ `cheatWin`（イカサマを見破ったときの値段） | どれも言い値の何倍か。`[0.75, 0.55, 0.4]` なら3連勝で4割の値段 |
-| 椀の玉当ての難しさ | `SMUGGLE.rounds`（`swaps` 入れかえる回数・`swapTime` 1回の秒）/ `cheatChance`（その回にイカサマをする確率） | swapTime を大きくすると、ゆっくりでやさしい |
+| 椀の玉当ての難しさ | `SMUGGLE.rounds`（`swaps` 入れかえる回数・`swapTime` 1回の秒）/ `cheatCrate`（その荷でイカサマをする確率）/ `cheatRound`（するなら何回目か） | swapTime を大きくすると、ゆっくりでやさしい。イカサマは1つの荷で1回まで、しない荷もある |
 | 今夜の荷 | `SMUGGLE.crates`（荷の数）/ `goods.○○`（`weight` 出やすさ・`n` 何人前） | 銀次のせりふは text.js の `'ym.*'`（`|` で区切ると、その中から1つ） |
 | 山の追い込みの難しさ | `HUNT.push`（1回の追いたて）/ `fleeBias`（森へ逃げる強さ）/ `wary`（罠に気づく距離）/ `panicPerPush`（続けて追うと暴れる）/ `maxAnimals` / `animals.○○.charge`・`leap`・`veer` | push を上げる・fleeBias を下げるとやさしい |
 | 里山の採集 | `FORAGE.items.○○`（`life` 出ている秒・`weight` 出やすさ・`gives`）/ `maxOnField` | 出る場所は forage.js の `NESTS`（蜂の巣）・`BUSHES`（山椒）と背景の絵で同じ |

@@ -19,7 +19,9 @@
 
   /** 章 ch のはじめの状態を作る（物語の場面と案内は見終わったことにする） */
   function setup(ch) {
+    var prev = OT.state.get(), seen = prev && prev.flags.ymLesson;   // 抜け荷のイカサマの説明は、一度見たらもう出さない
     var S = OT.state.newGame(), C = OT.CFG;
+    if (seen) S.flags.ymLesson = 1;
     S.day = CH_DAY[ch - 1];
     S.rep = ch <= 5 ? C.RANKS[ch - 1] + 5 : C.RANKS[4] + 80;
     S.rankSeen = Math.min(ch - 1, C.RANKS.length - 1);
