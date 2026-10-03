@@ -367,7 +367,7 @@
     // 絵の塗り方の切りかえ（どちらの絵も入っているので、いつでも戻せる）
     //   kitchen：厨房の焼き場（七輪・油鍋・藁焼き）。'toon' = セル調（人物と同じ塗り方）/ 'classic' = 前の絵
     ART_STYLE: {
-      kitchen: 'toon'
+      kitchen: 'classic'
     },
 
     KITCHEN: {
