@@ -886,7 +886,11 @@
       'ing.kinpaku': '金箔',
       'taco.ise_ebi_taco': '伊勢海老の具足煮タコス',
       'taco.awabi_taco': '鮑の酒蒸しタコス',
-      'taco.karasumi_taco': 'からすみ大根タコス'
+      'taco.karasumi_taco': 'からすみ大根タコス',
+      'dev.art': '絵の塗り方（見くらべ用）',
+      'dev.kitchenArt': '厨房の焼き場：{style}',
+      'dev.style.toon': 'セル調',
+      'dev.style.classic': '前の絵'
     },
 
     en: {
@@ -1744,7 +1748,11 @@
       'ing.kinpaku': 'Gold leaf',
       'taco.ise_ebi_taco': 'Simmered Spiny Lobster Taco',
       'taco.awabi_taco': 'Sake-Steamed Abalone Taco',
-      'taco.karasumi_taco': 'Karasumi & Daikon Taco'
+      'taco.karasumi_taco': 'Karasumi & Daikon Taco',
+      'dev.art': 'Art style (to compare)',
+      'dev.kitchenArt': 'Kitchen grill: {style}',
+      'dev.style.toon': 'Cel-shaded',
+      'dev.style.classic': 'Original'
     }
   };
 

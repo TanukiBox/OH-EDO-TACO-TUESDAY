@@ -202,7 +202,8 @@ def scene_images(R, out, man):
             _save(_px(os.path.join(R, k + ".png"), sz, ol), os.path.join(out, "yami", k + ".png"))
             man["yami"]["images"].append(k)
     # 夜の厨房（焼き場・炎・木札・紐・捨て桶・鉢・徳利）
-    kitchen = {"k_shichirin": ((256, 160), False), "k_fryer": ((256, 160), False), "k_wara": ((256, 160), False), "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
+    kitchen = {"k_shichirin": ((256, 160), False), "k_fryer": ((256, 160), False), "k_wara": ((256, 160), False),
+               "k_shichirin_toon": ((256, 160), False), "k_fryer_toon": ((256, 160), False), "k_wara_toon": ((256, 160), False),   # セル調版（ART_STYLE） "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
                "k_ticket": ((56, 72), True), "k_rope": ((128, 12), False), "k_trash": ((40, 40), True), "k_bowl": ((32, 32), True), "k_jug": ((32, 32), True)}
     man["kitchen"] = {"images": []}
     for k, (sz, ol) in kitchen.items():

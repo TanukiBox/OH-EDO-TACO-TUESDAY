@@ -97,6 +97,17 @@
     other.appendChild(OT.button('📰 ' + OT.t('dev.news'), go(function () { OT.DEV.back = false; OT.morning.enter(); OT.news.open(); })));
     other.appendChild(OT.button('🏯 ' + OT.t('dev.banzuke'), go(function () { OT.DEV.back = false; OT.morning.enter(); OT.news.banzuke(); })));
     root.appendChild(other);
+    // 絵の塗り方を、その場で切りかえて見くらべる（ずっと変えるときは config.js の ART_STYLE）
+    var AS = OT.CFG.ART_STYLE;
+    root.appendChild(OT.el('h3', { text: OT.t('dev.art') }));
+    root.appendChild(OT.el('div', { class: 'dev-grid' }, [
+      OT.button(OT.t('dev.kitchenArt', { style: OT.t('dev.style.' + AS.kitchen) }), function () {
+        OT.sfx.tap();
+        AS.kitchen = AS.kitchen === 'toon' ? 'classic' : 'toon';
+        try { OT.store.set('devArtKitchen', AS.kitchen); } catch (e) { /* 保存できなくても、この場では切りかわる */ }
+        enter();
+      })
+    ]));
     root.appendChild(OT.el('div', { class: 'dev-foot' }, [
       OT.button(OT.t('dev.toTitle'), function () { stopAll(); OT.title.enter(); }, 'ghost small')
     ]));
@@ -108,7 +119,14 @@
   function hook() {
     var title = OT.flow.title, morning = OT.flow.morning;
     var first = true;
-    OT.flow.title = function () { if (first) { first = false; enter(); } else title(); };
+    OT.flow.title = function () {
+      if (first) {
+        first = false;
+        // 開発用メニューで選んだ厨房の絵（開発用のセーブにだけ覚える）
+        try { var ak = OT.store.get('devArtKitchen', null); if (ak) OT.CFG.ART_STYLE.kitchen = ak; } catch (e) { /* なし */ }
+        enter();
+      } else title();
+    };
     OT.flow.morning = function () { if (OT.DEV.back) enter(); else morning(); };
     // 右上の「DEV」ボタン（どの画面からでもメニューへ）
     var b = OT.el('button', { class: 'dev-fab', text: 'DEV', onclick: function () { enter(); } });

@@ -862,12 +862,16 @@ def _shichirin(cx, rng, lit=True):
     put(cube(0.36, 0.08, 0.46, (cx + 0.26, -1.2, 0.48)), M("#76726a", 0.35), "mado_to")
     # 炭（光る）：下の熾火（おきび）が、炭のすき間から赤く見える
     if lit:
-        put(cyl(0.96, 0.04, (cx, 0, 1.22), seg=40), M("#c42618", 0.8, 1.2), "okibi")
+        ob = put(cyl(0.96, 0.04, (cx, 0, 1.22), seg=40), M("#c42618", 0.8, 1.2), "okibi")
+        if TOON:
+            common.noline(ob)
     for k in range(30):
         a, d = rng.uniform(0, math.pi * 2), math.sqrt(rng.random()) * 0.82
-        hot = lit and rng.random() < 0.35
-        put(ball(rng.uniform(0.17, 0.26), (cx + math.cos(a) * d, math.sin(a) * d, 1.32), 1.3, 0.9, 0.7, 1),
-            M("#f5b860" if hot and rng.random() < 0.2 else "#f24a2a" if hot else "#1c1220", 0.8, 2.0 if hot else 0), "sumi")
+        hot = lit and rng.random() < (0.6 if TOON else 0.35)   # セル調は灯りで照らせないので、赤い炭を多めに
+        ob = put(ball(rng.uniform(0.17, 0.26), (cx + math.cos(a) * d, math.sin(a) * d, 1.32), 1.3, 0.9, 0.7, 1),
+                 M("#f5b860" if hot and rng.random() < 0.2 else "#f24a2a" if hot else ("#5a3218" if TOON else "#1c1220"), 0.8, 2.0 if hot else 0), "sumi")
+        if TOON:
+            common.noline(ob)
     if lit:
         point_light((cx, 0, 1.9), color=(1.0, 0.45, 0.2), power=90, radius=0.8)
     # 丸い焼き網（ふちの輪と、格子の針金）
@@ -880,8 +884,10 @@ def _shichirin(cx, rng, lit=True):
         half = math.sqrt(max(0.0, R * R - t * t))
         if half < 0.05:
             continue
-        put(cube(half * 2, 0.025, 0.025, (cx, t, 1.6)), M("#76726a", 0.3), "ami")
-        put(cube(0.025, half * 2, 0.025, (cx + t, 0, 1.61)), M("#76726a", 0.3), "ami")
+        for ob in (put(cube(half * 2, 0.025, 0.025, (cx, t, 1.6)), M("#76726a", 0.3), "ami"),
+                   put(cube(0.025, half * 2, 0.025, (cx + t, 0, 1.61)), M("#76726a", 0.3), "ami")):
+            if TOON:
+                common.noline(ob)   # 網の針金に線を引くと、炭が見えなくなる
 
 
 def _kview_cam(scale, elev):
@@ -889,7 +895,22 @@ def _kview_cam(scale, elev):
     return cam
 
 
-def job_kitchen(out):
+def job_kitchen_toon(out):
+    """厨房の焼き場（七輪・油鍋・藁焼き）のセル調版。いまの絵はそのまま残し、*_toon.png に書き出す
+    （ゲームでどちらを使うかは config.js の ART_STYLE.kitchen で切りかえる）"""
+    common.AUTO_LINES = {"outer": True}
+    try:
+        _kitchen_toon(out)
+    finally:
+        common.AUTO_LINES = None
+
+
+@toon_job
+def _kitchen_toon(out):
+    job_kitchen(out, suffix="_toon", views_only=True)
+
+
+def job_kitchen(out, suffix="", views_only=False):
     rng = rng_for("kitchen")
     slots = {}
 
@@ -905,7 +926,7 @@ def job_kitchen(out):
         put(cube(0.05, 2.0, 0.05, (3.9 + s, -1.8, 0.05), rz=0.25), M("#76726a", 0.3), "hibashi")
     cam = _kview_cam(6.6, 52)
     cam.location = cam.location + Vector((0, 0, 0.9))
-    common.render_to(os.path.join(out, "k_shichirin.png"))
+    common.render_to(os.path.join(out, "k_shichirin%s.png" % suffix))
     slots["grill"] = [_proj(cam, (cx + dx, 0, 1.66)) for cx in (-1.75, 1.75) for dx in (-0.5, 0.5)]
 
     # --- 油鍋（天ぷら鍋。斜め上から）---
@@ -923,7 +944,9 @@ def job_kitchen(out):
         put(cube(0.5, 0.3, 0.12, (-0.9 + s * 2.2, 0.2, 1.9)), M("#1c1220", 0.4), "nabe_mimi")
     # 油（ごま油の琥珀色。まん中が明るく、ふちが暗い）
     for r, z, col in ((1.92, 1.74, "#8c5228"), (1.7, 1.76, "#b87838"), (1.25, 1.77, "#dca24a"), (0.7, 1.78, "#f5b860")):
-        put(cyl(r, 0.03, (-0.9, 0.2, z), seg=48), M(col, 0.08), "abura")
+        ob = put(cyl(r, 0.03, (-0.9, 0.2, z), seg=48), M(col, 0.08), "abura")
+        if TOON:
+            common.noline(ob)   # 油の色の段に線を引くと、輪切りのように見える
     put(ball(0.25, (-1.6, 0.9, 1.84), 1.6, 0.6, 0.1, 1), M("#ffe6b0", 0.1, 0.6), "tsuya")   # 照り返し
     # 油切りの網とバット、菜箸、衣の鉢
     put(cube(2.6, 1.8, 0.12, (3.4, -0.4, 0.06)), M("#aaa292", 0.3), "batto")
@@ -937,7 +960,7 @@ def job_kitchen(out):
     point_light((-0.9, 0.2, 3.0), color=(1.0, 0.75, 0.45), power=60, radius=1.0)
     cam = _kview_cam(8.6, 58)
     cam.location = cam.location + Vector((0.2, 0, 1.4))
-    common.render_to(os.path.join(out, "k_fryer.png"))
+    common.render_to(os.path.join(out, "k_fryer%s.png" % suffix))
     slots["fry"] = [_proj(cam, (-0.9 + dx, 0.2, 1.8)) for dx in (-0.85, 0.85)]
     c0 = _proj(cam, (-0.9, 0.2, 1.8)); ex = _proj(cam, (-0.9 + 1.9, 0.2, 1.8)); ey = _proj(cam, (-0.9, 0.2 + 1.9, 1.8))
     slots["oil"] = [c0[0], c0[1], round(ex[0] - c0[0], 4), round(c0[1] - ey[1], 4)]
@@ -972,9 +995,11 @@ def job_kitchen(out):
     point_light((0, -0.5, 1.5), color=(1.0, 0.45, 0.2), power=70, radius=1.2)
     cam = _kview_cam(8.6, 28)
     cam.location = cam.location + Vector((0, 0, 1.4))
-    common.render_to(os.path.join(out, "k_wara.png"))
+    common.render_to(os.path.join(out, "k_wara%s.png" % suffix))
     slots["sear"] = [_proj(cam, (0, -0.4, 2.6))]
     slots["searHandle"] = _proj(cam, (3.4, -2.6, 2.2))
+    if views_only:
+        return   # セル調版は、焼き場の3枚だけ（置き場所は同じなので JSON は書かない）
 
     with open(os.path.join(out, "kitchen_slots.json"), "w", encoding="utf-8") as f:
         json.dump(slots, f)

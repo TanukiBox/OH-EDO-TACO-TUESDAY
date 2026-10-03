@@ -457,6 +457,11 @@
 
   // --- 絵 ---
   function bgOf(kind) {
+    // 絵の塗り方（config.js の ART_STYLE.kitchen）：'toon' ならセル調の絵（なければ前の絵）
+    if ((OT.CFG.ART_STYLE || {}).kitchen === 'toon') {
+      var tb = OT.sprites.get(BG[kind] + '_toon');
+      if (tb && tb.complete && tb.naturalWidth) return tb;
+    }
     var bg = OT.sprites.get(BG[kind]);
     return bg && bg.complete && bg.naturalWidth ? bg : null;
   }
