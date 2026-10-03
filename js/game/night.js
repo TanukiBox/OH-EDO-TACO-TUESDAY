@@ -595,6 +595,7 @@
     });
     var avg = N.served ? N.starsSum / N.served : 0;
     var chapterBefore = OT.state.chapter();
+    if (N.served > 0 && !N.tribute) N.repDelta += cfg().REP.perNight;   // 店を開けた評判（町に名が広がる）
     s.rep = Math.max(0, s.rep + N.repDelta);
     s.rankSeen = Math.max(s.rankSeen, OT.state.rank());
     var chapterAfter = OT.state.chapter();
