@@ -210,7 +210,7 @@ python build.py
 | 人物（客・常連・ライバル・VIP・マテオ・ポン吉）の動きと顔 | `blender/people.py`（人物の設定は `CHARACTERS`） | `output/game/people/*.png`、`faces.png`、`close/*.png` |
 | 全食材のアイコンと、皮の上に散らす「かけら」 | `blender/foods.py`（食材の設定は `FOODS`） | `output/game/food_icons.png`、`food_pieces.png` |
 | トルティーヤ以外の皮の折りたたみ | `blender/taco.py` の `SKIN_LOOKS` | `output/game/skins/*.png` |
-| 夜の屋台（年中行事の飾り）・生き物・紙芝居・厨房・魚河岸 | `blender/scenes.py` | `output/game/stall/`、`creatures/`、`story/`、`kitchen/`、`market/` |
+| 夜の屋台（年中行事の飾り。セル調）と改装の重ね絵（台 `fg_1〜3`・のれん `noren_1〜3`・提灯 `chochin_1〜3`）・生き物・紙芝居・厨房・魚河岸 | `blender/scenes.py`（屋台は `build_counter`・`build_noren`・`build_chochin`） | `output/game/stall/`、`creatures/`、`story/`、`kitchen/`、`market/` |
 | 町の地図・ミニゲームの背景（一本釣り・里山・山・長崎） | `blender/landscapes.py`（ゲームの座標に合わせた置き場所は、ファイルの先頭に） | `output/game/map.png`、`bg/` |
 | 山の獣（猪・鹿・山の主の走る4コマ）・里山の採集もの（イナゴ・蜂の巣・山椒・マコモダケ） | `blender/wildlife.py` | `output/game/creatures/animal_*`、`forage_*` |
 | 長崎の闇商人の蔵（奥・手前の盆・伏せた椀・賽）。闇商人の銀次は `people.py` の `yami` | `blender/landscapes.py` の `job_yami` | `output/game/yami/` |

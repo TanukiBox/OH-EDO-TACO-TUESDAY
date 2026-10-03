@@ -156,6 +156,14 @@ def skin_atlases(R, out, man):
 
 def scene_images(R, out, man):
     man["stall"] = []
+    # 屋台の改装の絵（台・のれん・提灯の段ごと。透明な重ね絵）
+    man["stallDeco"] = []
+    for kind in ("fg", "noren", "chochin"):
+        for lv in (1, 2, 3):
+            n = "stall_%s_%d.png" % (kind, lv)
+            if _exists(R, n):
+                _save(_px(os.path.join(R, n), STALL, False), os.path.join(out, "stall", "%s_%d.png" % (kind, lv)))
+                man["stallDeco"].append("%s_%d" % (kind, lv))
     fg = os.path.join(R, "stall_fg.png")
     if os.path.exists(fg):
         _save(_px(fg, STALL, False), os.path.join(out, "stall", "fg.png"))

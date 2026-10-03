@@ -25,6 +25,11 @@ FOODS = {
     "otoro":      dict(shape="fillet", c=["#fffaf0", "#f6c39c", "#f0664e"], size=0.2, n=5, icon=4, stripes=True),
     "kabayaki":   dict(shape="kabayaki", c=["#dca24a", "#8c5228", "#2e1a12"], size=0.34, n=3, icon=2),
     "uni":        dict(shape="uni", c=["#fbe39a", "#f5b860", "#b87838"], size=0.12, n=6, icon=5),
+    # 高級な材料（日本橋の大店・伊勢屋）
+    "ise_ebi":    dict(shape="tempura", c=["#f0664e", "#f24a2a", "#c42618"], size=0.3, n=4, icon=3),
+    "awabi":      dict(shape="disc", c=["#f0e6d2", "#d6ccb8", "#76726a"], size=0.17, n=4, icon=3, rim="#4a4658"),
+    "karasumi":   dict(shape="slice", c=["#f5b860", "#dca24a", "#b87838"], size=0.13, n=6, icon=5),
+    "kinpaku":    dict(shape="flake", c=["#fbe39a", "#f4cc62", "#dca24a"], size=0.07, n=9, icon=7),
     "kujira":     dict(shape="fillet", c=["#b8323a", "#7a1414", "#2e1a12"], size=0.22, n=5, icon=4, skin="#1c1220"),
     "sake":       dict(shape="fillet", c=["#f6c39c", "#f0664e", "#b8323a"], size=0.2, n=6, icon=4, stripes=True),
     # --- 具：里山・山・肉 ---

@@ -167,18 +167,119 @@ def build_stall_frame():
         lantern(1.95 * s, -1.05, 2.72)
 
 
-def build_counter():
-    top = noiseM("counter_top", [(0, "#dca24a"), (0.5, "#b87838"), (1, "#8c5228")], 3)
-    front = noiseM("counter_front", [(0, "#8c5228"), (1, "#5a3218")], 3)
+def build_counter(lv=0):
+    """手前のカウンター。lv = 屋台の改装（台）の段：0 白木 / 1 檜の一枚板 / 2 朱塗りに金具 / 3 黒漆に金蒔絵と招き猫"""
+    top_c = [("#dca24a", "#b87838", "#8c5228"), ("#fbe39a", "#f4cc62", "#dca24a"), ("#f4cc62", "#dca24a", "#b87838"), ("#fbe39a", "#f4cc62", "#dca24a")][lv]
+    front_c = [("#8c5228", "#5a3218"), ("#b87838", "#8c5228"), ("#c42618", "#7a1414"), ("#2e1a12", "#1c1220")][lv]
+    top = noiseM("counter_top%d" % lv, [(0, top_c[0]), (0.5, top_c[1]), (1, top_c[2])], 3)
+    front = noiseM("counter_front%d" % lv, [(0, front_c[0]), (1, front_c[1])], 3)
     put(cube(6.4, 0.9, 0.12, (0, -1.35, 0.98)), top, "counter_top")
     put(cube(6.4, 0.1, 1.0, (0, -0.92, 0.46)), front, "counter_front")
-    for k in range(-3, 4):
-        put(cube(0.04, 0.12, 0.98, (k * 0.9, -0.87, 0.46)), M("#5a3218"), "plank")
+    if lv <= 1:
+        for k in range(-3, 4):
+            put(cube(0.04, 0.12, 0.98, (k * 0.9, -0.87, 0.46)), M("#5a3218" if lv == 0 else "#8c5228"), "plank")
+    if lv >= 2:   # 金の縁と角の金具
+        gold = M("#f4cc62")
+        put(cube(6.45, 0.06, 0.07, (0, -1.0, 0.92)), gold, "rim_gold")
+        put(cube(6.45, 0.06, 0.07, (0, -1.0, 0.05)), gold, "rim_gold_low")
+        for sx in (-1, 1):
+            for gx in (2.45, 1.2, 0.0):
+                put(cube(0.22, 0.05, 0.22, (gx * sx, -1.01, 0.78)), gold, "kanagu")
+                put(cube(0.22, 0.05, 0.22, (gx * sx, -1.01, 0.2)), gold, "kanagu")
+    if lv >= 3:   # 金蒔絵の波
+        for k in range(9):
+            x = -2.8 + k * 0.7
+            for j in range(3):
+                a0 = j * 0.6
+                pts = [(x + 0.28 * math.cos(math.pi * (1 - t / 6)) , -1.0, 0.35 + 0.22 * math.sin(math.pi * t / 6) + a0 * 0.18) for t in range(7)]
+                put(bm_tube(pts, [0.012] * 7, 4), M("#f4cc62"), "makie")
+        # 招き猫（右の角）
+        cat_w = M("#fffaf0")
+        put(ball(0.17, (-2.45, -1.3, 1.2), 1, 0.9, 1.05), cat_w, "neko_body")
+        put(ball(0.14, (-2.45, -1.32, 1.47), 1.1, 1, 0.95), cat_w, "neko_head")
+        for sx in (-1, 1):
+            put(cyl(0.05, 0.08, (-2.45 + 0.08 * sx, -1.32, 1.56), seg=6, r2=0.0), cat_w, "neko_ear")
+        put(bm_tube([(-2.31, -1.3, 1.25), (-2.23, -1.35, 1.48)], [0.045, 0.04], 6), cat_w, "neko_paw")
+        put(cyl(0.11, 0.035, (-2.45, -1.36, 1.33), seg=12), M("#c42618"), "neko_collar")
+        put(ball(0.03, (-2.45, -1.47, 1.32)), M("#f4cc62"), "neko_bell")
+        for sx in (-1, 1):
+            put(ball(0.015, (-2.45 + 0.05 * sx, -1.45, 1.49)), M("#1c1220"), "neko_eye")
     # 七味の壺と箸立て、小皿
     put(cyl(0.14, 0.26, (2.2, -1.25, 1.04), r2=0.1), M("#b8323a"), "shichimi")
-    put(cyl(0.12, 0.3, (-2.3, -1.3, 1.04)), M("#dca24a"), "hashi")
+    hx = -2.3 if lv < 3 else -2.0
+    put(cyl(0.12, 0.3, (hx, -1.3, 1.04)), M("#dca24a"), "hashi")
     for k in range(5):
-        put(cyl(0.012, 0.35, (-2.33 + (k % 3) * 0.03, -1.3 + (k // 3) * 0.03, 1.2)), M("#f0e6d2"), "hashi_s")
+        put(cyl(0.012, 0.35, (hx - 0.03 + (k % 3) * 0.03, -1.3 + (k // 3) * 0.03, 1.2)), M("#f0e6d2"), "hashi_s")
+    if lv >= 1:   # 一輪挿し
+        put(cyl(0.07, 0.28, (-1.9, -1.3, 1.04), r2=0.05), M("#34569a"), "ichirin")
+        put(bm_tube([(-1.9, -1.3, 1.3), (-1.88, -1.31, 1.52)], [0.01, 0.01], 4), M("#1f6a2c"), "ichirin_stem")
+        put(ball(0.05, (-1.88, -1.31, 1.55)), M("#f24a2a" if lv < 3 else "#fffaf0"), "ichirin_flower")
+
+
+def _crest(x, z, y=-1.33, r=0.15):
+    """多幸寿の紋：白い丸に、たたんだタコス"""
+    put(cyl(r, 0.02, (x, y, z), seg=20), M("#fffaf0"), "crest")
+    ob = bpy.data.objects[[o.name for o in bpy.data.objects if o.name.startswith("crest")][-1]]
+    ob.rotation_euler = (math.pi / 2, 0, 0)
+    ob.location = (x, y - 0.01, z)
+    taco = bmesh.new()
+    vs = [taco.verts.new((x + r * 0.7 * math.cos(math.pi * t / 10), y - 0.03, z - r * 0.25 + r * 0.7 * math.sin(math.pi * t / 10))) for t in range(11)]
+    taco.faces.new(vs)
+    put(taco, M("#f5b860"), "crest_taco")
+    for k in range(3):
+        put(ball(0.022, (x - 0.06 + k * 0.06, y - 0.04, z - r * 0.12 + 0.03 * (k % 2))), M("#c42618" if k != 1 else "#46b03a"), "crest_dot")
+
+
+def build_noren(lv):
+    """梁から下がるのれん（3枚）。lv：1 藍の無地 / 2 藍に白い紋 / 3 朱に金の縁と紋"""
+    col = {1: "#243f7a", 2: "#243f7a", 3: "#b8323a"}[lv]
+    for k, x in enumerate((-1.0, 0.0, 1.0)):
+        rz = (k - 1) * 0.04
+        put(cube(0.95, 0.03, 0.72, (x, -1.28, 2.7), rz=rz), M(col), "noren")
+        if lv >= 2:
+            put(cube(0.95, 0.035, 0.06, (x, -1.29, 2.37), rz=rz), M("#fffaf0" if lv == 2 else "#f4cc62"), "noren_hem")
+            if lv == 2 and k == 1 or lv == 3:
+                _crest(x, 2.68)
+        if lv >= 3:
+            put(cube(0.95, 0.035, 0.05, (x, -1.29, 3.04), rz=rz), M("#f4cc62"), "noren_top")
+    put(cube(3.2, 0.06, 0.05, (0, -1.27, 3.25)), M("#5a3218"), "noren_bar")
+
+
+def _small_lantern(x, y, z, col="#f24a2a", r=0.13):
+    put(ball(r, (x, y, z), 1, 1, 1.25, 2), M(col, 0.5, 2.0), "s_chochin")
+    put(cyl(r * 0.75, 0.04, (x, y, z + r * 1.15)), M("#1c1220"), "s_chochin_top")
+    put(cyl(r * 0.75, 0.04, (x, y, z - r * 1.3)), M("#1c1220"), "s_chochin_bot")
+
+
+def build_chochin(lv):
+    """提灯の改装（重ねて増える）：1 柱に小さな提灯 / 2 梁に提灯の連なり / 3 「多幸寿」の大提灯"""
+    for sx in (-1, 1):
+        put(cube(0.35, 0.05, 0.05, (2.35 * sx, -1.32, 2.35)), M("#5a3218"), "arm")
+        _small_lantern(2.25 * sx, -1.35, 2.1)
+    if lv >= 2:
+        put(bm_tube([(-2.5, -1.4, 3.18), (0, -1.4, 3.05), (2.5, -1.4, 3.18)], [0.01] * 3, 4), M("#1c1220"), "garland_cord")
+        for k in range(9):
+            x = -2.4 + k * 0.6
+            if abs(x) < 0.35 and lv >= 3:
+                continue
+            z = 3.05 + 0.13 * (x / 2.5) ** 2 - 0.12
+            _small_lantern(x, -1.42, z, "#f24a2a" if k % 2 else "#fffaf0", 0.09)
+    if lv >= 3:
+        put(ball(0.36, (0, -1.5, 2.72), 1, 1, 1.25, 3), M("#f24a2a", 0.5, 2.2), "o_chochin")
+        put(cyl(0.3, 0.07, (0, -1.5, 3.17)), M("#1c1220"), "o_chochin_top")
+        put(cyl(0.3, 0.07, (0, -1.5, 2.23)), M("#1c1220"), "o_chochin_bot")
+        cu = bpy.data.curves.new("taco_name", "FONT")
+        cu.body = "多\n幸\n寿"
+        font_path = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts", "YujiSyuku-Regular.ttf")
+        cu.font = bpy.data.fonts.load(font_path)
+        cu.size = 0.2
+        cu.space_line = 0.85
+        cu.align_x = "CENTER"
+        cu.align_y = "CENTER"
+        ob = link(bpy.data.objects.new("taco_name", cu))
+        ob.location = (0, -1.88, 2.72)
+        ob.rotation_euler = (math.pi / 2, 0, 0)
+        ob.data.materials.append(M("#1c1220"))
 
 
 def build_festival(fest):
@@ -230,6 +331,22 @@ def build_festival(fest):
 
 
 def job_stall(out):
+    """夜の屋台（セル調）。奥の町並み＋屋台の骨組み（行事ごと）と、手前のカウンター・改装の絵"""
+    common.AUTO_LINES = {"outer": True}
+    try:
+        _job_stall(out)
+    finally:
+        common.AUTO_LINES = None
+
+
+def _hide_all():
+    for ob in bpy.data.objects:
+        if ob.type in ("MESH", "FONT", "CURVE"):
+            ob.hide_render = True
+
+
+@toon_job
+def _job_stall(out):
     fests = [None, "hanami", "hatsugatsuo", "kawabiraki", "doyo", "tsukimi"]
     for fest in fests:
         common.reset_scene()
@@ -249,12 +366,19 @@ def job_stall(out):
         name = "stall_bg" + ("_" + fest if fest else "")
         common.render_to(os.path.join(out, name + ".png"))
         if fest is None:
-            # 手前のカウンターだけ（ほかは隠す）
-            for ob in bpy.data.objects:
-                if ob.type == "MESH":
-                    ob.hide_render = True
-            build_counter()
-            common.render_to(os.path.join(out, "stall_fg.png"))
+            # 手前のカウンター（改装の段 0〜3）・のれん・提灯（1〜3）を、それぞれ透明な絵に
+            for lv in range(4):
+                _hide_all()
+                build_counter(lv)
+                common.render_to(os.path.join(out, "stall_fg.png" if lv == 0 else "stall_fg_%d.png" % lv))
+            for lv in (1, 2, 3):
+                _hide_all()
+                build_noren(lv)
+                common.render_to(os.path.join(out, "stall_noren_%d.png" % lv))
+            for lv in (1, 2, 3):
+                _hide_all()
+                build_chochin(lv)
+                common.render_to(os.path.join(out, "stall_chochin_%d.png" % lv))
 
 
 # ---------------------------------------------------------------------------

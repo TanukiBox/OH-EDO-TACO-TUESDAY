@@ -30,6 +30,7 @@
       whaleDay: false,        // 今日は鯨組の大物が競りに入る日か
       fisherTrust: 0,         // 常連の漁師・浜蔵さんの信頼（朝の競りで耳打ちしてくれる）
       gear: { line: 0, rod: 0 },   // 一本釣りの道具の段（0 = はじめの道具）
+      upgrades: { chochin: 0, noren: 0, dai: 0, yakiba: 0 },   // 屋台の改装の段
       flags: {},              // 物語の進み具合など
       chStart: { 1: 1 },      // 各章になった日
       regulars: {},           // 常連ごとの、星3を出した回数

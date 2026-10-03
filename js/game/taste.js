@@ -148,7 +148,7 @@
       var need = needOf(guest.order, guest.variant);
       var missing = need.filter(function (n) { return served.items.indexOf(n) < 0; }).length;
       if (!skinOk(r.skin, served.skin)) missing += 1;
-      var extras = served.items.filter(function (n) { return need.indexOf(n) < 0; }).length;
+      var extras = served.items.filter(function (n) { return need.indexOf(n) < 0 && n !== 'kinpaku'; }).length;   // 金箔は飾り
       correct = Math.max(0, 1 - R.missingPenalty * missing - R.extraPenalty * extras);
       if (missing >= 2) cap = R.wrongOrderMaxStars;
       if (plating && plating.seq) seqScore = sequenceScore(need, plating.seq);

@@ -95,6 +95,10 @@
       otoro:      { cat: 'main', taste: [0, 0, 6, 1, 0], value: 32, tags: ['fish', 'fatty', 'rare'] },
       kabayaki:   { cat: 'main', cook: 'grill', taste: [0, 0, 6, 4, 2], value: 20, tags: ['fish'] },
       uni:        { cat: 'main', taste: [0, 0, 6, 2, 0], value: 30, tags: ['fish', 'rare'] },
+      ise_ebi:    { cat: 'main', cook: 'grill', taste: [0, 0, 6, 3, 4], value: 75, tags: ['fish', 'red', 'rare'] },
+      awabi:      { cat: 'main', taste: [0, 0, 5, 2, 4], value: 53, tags: ['fish', 'rare'] },
+      karasumi:   { cat: 'main', taste: [0, 1, 6, 3, 2], value: 32, tags: ['fish', 'rare'] },
+      kinpaku:    { cat: 'herb', taste: [0, 0, 0, 1, 0], value: 20, tags: ['rare'] },
       kujira:     { cat: 'main', cook: 'grill', taste: [0, 0, 5, 1, 2], value: 24, tags: ['fish', 'red', 'rare'] },
       // ----- 具：里山・山 -----
       inago:      { cat: 'main', use: 'sprinkle', taste: [0, 0, 3, 1, 4], value: 8, tags: ['meat', 'rare'] },
@@ -219,6 +223,10 @@
       surtido:   { skin: 'tortilla', need: [], price: 46, chapter: 3,
                    variants: { rosu: 'inoshishi', bara: 'ino_bara', shita: 'ino_shita', mimi: 'ino_mimi' } },
       // 第4章
+      // 高級なタコス（premium = 材料を持っているときだけ注文される）
+      ise_ebi_taco: { skin: 'tortilla', need: ['ise_ebi', 'dashi', 'mitsuba'], price: 150, chapter: 3, premium: true },
+      awabi_taco: { skin: 'tortilla', need: ['awabi', 'irizake', 'yuzu'], price: 130, chapter: 3, premium: true, light: true },
+      karasumi_taco: { skin: 'tortilla', need: ['karasumi', 'daikon', 'negi'], price: 110, chapter: 4, premium: true },
       maguro3:   { skin: 'tortilla', need: ['akami', 'chutoro', 'otoro'], price: 88, chapter: 4 },
       kozakana:  { skin: 'tortilla', need: ['iwashi', 'aji_nanban', 'kisu_ten'], price: 44, chapter: 4 },
       matsutake: { skin: 'funoyaki', need: ['matsutake', 'kamo', 'yuzu'], price: 78, chapter: 4, season: 'autumn' },
@@ -383,9 +391,7 @@
 
     // 評判ランク：rep がこの値以上でそのランク（= 章）。
     //   1 名もなき屋台 / 2 町の噂 / 3 行列の屋台 / 4 江戸の名物 / 5 将軍の耳に届く
-    //   はじめての人が約1時間（11日目ごろ）で「江戸の名物」、約3時間でエンディングに届くように調整
-    //   （1日 = 仕入れ＋3分の営業＋結果 でおよそ5〜6分として計算）
-    // 評判ランクの境目（第2章〜第5章になる評判）。自動プレイと試算での目安（1日目からクリアまで）：
+    //   境目（第2章〜第5章になる評判）は、自動プレイと試算で決めた。1日目からクリアまでの目安：
     //   上手な人 約13日 / ふつう 約20日 / 苦手な人 約33日（毎晩の REP.perNight 込み）
     RANKS: [0, 25, 90, 220, 430],
 
@@ -405,7 +411,8 @@
       { id: 'tofuya', kind: 'shop', chapter: 2 },
       { id: 'toriya', kind: 'shop', chapter: 2 },
       { id: 'yagenbori', kind: 'shop', chapter: 2 },
-      { id: 'momonjiya', kind: 'shop', chapter: 3 }
+      { id: 'momonjiya', kind: 'shop', chapter: 3 },
+      { id: 'kokyu', kind: 'shop', chapter: 3 }
     ],
     MAX_GAMES_PER_DAY: 3,
 
@@ -474,6 +481,12 @@
         { id: 'shichimi', n: 15, price: 20, chapter: 1 },
         { id: 'togarashi', n: 8, price: 16, chapter: 2 },
         { id: 'shichimi_miso', n: 8, price: 24, chapter: 2 }
+      ],
+      kokyu: [   // 日本橋の大店・伊勢屋（高級な材料）
+        { id: 'ise_ebi', n: 2, price: 150, chapter: 3 },
+        { id: 'awabi', n: 3, price: 160, chapter: 3 },
+        { id: 'kinpaku', n: 5, price: 100, chapter: 3 },
+        { id: 'karasumi', n: 4, price: 130, chapter: 4 }
       ],
       momonjiya: [
         { id: 'inoshishi', n: 5, price: 90, chapter: 3 },
@@ -591,6 +604,27 @@
     KAWARABAN: {
       trendChance: 0.6,       // 「江戸でいま○○がはやり」が載る確率
       trendBoost: 2.5         // はやりのタコスが、その日に頼まれやすくなる倍率
+    },
+
+    // ---------------------------------------------------------
+    // 屋台の改装（お金の使いみち）。朝の画面の「🔨 屋台の改装」から。それぞれ3段まで
+    //   price = 値段（文）、chapter = その段に改装できる章
+    //   chochin 提灯 arrival = お客さんの来る間隔の倍率（小さいほど多く来る）
+    //   noren のれん patience = お客さんの待てる時間の倍率
+    //   dai 台（カウンター） pay = 代金と心付けの倍率
+    //   yakiba 焼き場 window = 焼き加減の「ちょうど良い」の幅の倍率（焦げるのも、そのぶん遅くなる）
+    // ---------------------------------------------------------
+    UPGRADES: {
+      chapter: 2,            // 改装ができるようになる章
+      chochin: { levels: [{ price: 400, chapter: 2, arrival: 0.93 }, { price: 1000, chapter: 3, arrival: 0.87 }, { price: 2200, chapter: 4, arrival: 0.8 }] },
+      noren:   { levels: [{ price: 300, chapter: 2, patience: 1.12 }, { price: 900, chapter: 3, patience: 1.25 }, { price: 2000, chapter: 4, patience: 1.4 }] },
+      dai:     { levels: [{ price: 500, chapter: 2, pay: 1.05 }, { price: 1200, chapter: 3, pay: 1.1 }, { price: 2500, chapter: 4, pay: 1.15 }] },
+      yakiba:  { levels: [{ price: 400, chapter: 2, window: 1.2 }, { price: 1000, chapter: 3, window: 1.4 }, { price: 2000, chapter: 4, window: 1.6 }] }
+    },
+    // 高級な材料（日本橋の大店・伊勢屋）。高級なタコスは、材料を持っているときだけ注文される
+    PREMIUM: {
+      orderBoost: 4,         // 材料があるとき、高級なタコスが頼まれやすくなる倍率
+      kinpakuPay: 1.3        // 金箔をのせたタコスの代金と心付けの倍率（金箔は「よけいな具」に数えない）
     },
 
     // 常連の漁師（夜の客）。満足させるほど、朝の競りの前に耳打ちしてくれる

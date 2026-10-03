@@ -94,6 +94,7 @@
         OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('morning'); }, 'small'),
         OT.button('📰 ' + OT.t('news.title'), function () { OT.news.open(); }, 'small'),
         OT.button('🏯 ' + OT.t('bz.open'), function () { OT.news.banzuke(); }, 'small'),
+        OT.state.chapter() >= OT.CFG.UPGRADES.chapter ? OT.button('🔨 ' + OT.t('kaiso.title'), function () { OT.kaiso.enter(); }, 'small') : null,
         OT.el('span', { class: 'chapter-name', text: OT.t('rank.' + OT.state.chapter()) })
       ]));
 
@@ -160,6 +161,11 @@
       }
       // 2日目からは、朝いちばんに瓦版（その日いちど）
       if (s.day > 1 && OT.news) OT.news.morningShow();
+      // 屋台の改装ができるようになったら、いちどだけポン吉が教える
+      if (OT.state.chapter() >= OT.CFG.UPGRADES.chapter && !s.flags.sawKaiso) {
+        s.flags.sawKaiso = 1; OT.state.save();
+        setTimeout(function () { OT.ui.toast(OT.t('pon.kaiso'), 'tip long'); }, 600);
+      }
     }
   };
 

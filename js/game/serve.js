@@ -168,6 +168,7 @@
         var bg = OT.sprites.stallBg(St.festival);
         if (bg) ctx.drawImage(bg, sx, sy, sw, sh, 0, 0, St.W, St.H);
         else { ctx.fillStyle = '#0d1830'; ctx.fillRect(0, 0, St.W, St.H); }
+        OT.sprites.stallDeco().forEach(function (im) { ctx.drawImage(im, sx, sy, sw, sh, 0, 0, St.W, St.H); });
         var t = S.t - T_DISH;
         var anim = S.phase === 'react' ? (res.stars >= 3 ? 'happy' : 'worry') : t > T_SLIDE ? 'eat' : 'wait';
         ctx.save();

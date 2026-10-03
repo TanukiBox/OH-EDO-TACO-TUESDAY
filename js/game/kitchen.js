@@ -13,7 +13,25 @@
 
   var K = null;
   function cfg() { return OT.CFG; }
-  function KC() { return OT.CFG.KITCHEN; }
+  /** 厨房の数字。焼き場を改装していると、焼き加減の「ちょうど良い」の幅を広げる（焦げるのも、そのぶん遅く） */
+  var kcCache = null;
+  function KC() {
+    var K = OT.CFG.KITCHEN, m = OT.upg ? OT.upg.value('yakiba', 'window') : 1;
+    if (m === 1) return K;
+    if (kcCache && kcCache.m === m && kcCache.src === K) return kcCache.v;
+    var out = {};
+    Object.keys(K).forEach(function (k) { out[k] = K[k]; });
+    ['grill', 'fry', 'sear'].forEach(function (k) {
+      var C = K[k], c = (C.done[0] + C.done[1]) / 2, h = (C.done[1] - C.done[0]) / 2 * m, o = {};
+      Object.keys(C).forEach(function (x) { o[x] = C[x]; });
+      o.done = [Math.max(c - h, C.flipAt ? C.flipAt + C.flipWindow * m + 0.05 : 0.3), c + h];
+      o.burn = C.burn + (o.done[1] - C.done[1]);
+      if (C.flipWindow) o.flipWindow = C.flipWindow * m;
+      out[k] = o;
+    });
+    kcCache = { m: m, src: K, v: out };
+    return out;
+  }
   function st() { return OT.state.get(); }
   function ingOf(id) { return cfg().INGREDIENTS[id] || {}; }
   function useOf(id) {

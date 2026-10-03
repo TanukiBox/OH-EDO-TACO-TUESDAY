@@ -28,6 +28,7 @@
   (A.skins || []).forEach(function (k) { file('skin_' + k, 'skins/' + k + '.png'); });
   (A.stall || []).forEach(function (k) { file('stall_' + k, 'stall/' + k + '.png'); });
   file('stall_fg', 'stall/fg.png');
+  (A.stallDeco || []).forEach(function (k) { file('stall_deco_' + k, 'stall/' + k + '.png'); });   // 屋台の改装の重ね絵
   file('map', 'map.png');
   (A.bg || []).forEach(function (k) { file('bg_' + k, 'bg/' + k + '.png'); });
   Object.keys(A.creatures || {}).forEach(function (k) { file('cr_' + k, 'creatures/' + k + '.png'); });
@@ -288,5 +289,19 @@
     var k = 'stall_' + (festival || 'normal');
     return S.has(k) ? loaded[k] : (S.has('stall_normal') ? loaded.stall_normal : null);
   };
-  OT.sprites.stallFg = function () { return S.has('stall_fg') ? loaded.stall_fg : null; };
+  /** 手前のカウンター（台の改装の段で変わる） */
+  OT.sprites.stallFg = function () {
+    var lv = OT.upg ? OT.upg.level('dai') : 0;
+    if (lv && S.has('stall_deco_fg_' + lv)) return loaded['stall_deco_fg_' + lv];
+    return S.has('stall_fg') ? loaded.stall_fg : null;
+  };
+  /** 改装した提灯・のれんの重ね絵（奥の絵のすぐ上に描く） */
+  OT.sprites.stallDeco = function () {
+    var out = [];
+    ['noren', 'chochin'].forEach(function (k) {
+      var lv = OT.upg ? OT.upg.level(k) : 0;
+      if (lv && S.has('stall_deco_' + k + '_' + lv)) out.push(loaded['stall_deco_' + k + '_' + lv]);
+    });
+    return out;
+  };
 })(window);

@@ -812,3 +812,16 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .ym-pon { display: flex; align-items: center; gap: 10px; background: #fffaf0; color: #1c1220; border: 3px solid #b87838; border-radius: 12px; padding: 8px 10px; }
 .ym-pon-face { width: 52px; height: 52px; flex: none; image-rendering: pixelated; }
 .ym-pon p { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.55; }
+
+/* ---------- 屋台の改装 ---------- */
+.kaiso-preview { display: block; width: calc(100% - 32px); margin: 6px 16px 10px; image-rendering: pixelated; border: 2px solid var(--line); border-radius: 10px; }
+.kaiso-list { display: flex; flex-direction: column; gap: 8px; margin: 0 16px 90px; }
+.kaiso-row { display: flex; align-items: center; gap: 8px; background: var(--panel2); border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+.kaiso-icon { font-size: 22px; flex: none; }
+.kaiso-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.kaiso-info b { font-size: 14px; }
+.kaiso-now { font-size: 12px; color: var(--lantern2); }
+.kaiso-next { font-size: 11px; color: var(--ink2); }
+.kaiso-row .btn { flex: none; white-space: nowrap; }
+.kaiso-row .btn.off { opacity: .45; }
+.kaiso-max { flex: none; font-size: 11px; color: var(--muted); }

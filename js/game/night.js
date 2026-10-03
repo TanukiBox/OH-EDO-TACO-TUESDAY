@@ -78,6 +78,7 @@
       var rank = type.likes.indexOf(id);
       var w = rank < 0 ? 1 : 1 + cfg().LIKES_BOOST * (1 - rank / type.likes.length);
       if (N && N.ordered && N.ordered[id]) w *= Math.pow(cfg().ORDER_VARIETY, N.ordered[id]);   // 今夜もう頼まれた料理は頼まれにくく
+      if (cfg().TACOS[id].premium) return canMake(id) ? w * cfg().PREMIUM.orderBoost : 0;   // 高級なタコスは、材料があるときだけ
       if (st().trend === id) w *= cfg().KAWARABAN.trendBoost;   // 瓦版に載った「はやり」のタコス
       if (id === 'chazuke' && late) w *= 4;              // 夜ふけは〆の茶漬け
       var fest = N && N.fest;
@@ -97,7 +98,7 @@
     var type = cfg().CUSTOMERS[typeId];
     var j = cfg().CUSTOMER_JITTER;
     var want = type.want.map(function (v) { return Math.max(0, v + Math.round((Math.random() * 2 - 1) * j)); });
-    var pm = (N.fest && N.fest.patienceMul) || 1;
+    var pm = ((N.fest && N.fest.patienceMul) || 1) * OT.upg.value('noren', 'patience');   // 行事の日・のれんの改装
     return {
       typeId: typeId, type: type, want: want, order: null, variant: null, seat: seat,
       x: seat < 1 ? -PW * 0.56 : W + PW * 0.56, state: 'in', t: 0,
@@ -360,6 +361,9 @@
     var res = OT.evaluate(g, served, g.waited, OT.state.chapter(), plating);
     // 行事の日の値段
     if (N.fest && N.fest.priceMul && res.recipe && N.fest.priceMul[res.recipe]) res.pay = Math.round(res.pay * N.fest.priceMul[res.recipe]);
+    // 台の改装・金箔：代金と心付けが上がる（素タコスはのぞく）
+    var payMul = OT.upg.value('dai', 'pay') * (res.recipe && served.items.indexOf('kinpaku') >= 0 ? cfg().PREMIUM.kinpakuPay : 1);
+    if (payMul !== 1 && res.recipe !== 'sutaco') { res.pay = Math.round(res.pay * payMul); res.tip = Math.round(res.tip * payMul); }
     // VIP：お題のタコスを、点数 minScore 以上で出せば勝ち
     if (g.vip) {
       var V = cfg().VIPS[g.vip];
@@ -476,7 +480,7 @@
           OT.sfx.arrive();
           mateoDo('greet', 1.2);
           var busy = Math.pow(D.busier, Math.min(5, OT.state.chapter()) - 1) * ((N.fest && N.fest.busier) || 1);
-          N.nextGuest = (D.arrivalMin + Math.random() * (D.arrivalMax - D.arrivalMin)) * busy;
+          N.nextGuest = (D.arrivalMin + Math.random() * (D.arrivalMax - D.arrivalMin)) * busy * OT.upg.value('chochin', 'arrival');   // 提灯の改装で多く来る
         } else N.nextGuest = 1.5;
       }
     }
@@ -491,7 +495,7 @@
         g.x += (target - g.x) * Math.min(1, dt * 6);
         if (Math.abs(target - g.x) < 0.8) {
           g.x = target; g.state = 'order'; g.t = 0;
-          g.patience = g.patienceMax = cfg().KITCHEN.orderPatience * ((N.fest && N.fest.patienceMul) || 1);
+          g.patience = g.patienceMax = cfg().KITCHEN.orderPatience * ((N.fest && N.fest.patienceMul) || 1) * OT.upg.value('noren', 'patience');
           OT.kitchen.tutorialCheck();
         }
       } else if (g.state === 'order' || g.state === 'wait') {
@@ -564,6 +568,7 @@
     ctx.imageSmoothingEnabled = false;
     var bg = OT.sprites.stallBg(N.festival);
     if (bg) ctx.drawImage(bg, 0, 0); else OT.art.drawStall(ctx, W, H, N.time);
+    OT.sprites.stallDeco().forEach(function (im) { ctx.drawImage(im, 0, 0); });   // 改装した提灯・のれん
     N.guests.forEach(function (g, i) {
       if (!g) return;
       var key = OT.sprites.personKey(g);
