@@ -4,7 +4,7 @@
   ・一本釣り（横）  海面 y=40、小舟 x 8〜42、魚は y 70〜82 を泳ぐ
   ・里山（横）      木 x=28,96,164（蜂の巣は FORAGE_SPOTS の枝の下）、山椒のやぶ、あぜ道 y 60〜70、田んぼ x 0〜116、池 x 122〜192（forage.js の SPOTS と同じ）
   ・山（真上）      罠 x 78〜114 y 6〜22（下が入口）、獣は y 100〜116 から上へ走る
-  ・長崎（横・夜）  役人の足もと y=56、道（マテオの足もと）y=100、船 x=172、荷車 x=22
+  ・長崎の闇商人    384×216。闇商人は x=192 に立つ（足もと y=212）。盆（白い布）の上の椀は x=132,192,252、椀の底 y=194
   ・地図            PLACES（地名の場所）を絵の上に置き、画面の位置を map_places.json に書き出す
 """
 import json
@@ -417,7 +417,6 @@ def job_minigames(out):
     _fishing(out, rng)
     _forage(out, rng)
     _hunt(out, rng)
-    _smuggle(out, rng)
 
 
 def _fishing(out, rng):
@@ -665,144 +664,153 @@ def _hunt(out, rng):
     common.render_to(os.path.join(out, "bg_hunt.png"))
 
 
-def _smuggle(out, rng):
-    """長崎の抜け荷（横・夜）：月と星・町の灯・出島の蔵・石垣の上を見回る役人・石畳の道・桟橋と唐船"""
-    bg_scene(*GAME_PX)
-    # 夜空と星・月・雲
-    for y0, y1, c in ((0, 20, "#0d1830"), (20, 40, "#172b58")):
-        fband(y0, y1, c, d=16)
-    stars = Batch()
-    for k in range(40):
-        stars.cube(0.08, 0.05, 0.08, _fx(rng.uniform(0, 192), rng.uniform(1, 26), 15))
-    stars.put(FLAT("#ffe6b0"), "stars", line=False)
-    moon = Batch()
-    moon.ball(0.75, _fx(152, 14, 14), 1, 0.2, 1)
-    moon.put(T3("moon", "#fffaf0", "#ffe6b0", "#f5b860"), "moon")
-    cl = (Batch(), Batch(), Batch())
-    for x, y, w in ((40, 10, 30), (120, 22, 22), (182, 8, 18)):
-        cloud(*cl, x, y, w, d=13, rng=rng)
-    cl[0].put(FLAT("#34569a"), "cloud_hi", line=False)
-    cl[1].put(FLAT("#243f7a"), "cloud")
-    cl[2].put(FLAT("#172b58"), "cloud_lo", line=False)
-    # 長崎の山と町の灯
-    hills = Batch()
-    for x, w, h in ((10, 50, 18), (70, 46, 14), (130, 40, 16), (186, 40, 20)):
-        hills.ball(1.0, _fx(x, 42, 12), w * 0.06, 0.2, h * 0.1)
-    hills.put(T3("hills", "#243f7a", "#172b58", "#0d1830"), "hills")
-    town = Batch()
-    for k in range(26):
-        town.cube(0.1, 0.05, 0.08, _fx(rng.uniform(4, 188), rng.uniform(30, 40), 11.5))
-    town.put(FLAT("#f5b860"), "town_lights", line=False)
-    # 出島の蔵（役人はこの前、y=56 を見回る）
-    walls, roofs, wins = Batch(), Batch(), Batch()
-    x = 2
-    while x < 146:
-        w = rng.uniform(16, 24)
-        h = rng.uniform(14, 22)
-        walls.cube(w * 0.1, 0.4, h * 0.1, _fx(x + w / 2, 56 - h / 2, 4))
-        rf = Batch()
-        rf.roof(w * 0.1 + 0.3, 0.9, 0.5, _fx(x + w / 2, 56 - h, 4.2))
-        rf.put(T("#243f7a"), "kura_roof")
-        if rng.random() < 0.7:
-            wins.cube(0.4, 0.05, 0.3, _fx(x + w / 2, 56 - h * 0.6, 3.7))
-        x += w + rng.uniform(1, 4)
-    walls.put(T("#76726a"), "kura_walls")
-    wins.put(FLAT("#f5b860"), "kura_windows")
-    doors = Batch()
-    for x in (30, 92):
-        doors.cube(0.6, 0.05, 0.8, _fx(x, 52, 3.75))
-    doors.put(T("#2e1a12"), "kura_doors")
-    # 石垣（上が見回りの通り）
-    put(cube(14.8, 0.6, 0.35, _fx(74, 57.5, 3.0)), T("#4a4658"), "walk")
-    stones = (Batch(), Batch())
-    for row, y in enumerate(range(60, 89, 4)):
-        x = -(row % 2) * 4.0
-        while x < 148:
-            w = rng.uniform(6, 10)
-            (stones[0] if rng.random() < 0.55 else stones[1]).cube(w * 0.1 - 0.06, 0.4, 0.34, _fx(min(147, x + w / 2), y, 3.0))
-            x += w
-    stones[0].put(T("#4a4658"), "ishigaki")
-    stones[1].put(T("#76726a"), "ishigaki_hi")
-    # 港の海（船のまわり）と月の光
-    flat(cube(4.6, 0.3, 3.4, _fx(170, 74, 3.5)), "#172b58", "harbor")
-    ref = Batch()
-    for k in range(8):
-        ref.cube(rng.uniform(0.2, 0.6), 0.05, 0.06, _fx(152 + rng.uniform(-2, 2), 62 + k * 3.2, 3.2))
-    ref.put(FLAT("#ffe6b0"), "moon_road", line=False)
-    rip = Batch()
-    for k in range(12):
-        rip.cube(rng.uniform(0.3, 0.6), 0.05, 0.05, _fx(rng.uniform(150, 190), rng.uniform(60, 90), 3.25))
-    rip.put(FLAT("#243f7a"), "ripples", line=False)
-    # 唐船（x=172 に横づけ）
-    hull = Batch()
-    hull.cube(3.6, 0.6, 0.9, _fx(173, 82, 2.4))
-    hull.cube(0.8, 0.6, 1.3, _fx(188, 78, 2.4))
-    hull.put(T("#5a3218"), "hull")
-    put(cube(3.6, 0.62, 0.12, _fx(173, 79, 2.35)), T("#b8323a"), "hull_band")
-    put(cube(0.12, 0.2, 5.0, _fx(170, 52, 2.2)), T("#2e1a12"), "mast")
-    put(cube(1.7, 0.06, 2.0, _fx(170, 43, 2.1)), T("#d6ccb8"), "sail")
-    battens = Batch()
-    for k in range(6):
-        battens.cube(1.8, 0.04, 0.1, _fx(170, 34 + k * 4, 2.0))
-    battens.put(T("#5a3218"), "battens", line=False)
-    put(cube(0.5, 0.05, 0.3, _fx(173, 26, 2.1)), T("#f24a2a"), "flag")
-    # 石畳の道（マテオの足もと y=100）と桟橋
-    put(cube(19.2, 0.6, 2.4, _fx(96, 100, 2.0)), T("#4a4658"), "road_base")
-    tiles = (Batch(), Batch())
-    for row, y in enumerate(range(90, 112, 5)):
-        x = -(row % 2) * 4
-        while x < 192:
-            w = rng.uniform(7, 10)
-            (tiles[0] if rng.random() < 0.5 else tiles[1]).cube(w * 0.1 - 0.08, 0.3, 0.42, _fx(x + w / 2, y, 1.8))
-            x += w
-    tiles[0].put(T("#76726a"), "ishidatami")
-    tiles[1].put(T("#aaa292"), "ishidatami_hi")
+YAMI_PX = (384, 216)
+
+
+def _yx(x, y, d=0.0):
+    """闇商人の場面（384×216、横から）：画面の1ドット = 0.1"""
+    return (x * 0.1 - 19.2, d, -(y * 0.1 - 10.8))
+
+
+def _yami_cam():
+    cd = bpy.data.cameras.new("Cam")
+    cd.type = "ORTHO"
+    cd.ortho_scale = 38.4
+    ob = common.link(bpy.data.objects.new("Cam", cd))
+    ob.location = (0, -40, 0)
+    ob.rotation_euler = (math.pi / 2, 0, 0)
+    bpy.context.scene.camera = ob
+    return ob
+
+
+def _yband(y0, y1, color, d, x0=0, x1=384):
+    return flat(cube((x1 - x0) * 0.1, 0.05, (y1 - y0) * 0.1, _yx((x0 + x1) / 2, (y0 + y1) / 2, d)), color, "band")
+
+
+@toon_job
+def job_yami(out):
+    """長崎・唐人屋敷の裏の蔵：闇商人と「椀の玉当て」をする場所"""
+    rng = rng_for("yami")
+    # --- 奥（背景）---
+    bg_scene(*YAMI_PX)
+    _yband(0, 216, "#5a3218", d=20)
     planks = Batch()
-    for k in range(9):
-        planks.cube(0.45, 0.3, 0.5, _fx(152 + k * 5, 92, 1.7))
-    planks.put(T("#8c5228"), "pier")
-    # 手前の海と杭
-    flat(cube(19.2, 0.3, 1.8, _fx(96, 120, 1.0)), "#0d1830", "front_sea")
-    rip2 = Batch()
-    for k in range(14):
-        rip2.cube(rng.uniform(0.3, 0.8), 0.05, 0.05, _fx(rng.uniform(0, 192), rng.uniform(115, 127), 0.9))
-    rip2.put(FLAT("#172b58"), "front_ripples", line=False)
-    posts = Batch()
-    for x in (10, 48, 86, 124, 162):
-        posts.cube(0.3, 0.3, 1.4, _fx(x, 116, 0.8))
-    posts.put(T("#2e1a12"), "posts")
-    # 荷車（x=22）と、俵・樽（石垣の足もと）
-    cart = Batch()
-    cart.cube(2.0, 0.4, 0.25, _fx(22, 92, 1.4))
-    cart.cube(1.4, 0.05, 0.08, _fx(34, 94, 1.4))
-    cart.put(T("#8c5228"), "cart")
-    wheels = Batch()
-    wheels.cone(0.4, 0.4, 0.1, (0, 0, 0), seg=12)
-    ob = wheels.put(T("#2e1a12"), "wheel")
-    ob.rotation_euler = (math.pi / 2, 0, 0)
-    ob.location = _fx(15, 96, 1.2)
-    w2 = Batch()
-    w2.cone(0.4, 0.4, 0.1, (0, 0, 0), seg=12)
-    ob = w2.put(T("#2e1a12"), "wheel2")
-    ob.rotation_euler = (math.pi / 2, 0, 0)
-    ob.location = _fx(29, 96, 1.2)
-    bales = Batch()
-    for x in (18, 26):
-        bales.ball(0.45, _fx(x, 87, 1.5), 1, 0.6, 0.8)
-    bales.put(T("#dca24a"), "tawara")
-    for i, bx in enumerate((63, 111)):
-        b = Batch()
-        b.cone(0.36, 0.36, 0.9, (0, 0, 0), seg=10)
-        ob = b.put(T("#b87838"), "taru")
-        ob.location = _fx(bx, 93, 2.6)
+    for x in range(0, 384, 16):
+        planks.cube(1.5, 0.3, 21.6, _yx(x + 8, 108, 19.5))
+    planks.put(T3("kura_planks", "#8c5228", "#5a3218", "#2e1a12", noise=0.1, scale=2), "planks")
+    beams = Batch()
+    for y in (22, 112):
+        beams.cube(38.4, 0.6, 1.0, _yx(192, y, 19))
+    for x in (40, 344):
+        beams.cube(1.2, 0.6, 21.6, _yx(x, 108, 18.9))
+    beams.put(T("#2e1a12"), "beams")
+    # 円窓（夜空と月、竹の格子）
+    win = bmesh.new()
+    bmesh.ops.create_circle(win, cap_ends=True, segments=32, radius=2.8)
+    transform_bm(win, rot_x=math.pi / 2, loc=_yx(82, 66, 18.7))
+    put(win, FLAT("#172b58"), "window")
+    rim = bmesh.new()
+    bmesh.ops.create_circle(rim, cap_ends=True, segments=32, radius=3.2)
+    transform_bm(rim, rot_x=math.pi / 2, loc=_yx(82, 66, 18.8))
+    put(rim, T("#2e1a12"), "window_rim")
+    moon = Batch()
+    moon.ball(0.9, _yx(92, 56, 18.6), 1, 0.2, 1)
+    moon.put(FLAT("#ffe6b0"), "moon", line=False)
+    lattice = Batch()
+    for k in (-1, 0, 1):
+        lattice.cube(0.12, 0.1, 5.6, _yx(82 + k * 14, 66, 18.5))
+        lattice.cube(5.6, 0.1, 0.12, _yx(82, 66 + k * 14, 18.5))
+    lattice.put(T("#8c5228"), "lattice")
+    # 抜け荷の山（右）：木箱・樽・俵・唐物の壺
     crates = Batch()
-    crates.cube(0.8, 0.5, 0.7, _fx(150, 85, 2.6))
-    crates.cube(0.6, 0.5, 0.5, _fx(156, 87, 2.55))
-    crates.put(T("#8c5228"), "crates")
-    # 蔵の提灯
-    lan = Batch()
-    for x in (24, 86, 132):
-        lan.ball(0.22, _fx(x, 46, 3.6), 1, 0.3, 1.2)
-    lan.put(FLAT("#f24a2a"), "chochin")
-    _front_cam()
-    common.render_to(os.path.join(out, "bg_smuggle.png"))
+    for (x, y, w, h) in ((300, 130, 44, 34), (346, 130, 40, 34), (322, 98, 40, 30), (366, 100, 32, 28)):
+        crates.cube(w * 0.1, 2.0, h * 0.1, _yx(x, y, 15))
+    crates.put(T("#b87838"), "crates")
+    ropes = Batch()
+    for (x, y, w, h) in ((300, 130, 44, 34), (346, 130, 40, 34), (322, 98, 40, 30)):
+        ropes.cube(w * 0.1 + 0.05, 2.05, 0.18, _yx(x, y, 15))
+        ropes.cube(0.18, 2.05, h * 0.1 + 0.05, _yx(x, y, 15))
+    ropes.put(T("#dca24a"), "ropes")
+    jar = Batch()
+    jar.ball(1.5, _yx(262, 128, 14), 1, 1, 1.15)
+    jar.cone(0.7, 0.9, 0.6, _yx(262, 112, 14), seg=14)
+    jar.put(T("#fffaf0"), "tsubo")
+    jarpat = Batch()
+    for k in range(5):
+        a = -0.9 + k * 0.45
+        jarpat.ball(0.3, (_yx(262, 128, 14)[0] + math.sin(a) * 1.3, _yx(262, 128, 14)[1] - 1.25, _yx(262, 128, 14)[2] + math.cos(a * 2) * 0.4), 1, 0.3, 1)
+    common.noline(jarpat.put(T("#34569a"), "tsubo_pat"))
+    # 俵（横に寝かせた円柱に、縄の帯）
+    for (x, y) in ((26, 150), (62, 150), (44, 124)):
+        b = Batch()
+        b.cone(1.25, 1.25, 3.0, (0, 0, -1.5), seg=14)
+        for k in (-1, 0, 1):
+            b.cone(1.3, 1.3, 0.22, (0, 0, k * 0.9 - 0.11), seg=14)
+        ob = b.put(T("#dca24a"), "tawara")
+        ob.rotation_euler = (0, math.pi / 2, 0)
+        ob.location = _yx(x, y, 15)
+    # 赤い唐提灯（金のふさ）
+    for (x, y) in ((150, 30), (306, 36)):
+        put(ball(1.4, _yx(x, y, 13), 1, 1, 1.15), FLAT("#f24a2a"), "lantern", smooth=True)
+        put(cube(1.6, 1.6, 0.35, _yx(x, y - 15, 13)), T("#dca24a"), "lantern_top")
+        put(cube(1.6, 1.6, 0.35, _yx(x, y + 15, 13)), T("#dca24a"), "lantern_bot")
+        tassel = Batch()
+        tassel.cube(0.2, 0.2, 1.4, _yx(x, y + 24, 13))
+        tassel.put(T("#f4cc62"), "tassel")
+        ribs = Batch()
+        for k in (-1, 0, 1):
+            ribs.cube(2.9, 0.1, 0.1, _yx(x, y + k * 6, 11.55))
+        common.noline(ribs.put(FLAT("#c42618"), "ribs"))
+    # 床
+    _yband(160, 216, "#2e1a12", d=10)
+    _yami_cam()
+    common.render_to(os.path.join(out, "bg_yami.png"))
+
+    # --- 手前の盆（白い布をかけた台）と、端の銭 ---
+    bg_scene(*YAMI_PX)
+    bpy.context.scene.render.film_transparent = True
+    put(cube(28.0, 0.6, 2.4, _yx(192, 190, 3)), T3("bon_cloth", "#fffaf0", "#f0e6d2", "#d6ccb8", noise=0.08, scale=3), "bon_cloth")
+    put(cube(29.0, 0.8, 1.6, _yx(192, 209, 2.5)), T3("bon_wood", "#8c5228", "#5a3218", "#2e1a12", noise=0.15, scale=3), "bon_wood")
+    put(cube(29.2, 0.82, 0.3, _yx(192, 202, 2.4)), T("#2e1a12"), "bon_edge")
+    coins = Batch()
+    for (x, n) in ((72, 4), (86, 3), (304, 5), (318, 2)):
+        for k in range(n):
+            coins.cube(1.0, 0.4, 0.17, _yx(x, 194 - k * 2.2, 2.6))
+    coins.put(T("#f4cc62"), "zeni")
+    common.toon_lines(LINE, outer=True)
+    _yami_cam()
+    common.render_to(os.path.join(out, "fg_yami.png"))
+
+    # --- 伏せた椀（黒漆に朱のふち）と、賽 ---
+    for name, px, build in (("yami_wan", (44, 36), _wan), ("yami_dice", (14, 14), _dice)):
+        bg_scene(*px)
+        bpy.context.scene.render.film_transparent = True
+        build()
+        cd = bpy.data.cameras.new("Cam")
+        cd.type = "ORTHO"
+        cd.ortho_scale = {"yami_wan": 2.3, "yami_dice": 0.8}[name]
+        cam = common.link(bpy.data.objects.new("Cam", cd))
+        look = Vector((0, 0, {"yami_wan": 0.62, "yami_dice": 0.12}[name]))
+        loc = look + Vector((0, -10, 3.5))
+        cam.location = loc
+        cam.rotation_euler = (look - loc).to_track_quat("-Z", "Y").to_euler()
+        bpy.context.scene.camera = cam
+        common.render_to(os.path.join(out, name + ".png"))
+
+
+def _wan():
+    body = common.bm_lathe([(0.0, 1.1), (0.45, 1.08), (0.8, 0.95), (1.0, 0.6), (1.06, 0.2), (1.08, 0.04), (1.0, 0.0), (0.0, 0.0)], 32)
+    put(body, T3("wan", "#4a4658", "#2e1a12", "#1c1220"), "wan", smooth=True)
+    band = common.bm_lathe([(1.07, 0.0), (1.1, 0.02), (1.1, 0.16), (1.07, 0.18)], 32)
+    put(band, T("#b8323a"), "wan_rim", smooth=True)
+    foot = common.bm_lathe([(0.0, 1.1), (0.36, 1.1), (0.38, 1.22), (0.0, 1.22)], 24)
+    put(foot, T("#b8323a"), "wan_foot", smooth=True)
+    gold = common.bm_lathe([(1.03, 0.42), (1.05, 0.44), (1.05, 0.48), (1.03, 0.5)], 32)
+    common.noline(put(gold, T("#f4cc62"), "wan_gold", smooth=True))
+
+
+def _dice():
+    put(cube(0.36, 0.36, 0.36, (0, 0, 0.18), rz=0.5), T("#fffaf0"), "dice")
+    common.noline(put(ball(0.07, (0, 0, 0.365), 1, 1, 0.3), FLAT("#f24a2a"), "pip", smooth=True))
+
+

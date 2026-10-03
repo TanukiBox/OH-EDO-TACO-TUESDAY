@@ -100,6 +100,8 @@ CHARACTERS = {
     "itamae":     dict(body="kimono", cloth="#f0e6d2", cloth2="#d6ccb8", obi="#5a3218", hair="mage", extra=["maekake", "tasuki"], eyes='narrow', face='long', build='thin', size=1.03),
     "daidokoro":  dict(body="samurai", cloth="#7a1414", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage_gray", extra=["swords", "crest_gold", "fan"], old=True, brows="thick", scale=1.05, eyes='droopy', build='stout', wrinkles=True, nose='round'),
     "kitsune":    dict(body="happi", cloth="#4a4658", cloth2="#d6ccb8", obi="#dca24a", hair="mage", extra=["tenugui_kubi"], eyes="fox", face='long', build='thin', nose='long', size=1.02),
+    # 長崎の闇商人（唐草の頬かむり）
+    "yami":       dict(body="kimono", cloth="#76726a", cloth2="#5a3218", obi="#b8323a", hair="none", extra=["hokamuri", "haori"], pattern="stripe", pat="#4a4658", eyes='narrow', hige='mustache', face='long', build='thin', nose='long'),
     "hamazo":     dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#dca24a", hair="mage", extra=["hachimaki_twist"], brows="thick", stubble=True, eyes='sharp', face='square', build='stout', hige='beard'),
     # 主人公
     "mateo":      dict(body="modern", cloth="#2e1a12", cloth2="#fffaf0", obi="#c42618", hair="short", extra=["bandana", "apron_modern"], brows="thick", stubble=True, face='square'),
@@ -117,6 +119,8 @@ RIVALS = ["tatsu", "itamae", "daidokoro", "kitsune"]
 RIVAL_ANIMS = {"wait": 4, "lean": 2, "twitch": 2, "raise": 2, "carry": 2, "sad": 2, "shout": 2}
 # 競り人：call 掛け声 / lift 箱を軽々と持ち上げる / heavy うなりながら持ち上げる / laugh からかって笑う
 SERI_ANIMS = {"wait": 4, "call": 2, "lift": 2, "heavy": 2, "laugh": 2}
+# 長崎の闇商人：call 声をかける / laugh 勝ってにやにや / sad 負けて悔しがる / shout イカサマを見破られてあわてる
+YAMI_ANIMS = {"wait": 4, "call": 2, "laugh": 2, "sad": 2, "shout": 2}
 
 
 def anims_for(key):
@@ -127,6 +131,8 @@ def anims_for(key):
         return PON_ANIMS
     if key == "seri":
         return SERI_ANIMS
+    if key == "yami":
+        return YAMI_ANIMS
     if key in RIVALS:
         out = dict(ANIMS)
         out.update(RIVAL_ANIMS)
@@ -725,6 +731,13 @@ class Person:
             obj("hachimaki", b, mat(col), H)
             obj("knot", sphere(0.055, loc=(0.2, 0.24, cz + 0.15)), mat(col), H)
             obj("knot_tail", capsule((0.22, 0.27, cz + 0.13), (0.33, 0.34, cz + 0.02), 0.025), mat(col), H)
+        if "hokamuri" in ex:   # 頬かむり：唐草の風呂敷を頭からかぶり、あごの下で結ぶ
+            b = sphere(0.37, 1.0, 1.0, 0.97, loc=(0, 0.02, cz + 0.02))
+            bmesh.ops.delete(b, geom=[v for v in b.verts if (v.co.y < -0.12 and cz - 0.26 < v.co.z < cz + 0.15) or v.co.z < cz - 0.3], context="VERTS")
+            obj("hokamuri", b, mat("#1f6a2c", pattern="kasuri", pat="#a8e05a"), H)
+            obj("hokamuri_knot", sphere(0.05, loc=(0, -0.2, cz - 0.36)), mat("#1f6a2c"), H)
+            for s in (-1, 1):
+                obj("hokamuri_tail", capsule((0.03 * s, -0.21, cz - 0.38), (0.1 * s, -0.22, cz - 0.48), 0.024), mat("#1f6a2c"), H)
         if "bandana" in ex:
             b = sphere(0.355, 1.0, 1.0, 0.8, loc=(0, 0.02, cz + 0.05))
             bmesh.ops.delete(b, geom=[v for v in b.verts if v.co.z < cz + 0.13], context="VERTS")

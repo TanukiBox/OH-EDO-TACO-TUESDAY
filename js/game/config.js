@@ -656,23 +656,22 @@
     // ミニゲーム「長崎の抜け荷」（夜。押している間だけ歩く。役人の提灯の明かりに入ると見つかる）
     // ---------------------------------------------------------
     SMUGGLE: {
-      seconds: 45,
-      walkSpeed: 34,         // 1秒に進むドット数（ふつうの荷）
-      heavySpeed: 0.75,      // 重い荷のときの歩く速さ（何倍か）
-      lightSpeed: 1.2,       // 軽い荷のときの歩く速さ
-      spotTime: 0.45,        // 明かりの中にこの秒数いると見つかる（止まっていても）
-      caughtRep: 0,          // 見つかったときの評判（前は -6。今は荷が船にもどるだけ）
-      caughtLimit: 3,        // この回数見つかると、その夜はおしまい
-      lanterns: 3,           // 見回りの役人の数
-      crates: 6,             // 今夜の船の荷の数（はじめに中身が見え、えらんで運ぶ）
-      // 船の荷になる品（weight = 船にのっている出やすさ、n = 何人前、heavy = 重い・遅い、light = 軽い・速い）
-      //   第5章でトウモロコシの種がまだなら、船の荷に必ず入る
+      // 長崎の抜け荷：唐人屋敷の裏の蔵で、闇商人の銀次から異国の品を買う。「椀の玉当て」に勝つと安くなる
+      crates: 4,             // 今夜の荷の数（はじめに中身と言い値が見える）
+      markup: 2.0,           // 言い値 = 食材の値打ち（INGREDIENTS の value）× 何人前 × この倍率
+      steps: [0.75, 0.55, 0.4],   // 1勝・2勝・3勝したときの値段（言い値の何倍か）。勝負は3回まで
+      losePrice: 1.25,       // 負けたら、この値段でしか売ってくれない（言い値の何倍か。見送ってもよい）
+      cheatWin: 0.3,         // イカサマを見破ったときの値段（言い値の何倍か）
+      // 1回目・2回目・3回目の勝負：swaps = 椀を入れかえる回数、swapTime = 1回の入れかえの秒（短いほど速い）
+      rounds: [{ swaps: 5, swapTime: 0.42 }, { swaps: 7, swapTime: 0.32 }, { swaps: 9, swapTime: 0.25 }],
+      cheatChance: [0, 0.25, 0.4],   // その回に銀次がイカサマ（賽を袖に隠す）をする確率。隠す瞬間、椀がちょっと浮いて光る
+      // 荷になる品（weight = 荷に入る出やすさ、n = 何人前）。第5章でトウモロコシの種がまだなら、荷に必ず入る
       goods: {
-        kosho: { weight: 3, n: 6, light: true }, nikkei: { weight: 2, n: 6, light: true }, choji: { weight: 2, n: 6, light: true },
-        sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4, heavy: true }, gyuniku: { weight: 2, n: 4, heavy: true },
-        cheese: { weight: 2, n: 4, heavy: true }, butter: { weight: 2, n: 5 }, tomato: { weight: 2, n: 4 },
-        avocado: { weight: 1.5, n: 4 }, mole: { weight: 1, n: 4 }, honba_chili: { weight: 2, n: 6, light: true },
-        corn: { weight: 1, n: 6, heavy: true }
+        kosho: { weight: 3, n: 6 }, nikkei: { weight: 2, n: 6 }, choji: { weight: 2, n: 6 },
+        sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4 }, gyuniku: { weight: 2, n: 4 },
+        cheese: { weight: 2, n: 4 }, butter: { weight: 2, n: 5 }, tomato: { weight: 2, n: 4 },
+        avocado: { weight: 1.5, n: 4 }, mole: { weight: 1, n: 4 }, honba_chili: { weight: 2, n: 6 },
+        corn: { weight: 1, n: 6 }
       }
     },
 

@@ -51,6 +51,8 @@ def people_atlases(R, out, man):
             return parse("PON_ANIMS")
         if key == "seri":
             return parse("SERI_ANIMS")
+        if key == "yami":
+            return parse("YAMI_ANIMS")
         rivals = re.findall(r'"(\w+)"', re.search(r'RIVALS = \[([^\]]*)\]', src).group(1))
         if key in rivals:
             return parse("ANIMS") + parse("RIVAL_ANIMS")[1:]   # wait は ANIMS と同じなので重ねない
@@ -93,7 +95,7 @@ def people_atlases(R, out, man):
     man["close"] = CLOSE
     _save(sheet, os.path.join(out, "faces.png"))
     # 抜け荷で使う小さな人（マテオと役人）
-    for key, src_key in (("mini_mateo", "mateo_happi"), ("mini_guard", "messenger")):
+    for key, src_key in (("mini_mateo", "mateo_happi"),):
         frames = [_px(os.path.join(R, "p_%s_walk_%d.png" % (src_key, f)), (24, 30)) for f in range(4) if _exists(R, "p_%s_walk_%d.png" % (src_key, f))]
         if frames:
             sheet = Image.new("RGBA", (24 * len(frames), 30), (0, 0, 0, 0))
@@ -167,7 +169,7 @@ def scene_images(R, out, man):
         _save(_px(os.path.join(R, "map.png"), (256, 160), False), os.path.join(out, "map.png"))
         man["places"] = json.load(open(os.path.join(R, "map_places.json"), encoding="utf-8"))
     man["bg"] = []
-    for k in ("fishing", "forage", "hunt", "smuggle"):   # 競りは market の背景を使う
+    for k in ("fishing", "forage", "hunt"):   # 競りは market、長崎は yami の絵を使う
         if _exists(R, "bg_%s.png" % k):
             _save(_px(os.path.join(R, "bg_%s.png" % k), (192, 128), False), os.path.join(out, "bg", k + ".png"))
             man["bg"].append(k)
@@ -185,6 +187,12 @@ def scene_images(R, out, man):
         if _exists(R, k + ".png"):
             _save(_px(os.path.join(R, k + ".png"), sz), os.path.join(out, "creatures", k + ".png"))
             man["creatures"][k] = list(sz)
+    # 長崎の闇商人の蔵（奥・手前の盆・伏せた椀・賽）
+    man["yami"] = {"images": []}
+    for k, sz, ol in (("bg_yami", (384, 216), False), ("fg_yami", (384, 216), False), ("yami_wan", (44, 36), True), ("yami_dice", (14, 14), True)):
+        if _exists(R, k + ".png"):
+            _save(_px(os.path.join(R, k + ".png"), sz, ol), os.path.join(out, "yami", k + ".png"))
+            man["yami"]["images"].append(k)
     # 夜の厨房（焼き場・炎・木札・紐・捨て桶・鉢・徳利）
     kitchen = {"k_shichirin": ((256, 160), False), "k_fryer": ((256, 160), False), "k_wara": ((256, 160), False), "k_flame0": ((48, 48), False), "k_flame1": ((48, 48), False), "k_flame2": ((48, 48), False),
                "k_ticket": ((56, 72), True), "k_rope": ((128, 12), False), "k_trash": ((40, 40), True), "k_bowl": ((32, 32), True), "k_jug": ((32, 32), True)}

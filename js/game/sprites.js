@@ -19,7 +19,7 @@
 
   // 読み込む絵の一覧
   Object.keys(A.people || {}).forEach(function (k) { file('people_' + k, 'people/' + k + '.png'); });
-  ['mini_mateo', 'mini_guard'].forEach(function (k) { file('people_' + k, 'people/' + k + '.png'); });
+  ['mini_mateo'].forEach(function (k) { file('people_' + k, 'people/' + k + '.png'); });   // 一本釣りの小さなマテオ
   file('faces', 'faces.png');
   file('icons', 'food_icons.png');
   file('pieces', 'food_pieces.png');
@@ -34,6 +34,7 @@
   for (var i = 1; i <= (A.story || 0); i++) file('story_' + i, 'story/' + i + '.png');
   file('logo', 'logo.png');
   ((A.market || {}).images || []).forEach(function (k) { file('mk_' + k, 'market/' + k + '.png'); });
+  ((A.yami || {}).images || []).forEach(function (k) { file('ym_' + k, 'yami/' + k + '.png'); });
 
   var loaded = {};
   OT.sprites = {

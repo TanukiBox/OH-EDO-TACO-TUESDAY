@@ -108,7 +108,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,wildlife,story,kitchen,market")
+    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,wildlife,yami,story,kitchen,market")
     p.add_argument("--foods", default="", help="食材をしぼる（カンマ区切り）")
     p.add_argument("--people", default="", help="人物をしぼる（カンマ区切り）")
     a = p.parse_args(argv)
@@ -147,6 +147,9 @@ def main():
     if "wildlife" in jobs:
         print("== 山の獣と里山の採集もの", flush=True)
         wildlife.job_wildlife(a.out)
+    if "yami" in jobs:
+        print("== 長崎の闇商人の蔵", flush=True)
+        landscapes.job_yami(a.out)
     if "story" in jobs:
         print("== 紙芝居", flush=True)
         scenes.job_story(a.out, a.textures)

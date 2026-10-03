@@ -80,7 +80,7 @@ def render_person(key, out, anims=None, portrait=True):
         common.render_to(os.path.join(out, "face_%s.png" % key))
         p.set_face("happy")
         common.render_to(os.path.join(out, "face_%s_happy.png" % key))
-        if key in people.RIVALS or key in ("seri", "hamazo", "mateo", "mateo_happi", "pon"):
+        if key in people.RIVALS or key in ("seri", "hamazo", "mateo", "mateo_happi", "pon", "yami"):
             p.set_face("sad" if key != "pon" else "ok")
             common.render_to(os.path.join(out, "face_%s_sad.png" % key))
         common.set_resolution(CLOSEUP[0] * 4, CLOSEUP[1] * 4)
