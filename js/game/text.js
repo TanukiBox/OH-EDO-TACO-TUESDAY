@@ -436,7 +436,7 @@
       'hunt.result': '追い込みの結果',
       'hunt.none': '獲物はなかった',
       'smug.title': '長崎の抜け荷（裏の取引）',
-      'smug.howto': '唐人屋敷の裏の蔵で、闇商人の銀次が異国の品を売っている。言い値で買うか、「椀の玉当て」で勝負して値切ろう。三つの椀のどれに賽が入っているか目で追って、タップで当てる。当てるたびに安くなるが、外れると高くしか売ってくれない。2回目からは、銀次がイカサマ（賽を袖に隠す）をすることがある。見破ったら「イカサマだ！」',
+      'smug.howto': '唐人屋敷の裏の蔵で、闇商人の銀次が異国の品を売っている。言い値で買うか、「椀の玉当て」で勝負して値切ろう。三つの椀のどれに賽が入っているか目で追って、タップで当てる。当てるたびに安くなるが、外れると高くしか売ってくれない。',
       'smug.result': '裏の取引の結果',
       'smug.none': '何も買わなかった',
       'real.title': '本物の皮（灰汁で煮たトウモロコシ）',
@@ -836,7 +836,14 @@
       'ym.exposed': 'げっ……見えてやしたか！ わかった、うんとまけときやす！|ひえっ、ばれちまった……！ 内緒にしといてくだせえ',
       'ym.thanks': '毎度あり|へへ、いい買い物ですぜ',
       'ym.pass': 'おや、いらねえんで？|また今度ってことで',
-      'ym.bye': 'またのお越しを。役人には内緒ですぜ'
+      'ym.bye': 'またのお越しを。役人には内緒ですぜ',
+      'smug.lesson1': 'あれっ!? どの椀にも、賽が入ってない！',
+      'smug.lesson2': '今のを、ゆっくり見てみて。混ぜている途中で、この椀がちょっと浮いて、キラッと光ったよね。',
+      'smug.lesson3': 'その一瞬に、銀次が賽を袖に隠したんだ。イカサマだよ！',
+      'smug.lesson4': '光ったのを見たら、椀を選ばずに「イカサマだ！」を押そう。見破れば、うんとまけてくれるはず！ でも、光ってないのに押すと負けになるから気をつけて。',
+      'smug.next': 'つぎへ',
+      'smug.gotIt': 'わかった！',
+      'ym.lessonEnd': 'げっ……狸に見られてたか。今のはなし、なし！ もう一度勝負といきやしょう'
     },
 
     en: {
@@ -1245,7 +1252,7 @@
       'hunt.result': 'Drive results',
       'hunt.none': 'No catch',
       'smug.title': 'Nagasaki Back-Alley Deals',
-      'smug.howto': 'In a storehouse behind the Chinese quarter, Ginji the black-marketeer sells foreign goods. Pay his price, or haggle with a game of cups and dice. Follow which of the three cups hides the die and tap it. Every win lowers the price, but lose and he only sells at a markup. From the second round on, Ginji may cheat by palming the die. If you catch him, call "Cheat!"',
+      'smug.howto': 'In a storehouse behind the Chinese quarter, Ginji the black-marketeer sells foreign goods. Pay his price, or haggle with a game of cups and dice. Follow which of the three cups hides the die and tap it. Every win lowers the price, but lose and he only sells at a markup.',
       'smug.result': 'Back-alley results',
       'smug.none': 'You didn\'t buy anything',
       'real.title': 'Real shells (corn cooked in lye)',
@@ -1644,7 +1651,14 @@
       'ym.exposed': 'Gah… you saw that? Fine, I\'ll give you a real bargain!|Eek, caught… keep it to yourself, will you',
       'ym.thanks': 'Pleasure doing business|Heh, a fine purchase',
       'ym.pass': 'Oh, not interested?|Another time, then',
-      'ym.bye': 'Come again. Not a word to the officials'
+      'ym.bye': 'Come again. Not a word to the officials',
+      'smug.lesson1': 'Huh!? The die isn\'t under any of the cups!',
+      'smug.lesson2': 'Watch that again, slowly. During the shuffle, this cup lifted a little and glinted, right?',
+      'smug.lesson3': 'In that instant, Ginji slipped the die up his sleeve. He\'s cheating!',
+      'smug.lesson4': 'When you see the glint, don\'t pick a cup. Press "Cheat!" instead. Catch him and he\'ll give you a real bargain! But if you press it when nothing glinted, you lose.',
+      'smug.next': 'Next',
+      'smug.gotIt': 'Got it!',
+      'ym.lessonEnd': 'Gah… the tanuki saw that. Fine, that one doesn\'t count! Let\'s go again.'
     }
   };
 
@@ -1770,7 +1784,7 @@
         ['yami', 'へへ……胡椒に肉桂、牛の肉にパイナップル。旦那の欲しいもんは、たいてい揃ってますぜ'],
         ['yami', '言い値が高けりゃ、椀の玉当てで勝負といきやしょう。当てりゃあ、まけてさしあげやす'],
         ['gonta', '……銀次の指先から目を離すなよ。あいつはイカサマの名人だ'],
-        ['pon', '賽の入った椀を目で追って、タップで当てるんだよ。あやしい動きを見たら「イカサマだ！」'],
+        ['pon', '賽の入った椀を目で追って、タップで当てるんだよ。銀次の手もとから目を離さないでね'],
       ],
       summons: [
         ['mateo', '……あれ？ トルティーヤの袋が、空っぽだ'],
@@ -2005,7 +2019,7 @@
         ['yami', "Heh heh… pepper, cinnamon, beef, pineapple. Whatever you're after, I've likely got it."],
         ['yami', "If my price is too steep, let's settle it with the cups and the die. Guess right, and I'll knock it down."],
         ['gonta', "…Don't take your eyes off Ginji's fingers. He's a master cheat."],
-        ['pon', 'Follow the cup with the die and tap it. If you see something fishy, call "Cheat!"'],
+        ['pon', "Follow the cup with the die and tap it. Don't take your eyes off Ginji's hands."],
       ],
       summons: [
         ['mateo', '…Huh? The tortilla bag is empty.'],

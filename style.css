@@ -809,3 +809,6 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .ym-btns .btn.off { opacity: .45; }
 .btn.ym-cheat { background: #7a1414; color: #fffaf0; border: 2px solid #f24a2a; font-size: 18px; font-weight: 900; padding: 10px; }
 .ym-hint { margin: 0; font-size: 11px; color: var(--muted); text-align: center; }
+.ym-pon { display: flex; align-items: center; gap: 10px; background: #fffaf0; color: #1c1220; border: 3px solid #b87838; border-radius: 12px; padding: 8px 10px; }
+.ym-pon-face { width: 52px; height: 52px; flex: none; image-rendering: pixelated; }
+.ym-pon p { margin: 0; font-size: 14px; font-weight: 800; line-height: 1.55; }

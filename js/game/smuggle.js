@@ -5,6 +5,8 @@
  *   ・当てるたびに安くなる（勝負は3回まで）。勝ったら「ここで買う」か「もう一勝負」かを選べる
  *   ・外れたら、高い値でしか売ってくれない（買わずに見送ってもよい）
  *   ・2回目からは、銀次がときどきイカサマ（賽を袖に隠す）をする。見破って「イカサマだ！」で、いちばん安く
+ *     はじめての2回目の勝負では必ずイカサマをして、だまされたあとに、ポン吉がその瞬間をゆっくり見せて教える
+ *     （それまで「イカサマだ！」のボタンは出さない。教わった回は、なかったことにしてやり直す）
  *   数字は config.js の SMUGGLE。ことばは text.js の 'smug.*' と 'ym.*'（銀次のせりふ）。
  */
 (function (global) {
@@ -176,7 +178,11 @@
       Y.swaps.push([a, b]);
     }
     Y.swapTime = R.swapTime;
-    Y.cheatAt = Math.random() < (c.cheatChance[r] || 0) ? 1 + Math.floor(Math.random() * Math.max(1, R.swaps - 2)) : -1;
+    // はじめての2回目の勝負：必ずイカサマをする（だまされたあとに、ポン吉が教える）
+    Y.lesson = !st().flags.ymLesson && r >= 1;
+    Y.cheatAt = Y.lesson ? Math.max(2, Math.floor(R.swaps / 2)) :
+      Math.random() < (c.cheatChance[r] || 0) ? 1 + Math.floor(Math.random() * Math.max(1, R.swaps - 2)) : -1;
+    Y.replay = null;
     Y.cheated = false;
     Y.sw = 0; Y.swT = 0;
     Y.phase = 'show'; Y.t = 0;
@@ -194,7 +200,7 @@
     Y.phase = 'pick';
     Y.lower.innerHTML = '';
     Y.lower.appendChild(OT.el('p', { class: 'ym-rule big', text: OT.t('smug.pick') }));
-    if ((cfg().cheatChance[Y.round] || 0) > 0) {
+    if ((cfg().cheatChance[Y.round] || 0) > 0 && st().flags.ymLesson && !Y.lesson) {   // 教わってから
       Y.lower.appendChild(OT.button('🫵 ' + OT.t('smug.cheatBtn'), callCheat, 'ym-cheat'));
       Y.lower.appendChild(OT.el('p', { class: 'ym-hint', text: OT.t('smug.cheatHint') }));
     }
@@ -208,6 +214,19 @@
     Y.lift = [0, 0, 0]; Y.lift[cup] = 1;
     OT.sfx.open();
     var win = cup === Y.ball;
+    if (Y.lesson && Y.cheated) {
+      // はじめてのイカサマ：どの椀にも賽がない → 銀次が笑う → ポン吉が教える
+      Y.lift = [1, 1, 1];
+      setTimeout(function () {
+        if (!Y) return;
+        act('laugh', 1.8);
+        if (OT.sfx.laugh) OT.sfx.laugh();
+        flash(OT.t('smug.lose'), 'lost');
+        say(OT.say('ym.hidden'));
+        setTimeout(function () { if (Y) lesson(0); }, 1400);
+      }, 650);
+      return;
+    }
     setTimeout(function () {
       if (!Y) return;
       if (win) roundWon();
@@ -235,6 +254,30 @@
       OT.sfx.open();
       setTimeout(function () { if (Y) roundLost('ym.falseCall'); }, 650);
     }
+  }
+
+  /** ポン吉の説明（1行ずつ）。2行目からは、イカサマの瞬間をゆっくりくり返して見せる */
+  function lesson(k) {
+    if (k === 1) { Y.phase = 'replay'; Y.rt = 0; Y.lift = [0, 0, 0]; Y.cups = Y.replay.cups.slice(); }
+    else if (k === 0) Y.phase = 'lesson';
+    Y.lower.innerHTML = '';
+    var last = k === 3;
+    Y.lower.appendChild(OT.el('div', { class: 'ym-pon' }, [OT.ui.ponFace('ym-pon-face', last), OT.el('p', { text: OT.t('smug.lesson' + (k + 1)) })]));
+    Y.lower.appendChild(OT.button(last ? OT.t('smug.gotIt') : OT.t('smug.next'), function () {
+      OT.sfx.tap();
+      if (last) endLesson(); else lesson(k + 1);
+    }, last ? 'primary big' : 'primary'));
+  }
+
+  function endLesson() {
+    st().flags.ymLesson = 1;
+    OT.state.save();
+    Y.phase = 'wait'; Y.replay = null;
+    Y.cups = [0, 1, 2]; Y.lift = [0, 0, 0];
+    Y.lower.innerHTML = '';
+    act('shout', 1.4);
+    say(OT.t('ym.lessonEnd'));
+    setTimeout(function () { if (Y && Y.cur) startRound(); }, 1800);   // 同じ回を、やり直す
   }
 
   function roundWon() {
@@ -293,7 +336,8 @@
         Y.sw++; Y.swT = 0;
         // イカサマ：混ぜている途中で、賽を袖に隠す（賽の入った椀が一瞬ちょっと浮く）
         if (Y.sw === Y.cheatAt && Y.ball >= 0) {
-          Y.glint = { cup: Y.ball, t: 0 };
+          Y.glint = { cup: Y.ball, t: 0, big: Y.lesson };   // はじめての時は、少しだけ分かりやすく
+          Y.replay = { cups: Y.cups.slice(), cup: Y.ball };
           Y.cheated = true;
           Y.ball = -1;
           act('call', 0.35);
@@ -301,7 +345,16 @@
         if (Y.sw >= Y.swaps.length) beginPick();
       }
     }
-    if (Y.glint) { Y.glint.t += dt; if (Y.glint.t > 0.3) Y.glint = null; }
+    if (Y.glint) { Y.glint.t += dt; if (Y.glint.t > (Y.glint.big ? 0.5 : 0.3)) Y.glint = null; }
+    // ポン吉の説明中：イカサマの瞬間をゆっくりくり返す（椀が浮いて光り、賽が袖へ）
+    if (Y.phase === 'replay' && Y.replay) {
+      var prev = Y.rt % 2.8;
+      Y.rt += dt;
+      var rt = Y.rt % 2.8;
+      if (rt < prev) act('call', 1.0);
+      Y.lift = [0, 0, 0];
+      if (rt > 0.6 && rt < 1.8) Y.lift[Y.replay.cup] = 0.3;
+    }
     if (Y.popDice) { Y.popDice.t += dt; if (Y.popDice.t > 1.2) Y.popDice = null; }
     draw();
     Y.raf = requestAnimationFrame(loop);
@@ -320,7 +373,7 @@
       }
     }
     var lift = Y.lift[cup] || 0;
-    if (Y.glint && Y.glint.cup === cup) lift = Math.max(lift, 0.12);
+    if (Y.glint && Y.glint.cup === cup) lift = Math.max(lift, Y.glint.big ? 0.22 : 0.12);
     return { x: x, y: y - lift * LIFT, hand: hand };
   }
 
@@ -366,6 +419,20 @@
       ctx.fillStyle = '#fffaf0';
       ctx.fillRect(Math.round(gp.x + 16), Math.round(gp.y - 32), 2, 2);
       ctx.fillRect(Math.round(gp.x + 14), Math.round(gp.y - 30), 6, 1);
+    }
+    // ポン吉の説明中：ねらいの椀を赤い輪でかこみ、賽が袖へ消えるところを見せる
+    if (Y.phase === 'replay' && Y.replay) {
+      var rp = cupPos(Y.replay.cup), rt2 = Y.rt % 2.8, rr = 30 + Math.round(Math.sin(Y.t * 6) * 2);
+      ctx.fillStyle = '#f24a2a';
+      for (var k = 0; k < 40; k++) { var a = k / 40 * Math.PI * 2; ctx.fillRect(Math.round(rp.x + Math.cos(a) * rr) - 1, Math.round(rp.y - 16 + Math.sin(a) * rr * 0.8) - 1, 3, 3); }
+      if (rt2 > 0.6 && rt2 < 1.8) {
+        ctx.fillStyle = '#fffaf0';   // きらり
+        ctx.fillRect(Math.round(rp.x + 16), Math.round(rp.y - 34), 3, 3);
+        ctx.fillRect(Math.round(rp.x + 13), Math.round(rp.y - 33), 9, 1);
+        ctx.fillRect(Math.round(rp.x + 17), Math.round(rp.y - 38), 1, 9);
+        var u2 = Math.min(1, (rt2 - 0.8) / 0.8);   // 賽が椀の下から袖へ
+        if (u2 > 0 && dice) ctx.drawImage(dice, Math.round(rp.x - 7 + (YAMI_X + 30 - rp.x) * u2), Math.round(CUP_Y - 14 + (150 - CUP_Y + 14) * u2 - Math.sin(u2 * Math.PI) * 14));
+      }
     }
     // 見破ったとき：袖から賽がこぼれ落ちる
     if (Y.popDice && dice) {
