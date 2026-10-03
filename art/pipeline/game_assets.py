@@ -156,6 +156,25 @@ def skin_atlases(R, out, man):
 
 def scene_images(R, out, man):
     man["stall"] = []
+    # 屋台のセル調版（stall_toon/。ART_STYLE.stall で切りかえ）
+    man["stallToon"] = []
+    for n in sorted(os.listdir(R)):
+        if n.startswith("stall_toon_") and n.endswith(".png"):
+            key = n[len("stall_toon_"):-4]
+            if key == "bg":
+                key = "normal"
+            elif key.startswith("bg_"):
+                key = key[3:]
+            _save(_px(os.path.join(R, n), STALL, False), os.path.join(out, "stall_toon", key + ".png"))
+            man["stallToon"].append(key)
+    # 地図・ミニゲームの背景の、前の塗り方の版（ART_STYLE.map / ART_STYLE.minigames で切りかえ）
+    man["classic"] = {}
+    for n, sz, dst in (("map_classic", (256, 160), "map_classic.png"), ("bg_fishing_classic", (192, 128), "bg/fishing_classic.png"),
+                       ("bg_forage_classic", (192, 128), "bg/forage_classic.png"), ("bg_hunt_classic", (192, 128), "bg/hunt_classic.png"),
+                       ("bg_yami_classic", (384, 216), "yami/bg_yami_classic.png"), ("fg_yami_classic", (384, 216), "yami/fg_yami_classic.png")):
+        if _exists(R, n + ".png"):
+            _save(_px(os.path.join(R, n + ".png"), sz, False), os.path.join(out, dst))
+            man["classic"][n] = dst
     # 屋台の改装の絵（台・のれん・提灯の段ごと。透明な重ね絵）
     man["stallDeco"] = []
     for kind in ("fg", "noren", "chochin"):

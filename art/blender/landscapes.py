@@ -33,12 +33,39 @@ def put(bm, mat, name="obj", smooth=False):
 # ---------------------------------------------------------------------------
 # 色（セル調）
 # ---------------------------------------------------------------------------
+CLASSIC = False   # True のあいだは、前の塗り方（光で照らした陰影と色むら、線なし）で作り、*_classic.png に書き出す
+LIGHT_MODE = "day"
+
+
+def _out(out, name):
+    """書き出す名前（前の塗り方のときは *_classic.png）"""
+    return os.path.join(out, name.replace(".png", "_classic.png") if CLASSIC else name)
+
+
+def classic_job(fn, light="day"):
+    """その job を、前の塗り方で作る"""
+    def run(out):
+        global CLASSIC, LIGHT_MODE
+        CLASSIC, LIGHT_MODE = True, light
+        try:
+            return fn(out)
+        finally:
+            CLASSIC, LIGHT_MODE = False, "day"
+    return run
+
+
 def T(color):
-    """パレットの色 → 人物と同じ「影・地・明るい」の3段（people.RAMP）"""
+    """パレットの色 → 人物と同じ「影・地・明るい」の3段（people.RAMP）。前の塗り方なら、光で照らす色むらの材質"""
+    if CLASSIC:
+        from people import RAMP
+        sh, li, _ = RAMP.get(color, (color, color, color))
+        return common.cached_material("cl_" + color.strip("#"), lambda n: common.object_noise_material(n, [(0.0, li), (0.5, color), (1.0, sh)], scale=6.0, roughness=0.75))
     return scenes.M(color)
 
 
 def T3(name, light, mid, dark, noise=0.0, scale=8.0, line=None):
+    if CLASSIC:
+        return common.cached_material("cl_" + name, lambda n: common.object_noise_material(n, [(0.0, light), (0.5, mid), (1.0, dark)], scale=max(2.0, scale), roughness=0.75))
     return common.toon3("ls_" + name, light, mid, dark, noise=noise, scale=scale, line=line)
 
 
@@ -133,6 +160,17 @@ def bg_scene(w, h, samples=8, crease=True):
     scene.cycles.samples = samples
     scene.cycles.use_denoising = False
     scene.render.film_transparent = False
+    if CLASSIC:
+        # 前の塗り方：日の光（夜は月と提灯）で照らす。線は引かない
+        scene.cycles.samples = 32
+        scene.cycles.use_denoising = True
+        if LIGHT_MODE == "night":
+            common.add_night_world(color=(0.35, 0.4, 0.6), strength=0.7)
+            common.add_lantern_light(direction_from=(0.6, -1.0, 1.2), strength=0.9, color=(0.65, 0.72, 1.0))
+        else:
+            common.add_night_world(color=(0.75, 0.8, 0.9), strength=0.8)
+            common.add_lantern_light(direction_from=(-0.8, -1.0, 1.5), strength=3.2, color=(1.0, 0.95, 0.85))
+        return
     common.add_night_world(color=(0.05, 0.07, 0.15), strength=1.0)
     common.toon_lines(LINE, outer=True)
     ls = bpy.context.view_layer.freestyle_settings.linesets[0]
@@ -383,12 +421,14 @@ def job_map(out):
 
     cam = common.oblique_camera(22.0, elevation_deg=55)
     cam.location = cam.location + Vector((0, 2.0, 0))
-    common.render_to(os.path.join(out, "map.png"))
+    common.render_to(_out(out, "map.png"))
     scene = bpy.context.scene
     pos = {}
     for k, p in PLACES.items():
         v = world_to_camera_view(scene, cam, Vector(p))
         pos[k] = [round(v.x, 4), round(1 - v.y, 4)]
+    if CLASSIC:
+        return   # 地名の場所は同じなので、JSON は書かない
     with open(os.path.join(out, "map_places.json"), "w", encoding="utf-8") as f:
         json.dump(pos, f)
 
@@ -496,7 +536,7 @@ def _fishing(out, rng):
         bub.ball(0.12, _fx(rng.uniform(100, 190), rng.uniform(54, 112), 5), 1, 0.3, 1)
     bub.put(FLAT("#5070b0"), "bubbles")
     _front_cam()
-    common.render_to(os.path.join(out, "bg_fishing.png"))
+    common.render_to(_out(out, "bg_fishing.png"))
 
 
 # 里山の採集ものが出る場所（forage.js の SPOTS と同じにする）
@@ -605,7 +645,7 @@ def _forage(out, rng):
         pads.ball(0.4, _fx(rng.uniform(128, 188), rng.uniform(100, 124), 4.1), 1.4, 0.3, 0.25)
     pads.put(T("#46b03a"), "lily_pads")
     _front_cam()
-    common.render_to(os.path.join(out, "bg_forage.png"))
+    common.render_to(_out(out, "bg_forage.png"))
 
 
 def _hunt(out, rng):
@@ -662,7 +702,7 @@ def _hunt(out, rng):
         rails.cube(0.12, 2.0, 0.1, _px(fx, 15, 0.6))
     rails.put(T("#5a3218"), "rails")
     _top_cam()
-    common.render_to(os.path.join(out, "bg_hunt.png"))
+    common.render_to(_out(out, "bg_hunt.png"))
 
 
 YAMI_PX = (384, 216)
@@ -751,6 +791,9 @@ def job_yami(out):
         ob.rotation_euler = (0, math.pi / 2, 0)
         ob.location = _yx(x, y, 15)
     # 赤い唐提灯（金のふさ）
+    if CLASSIC:
+        for (x, y) in ((150, 30), (306, 36)):
+            scenes.point_light(_yx(x, y + 6, 11), color=(1.0, 0.55, 0.3), power=600, radius=1.5)
     for (x, y) in ((150, 30), (306, 36)):
         put(ball(1.4, _yx(x, y, 13), 1, 1, 1.15), FLAT("#f24a2a"), "lantern", smooth=True)
         put(cube(1.6, 1.6, 0.35, _yx(x, y - 15, 13)), T("#dca24a"), "lantern_top")
@@ -765,7 +808,7 @@ def job_yami(out):
     # 床
     _yband(160, 216, "#2e1a12", d=10)
     _yami_cam()
-    common.render_to(os.path.join(out, "bg_yami.png"))
+    common.render_to(_out(out, "bg_yami.png"))
 
     # --- 手前の盆（白い布をかけた台）と、端の銭 ---
     bg_scene(*YAMI_PX)
@@ -778,9 +821,10 @@ def job_yami(out):
         for k in range(n):
             coins.cube(1.0, 0.4, 0.17, _yx(x, 194 - k * 2.2, 2.6))
     coins.put(T("#f4cc62"), "zeni")
-    common.toon_lines(LINE, outer=True)
+    if not CLASSIC:
+        common.toon_lines(LINE, outer=True)
     _yami_cam()
-    common.render_to(os.path.join(out, "fg_yami.png"))
+    common.render_to(_out(out, "fg_yami.png"))
 
     # --- 伏せた椀（黒漆に朱のふち）と、賽 ---
     for name, px, build in (("yami_wan", (44, 36), _wan), ("yami_dice", (14, 14), _dice)):
@@ -796,7 +840,7 @@ def job_yami(out):
         cam.location = loc
         cam.rotation_euler = (look - loc).to_track_quat("-Z", "Y").to_euler()
         bpy.context.scene.camera = cam
-        common.render_to(os.path.join(out, name + ".png"))
+        common.render_to(_out(out, name + ".png"))
 
 
 def _wan():
@@ -815,3 +859,9 @@ def _dice():
     common.noline(put(ball(0.07, (0, 0, 0.365), 1, 1, 0.3), FLAT("#f24a2a"), "pip", smooth=True))
 
 
+
+
+# 前の塗り方（光で照らした陰影と色むら）の版。どちらを使うかは config.js の ART_STYLE.map / ART_STYLE.minigames
+job_map_classic = classic_job(job_map)
+job_minigames_classic = classic_job(job_minigames)
+job_yami_classic = classic_job(job_yami, light="night")

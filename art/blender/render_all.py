@@ -108,7 +108,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--out", required=True)
     p.add_argument("--textures", required=True)
-    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,map,minigames,creatures,wildlife,yami,story,kitchen,kitchen_toon,market")
+    p.add_argument("--jobs", default="taco,plain,icons,noren,people,foods,skins,stall,stall_toon,map,minigames,creatures,wildlife,yami,classic,story,kitchen,kitchen_toon,market")
     p.add_argument("--foods", default="", help="食材をしぼる（カンマ区切り）")
     p.add_argument("--people", default="", help="人物をしぼる（カンマ区切り）")
     a = p.parse_args(argv)
@@ -135,6 +135,14 @@ def main():
     if "stall" in jobs:
         print("== 屋台", flush=True)
         scenes.job_stall(a.out)
+    if "stall_toon" in jobs:
+        print("== 屋台（セル調版）", flush=True)
+        scenes.job_stall_toon(a.out)
+    if "classic" in jobs:
+        print("== 地図・ミニゲームの背景（前の塗り方の版）", flush=True)
+        landscapes.job_map_classic(a.out)
+        landscapes.job_minigames_classic(a.out)
+        landscapes.job_yami_classic(a.out)
     if "map" in jobs:
         print("== 地図", flush=True)
         landscapes.job_map(a.out)

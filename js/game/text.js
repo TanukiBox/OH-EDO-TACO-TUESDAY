@@ -888,9 +888,13 @@
       'taco.awabi_taco': '鮑の酒蒸しタコス',
       'taco.karasumi_taco': 'からすみ大根タコス',
       'dev.art': '絵の塗り方（見くらべ用）',
-      'dev.kitchenArt': '厨房の焼き場：{style}',
       'dev.style.toon': 'セル調',
-      'dev.style.classic': '前の絵'
+      'dev.style.classic': '前の塗り方',
+      'dev.artBtn': '{name}：{style}',
+      'dev.art.stall': '夜の屋台',
+      'dev.art.kitchen': '厨房の焼き場',
+      'dev.art.map': '町の地図',
+      'dev.art.minigames': 'ミニゲームの背景'
     },
 
     en: {
@@ -1750,9 +1754,13 @@
       'taco.awabi_taco': 'Sake-Steamed Abalone Taco',
       'taco.karasumi_taco': 'Karasumi & Daikon Taco',
       'dev.art': 'Art style (to compare)',
-      'dev.kitchenArt': 'Kitchen grill: {style}',
       'dev.style.toon': 'Cel-shaded',
-      'dev.style.classic': 'Original'
+      'dev.style.classic': 'Original',
+      'dev.artBtn': '{name}: {style}',
+      'dev.art.stall': 'Night stall',
+      'dev.art.kitchen': 'Kitchen grill',
+      'dev.art.map': 'Town map',
+      'dev.art.minigames': 'Mini-game backgrounds'
     }
   };
 

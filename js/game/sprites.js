@@ -29,6 +29,8 @@
   (A.stall || []).forEach(function (k) { file('stall_' + k, 'stall/' + k + '.png'); });
   file('stall_fg', 'stall/fg.png');
   (A.stallDeco || []).forEach(function (k) { file('stall_deco_' + k, 'stall/' + k + '.png'); });   // 屋台の改装の重ね絵
+  (A.stallToon || []).forEach(function (k) { file('stallt_' + k, 'stall_toon/' + k + '.png'); });   // 屋台のセル調版
+  Object.keys(A.classic || {}).forEach(function (k) { file(k, A.classic[k]); });   // 地図・背景の前の塗り方の版
   file('map', 'map.png');
   (A.bg || []).forEach(function (k) { file('bg_' + k, 'bg/' + k + '.png'); });
   Object.keys(A.creatures || {}).forEach(function (k) { file('cr_' + k, 'creatures/' + k + '.png'); });
@@ -38,9 +40,17 @@
   ((A.yami || {}).images || []).forEach(function (k) { file('ym_' + k, 'yami/' + k + '.png'); });
 
   var loaded = {};
+  // 絵の塗り方（config.js の ART_STYLE）：'classic' なら前の塗り方の版（*_classic）を使う
+  var STYLE_GROUP = { map: 'map', bg_fishing: 'minigames', bg_forage: 'minigames', bg_hunt: 'minigames', ym_bg_yami: 'minigames', ym_fg_yami: 'minigames' };
+  function ok(k) { var im = loaded[k]; return !!(im && im.complete && im.naturalWidth); }
+  function styled(k) {
+    var g = STYLE_GROUP[k], AS = OT.CFG.ART_STYLE || {};
+    if (g && AS[g] === 'classic') { var ck = k.replace(/^ym_/, '') + '_classic'; if (ok(ck)) return ck; }
+    return k;
+  }
   OT.sprites = {
-    has: function (k) { var im = loaded[k]; return !!(im && im.complete && im.naturalWidth); },
-    get: function (k) { return loaded[k]; },
+    has: function (k) { return ok(styled(k)); },
+    get: function (k) { return loaded[styled(k)]; },
     load: function (done) {
       var keys = Object.keys(img), left = keys.length;
       if (!left) { done(); return; }
@@ -285,22 +295,25 @@
   // ---------------------------------------------------------------
   // 屋台
   // ---------------------------------------------------------------
+  /** 屋台の絵の頭の名前：ART_STYLE.stall が 'toon' ならセル調版 */
+  function stallPre() { return (OT.CFG.ART_STYLE || {}).stall === 'toon' && S.has('stallt_normal') ? 'stallt_' : 'stall_'; }
   OT.sprites.stallBg = function (festival) {
-    var k = 'stall_' + (festival || 'normal');
-    return S.has(k) ? loaded[k] : (S.has('stall_normal') ? loaded.stall_normal : null);
+    var p = stallPre(), k = p + (festival || 'normal');
+    return S.has(k) ? loaded[k] : (S.has(p + 'normal') ? loaded[p + 'normal'] : null);
   };
   /** 手前のカウンター（台の改装の段で変わる） */
   OT.sprites.stallFg = function () {
-    var lv = OT.upg ? OT.upg.level('dai') : 0;
-    if (lv && S.has('stall_deco_fg_' + lv)) return loaded['stall_deco_fg_' + lv];
+    var lv = OT.upg ? OT.upg.level('dai') : 0, toon = stallPre() === 'stallt_';
+    var k = lv ? (toon ? 'stallt_fg_' : 'stall_deco_fg_') + lv : (toon ? 'stallt_fg' : 'stall_fg');
+    if (S.has(k)) return loaded[k];
     return S.has('stall_fg') ? loaded.stall_fg : null;
   };
   /** 改装した提灯・のれんの重ね絵（奥の絵のすぐ上に描く） */
   OT.sprites.stallDeco = function () {
     var out = [];
     ['noren', 'chochin'].forEach(function (k) {
-      var lv = OT.upg ? OT.upg.level(k) : 0;
-      if (lv && S.has('stall_deco_' + k + '_' + lv)) out.push(loaded['stall_deco_' + k + '_' + lv]);
+      var lv = OT.upg ? OT.upg.level(k) : 0, key = (stallPre() === 'stallt_' ? 'stallt_' : 'stall_deco_') + k + '_' + lv;
+      if (lv && S.has(key)) out.push(loaded[key]);
     });
     return out;
   };

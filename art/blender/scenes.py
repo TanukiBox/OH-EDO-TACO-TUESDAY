@@ -216,10 +216,9 @@ def build_counter(lv=0):
         put(ball(0.05, (-1.88, -1.31, 1.55)), M("#f24a2a" if lv < 3 else "#fffaf0"), "ichirin_flower")
 
 
-def _crest(x, z, y=-1.33, r=0.15):
+def _crest(x, z, y=-1.02, r=0.15):
     """多幸寿の紋：白い丸に、たたんだタコス"""
-    put(cyl(r, 0.02, (x, y, z), seg=20), M("#fffaf0"), "crest")
-    ob = bpy.data.objects[[o.name for o in bpy.data.objects if o.name.startswith("crest")][-1]]
+    ob = put(cyl(r, 0.02, (0, 0, -0.01), seg=20), M("#fffaf0"), "crest")
     ob.rotation_euler = (math.pi / 2, 0, 0)
     ob.location = (x, y - 0.01, z)
     taco = bmesh.new()
@@ -233,16 +232,18 @@ def _crest(x, z, y=-1.33, r=0.15):
 def build_noren(lv):
     """梁から下がるのれん（3枚）。lv：1 藍の無地 / 2 藍に白い紋 / 3 朱に金の縁と紋"""
     col = {1: "#243f7a", 2: "#243f7a", 3: "#b8323a"}[lv]
+    ny = -0.97   # 提灯（y=-1.05）の少し奥：提灯の灯りが、のれんの表を照らすように
     for k, x in enumerate((-1.0, 0.0, 1.0)):
-        rz = (k - 1) * 0.04
-        put(cube(0.95, 0.03, 0.72, (x, -1.28, 2.7), rz=rz), M(col), "noren")
+        rz = (k - 1) * 0.02
+        # 前の塗り方では、布がうっすら明るく見えるように（提灯の灯りだけだと、まだらになる）
+        put(cube(0.95, 0.03, 0.72, (x, ny, 2.7), rz=rz), M(col) if TOON else M(col, 0.9, 0.45), "noren")
         if lv >= 2:
-            put(cube(0.95, 0.035, 0.06, (x, -1.29, 2.37), rz=rz), M("#fffaf0" if lv == 2 else "#f4cc62"), "noren_hem")
+            put(cube(0.95, 0.035, 0.06, (x, ny - 0.01, 2.37), rz=rz), M("#fffaf0" if lv == 2 else "#f4cc62"), "noren_hem")
             if lv == 2 and k == 1 or lv == 3:
                 _crest(x, 2.68)
         if lv >= 3:
-            put(cube(0.95, 0.035, 0.05, (x, -1.29, 3.04), rz=rz), M("#f4cc62"), "noren_top")
-    put(cube(3.2, 0.06, 0.05, (0, -1.27, 3.25)), M("#5a3218"), "noren_bar")
+            put(cube(0.95, 0.035, 0.05, (x, ny - 0.01, 3.04), rz=rz), M("#f4cc62"), "noren_top")
+    put(cube(3.2, 0.06, 0.05, (0, ny + 0.01, 3.25)), M("#5a3218"), "noren_bar")
 
 
 def _small_lantern(x, y, z, col="#f24a2a", r=0.13):
@@ -331,12 +332,22 @@ def build_festival(fest):
 
 
 def job_stall(out):
-    """夜の屋台（セル調）。奥の町並み＋屋台の骨組み（行事ごと）と、手前のカウンター・改装の絵"""
+    """夜の屋台（前の塗り方：提灯の灯りで照らす）。奥の町並み＋屋台の骨組み（行事ごと）と、手前のカウンター・改装の絵"""
+    _job_stall(out, "stall_")
+
+
+def job_stall_toon(out):
+    """夜の屋台のセル調版（stall_toon_*.png）。どちらを使うかは config.js の ART_STYLE.stall"""
     common.AUTO_LINES = {"outer": True}
     try:
-        _job_stall(out)
+        _job_stall_toon(out)
     finally:
         common.AUTO_LINES = None
+
+
+@toon_job
+def _job_stall_toon(out):
+    _job_stall(out, "stall_toon_")
 
 
 def _hide_all():
@@ -345,8 +356,7 @@ def _hide_all():
             ob.hide_render = True
 
 
-@toon_job
-def _job_stall(out):
+def _job_stall(out, prefix):
     fests = [None, "hanami", "hatsugatsuo", "kawabiraki", "doyo", "tsukimi"]
     for fest in fests:
         common.reset_scene()
@@ -363,22 +373,22 @@ def _job_stall(out):
         if fest:
             build_festival(fest)
         persp_camera((0, -5.4, 2.1), (0, 2.5, 1.35), lens=28)
-        name = "stall_bg" + ("_" + fest if fest else "")
+        name = prefix + "bg" + ("_" + fest if fest else "")
         common.render_to(os.path.join(out, name + ".png"))
         if fest is None:
             # 手前のカウンター（改装の段 0〜3）・のれん・提灯（1〜3）を、それぞれ透明な絵に
             for lv in range(4):
                 _hide_all()
                 build_counter(lv)
-                common.render_to(os.path.join(out, "stall_fg.png" if lv == 0 else "stall_fg_%d.png" % lv))
+                common.render_to(os.path.join(out, prefix + ("fg.png" if lv == 0 else "fg_%d.png" % lv)))
             for lv in (1, 2, 3):
                 _hide_all()
                 build_noren(lv)
-                common.render_to(os.path.join(out, "stall_noren_%d.png" % lv))
+                common.render_to(os.path.join(out, prefix + "noren_%d.png" % lv))
             for lv in (1, 2, 3):
                 _hide_all()
                 build_chochin(lv)
-                common.render_to(os.path.join(out, "stall_chochin_%d.png" % lv))
+                common.render_to(os.path.join(out, prefix + "chochin_%d.png" % lv))
 
 
 # ---------------------------------------------------------------------------

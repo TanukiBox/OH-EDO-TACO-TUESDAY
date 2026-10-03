@@ -48,7 +48,7 @@
     ['auction', 'fishing', 'forage', 'hunt', 'smuggle', 'night'].forEach(function (k) { try { if (OT[k] && OT[k].leave) OT[k].leave(); } catch (e) { /* もう止まっている */ } });
     if (OT.title && OT.title.leave) OT.title.leave();
     if (OT.tut) OT.tut.clear();
-    var d = document.getElementById('dialog'); if (d) d.innerHTML = '';
+    var d = document.getElementById('dialog'); if (d) { d.innerHTML = ''; d.className = ''; }   // 会話の幕も閉じる（開いたままだと押せない）
     Array.prototype.forEach.call(document.querySelectorAll('.kw-wrap'), function (e) { e.parentNode.removeChild(e); });
   }
 
@@ -100,14 +100,14 @@
     // 絵の塗り方を、その場で切りかえて見くらべる（ずっと変えるときは config.js の ART_STYLE）
     var AS = OT.CFG.ART_STYLE;
     root.appendChild(OT.el('h3', { text: OT.t('dev.art') }));
-    root.appendChild(OT.el('div', { class: 'dev-grid' }, [
-      OT.button(OT.t('dev.kitchenArt', { style: OT.t('dev.style.' + AS.kitchen) }), function () {
+    root.appendChild(OT.el('div', { class: 'dev-grid' }, ['stall', 'kitchen', 'map', 'minigames'].map(function (k) {
+      return OT.button(OT.t('dev.artBtn', { name: OT.t('dev.art.' + k), style: OT.t('dev.style.' + AS[k]) }), function () {
         OT.sfx.tap();
-        AS.kitchen = AS.kitchen === 'toon' ? 'classic' : 'toon';
-        try { OT.store.set('devArtKitchen', AS.kitchen); } catch (e) { /* 保存できなくても、この場では切りかわる */ }
+        AS[k] = AS[k] === 'toon' ? 'classic' : 'toon';
+        try { OT.store.set('devArt_' + k, AS[k]); } catch (e) { /* 保存できなくても、この場では切りかわる */ }
         enter();
-      })
-    ]));
+      }, 'small');
+    })));
     root.appendChild(OT.el('div', { class: 'dev-foot' }, [
       OT.button(OT.t('dev.toTitle'), function () { stopAll(); OT.title.enter(); }, 'ghost small')
     ]));
@@ -123,7 +123,9 @@
       if (first) {
         first = false;
         // 開発用メニューで選んだ厨房の絵（開発用のセーブにだけ覚える）
-        try { var ak = OT.store.get('devArtKitchen', null); if (ak) OT.CFG.ART_STYLE.kitchen = ak; } catch (e) { /* なし */ }
+        ['stall', 'kitchen', 'map', 'minigames'].forEach(function (k) {
+          try { var v = OT.store.get('devArt_' + k, null); if (v) OT.CFG.ART_STYLE[k] = v; } catch (e) { /* なし */ }
+        });
         enter();
       } else title();
     };
