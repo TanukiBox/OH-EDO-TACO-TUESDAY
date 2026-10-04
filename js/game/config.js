@@ -597,11 +597,11 @@
     // ---------------------------------------------------------
     BANZUKE: {
       shops: {
-        daikokuya: { rep: 380, grow: 2.5, icon: 'kabayaki', chapter: 1 },              // 鰻の大黒屋
+        daikokuya: { rep: 380, grow: 2.5, icon: 'kabayaki', owner: 'daikokuya', chapter: 1 },   // 鰻の大黒屋
         tatsu:     { rep: 240, grow: 4, icon: 'zuke', owner: 'tatsu', chapter: 1 },    // 寿司の辰五郎（物語のライバル）
-        tenkichi:  { rep: 200, grow: 3, icon: 'kisu_ten', chapter: 1 },                // 天ぷらの天吉
-        chojuan:   { rep: 160, grow: 2.5, icon: 'kamo', chapter: 1 },                  // 二八そばの長寿庵
-        hyotan:    { rep: 110, grow: 2, icon: 'nidaikon', chapter: 1 },                // おでんのひょうたん
+        tenkichi:  { rep: 200, grow: 3, icon: 'kisu_ten', owner: 'tenkichi', chapter: 1 },     // 天ぷらの天吉
+        chojuan:   { rep: 160, grow: 2.5, icon: 'kamo', owner: 'chojuan', chapter: 1 },        // 二八そばの長寿庵
+        hyotan:    { rep: 110, grow: 2, icon: 'nidaikon', owner: 'hyotan', chapter: 1 },       // おでんのひょうたん
         mitarashi: { rep: 60, grow: 1.5, icon: 'satsumaimo', chapter: 1 },             // 団子のみたらし堂
         choboichi: { rep: 25, grow: 1, icon: 'sumeshi', chapter: 1 },                  // 一膳めしのちょぼ一
         chin:      { rep: 150, grow: 4, icon: 'tomato', owner: 'chin', chapter: 4 }    // 陳師傅の唐料理（第4章から）
@@ -637,6 +637,44 @@
       orderBoost: 4,         // 材料があるとき、高級なタコスが頼まれやすくなる倍率
       kinpakuPay: 1.3        // 金箔をのせたタコスの代金と心付けの倍率（金箔は「よけいな具」に数えない）
     },
+
+    // ---------------------------------------------------------
+    // 他店の主人が屋台に食べに来る（番付の好敵手）。来る時期は EVENTS の visit_○○
+    //   type = 味の好み（客の種類）、order = 頼むタコス（作れないときは、ほかのタコス）
+    //   星4以上ならお礼（gift と評判 repGood）、それ未満なら評判 repBad（会話は text.js の STORY の visit_○○）
+    // ---------------------------------------------------------
+    VISITORS: {
+      tenkichi:  { type: 'shokunin', order: 'tempura', gift: { kisu_ten: 5 }, repGood: 10, repBad: 2 },
+      hyotan:    { type: 'chonin', order: 'oden', gift: { nidaikon: 6, konnyaku: 4 }, repGood: 10, repBad: 2 },
+      chojuan:   { type: 'tsujin', order: 'kamo_nanban', gift: { soba: 10 }, repGood: 12, repBad: 2 },
+      daikokuya: { type: 'samurai', order: 'adobada', gift: { kabayaki: 5 }, repGood: 15, repBad: 3 }
+    },
+
+    // ---------------------------------------------------------
+    // 実績（図鑑の「実績」。クリアのあとも楽しめる目標）。名前と説明は text.js の 'ach.○○'
+    //   kind：listed 番付入り / ozeki 番付で大関 / tacos 出したタコスの種類（n なし = 全部）/ kaiso3 改装3段の数（n なし = 全部）
+    //         flag・flags 物語などの印 / seen 手に入れた食材 / count 数えた回数（key）/ money 所持金 / gear 釣り道具を最高に
+    // ---------------------------------------------------------
+    ACHIEVEMENTS: [
+      { id: 'listed', kind: 'listed' },
+      { id: 'tacos20', kind: 'tacos', n: 20 },
+      { id: 'kaiso1', kind: 'kaiso3', n: 1 },
+      { id: 'mtNushi', kind: 'flag', key: 'gotNushi' },
+      { id: 'seaNushi', kind: 'flag', key: 'gotSeaNushi' },
+      { id: 'kujira', kind: 'seen', key: 'kujira' },
+      { id: 'cheat3', kind: 'count', key: 'ymCaught', n: 3 },
+      { id: 'premium10', kind: 'count', key: 'premium', n: 10 },
+      { id: 'gearMax', kind: 'gear' },
+      { id: 'clear', kind: 'flag', key: 'cleared' },
+      { id: 'ozeki', kind: 'ozeki' },
+      { id: 'vipAll', kind: 'flags', keys: ['win_rikishi', 'win_tojin', 'win_raizo', 'win_oranda'] },
+      { id: 'regsAll', kind: 'flags', keys: ['ev_reg_yokichi', 'ev_reg_genpachi', 'ev_reg_hotta', 'ev_reg_jonen', 'ev_reg_ikazuchi', 'ev_reg_sessai'] },
+      { id: 'star5x100', kind: 'count', key: 'star5', n: 100 },
+      { id: 'money10k', kind: 'money', n: 10000 },
+      { id: 'rivalsAll', kind: 'flags', keys: ['ev_visit_tenkichi', 'ev_visit_hyotan', 'ev_visit_chojuan', 'ev_visit_daikokuya'] },
+      { id: 'kaisoAll', kind: 'kaiso3' },
+      { id: 'tacosAll', kind: 'tacos' }
+    ],
 
     // 常連の漁師（夜の客）。満足させるほど、朝の競りの前に耳打ちしてくれる
     FISHER: { type: 'shokunin', fromDay: 2, chance: 0.35, likes: ['katsuo_tataki', 'kohaku', 'tempura', 'takotaco', 'nanbanzuke'], trustStars: 4 },
@@ -715,7 +753,10 @@
       // イカサマ（賽を袖に隠す。隠す瞬間、椀がちょっと浮いて光る）：荷ごとに、銀次がするつもりかどうかを決める
       cheatCrate: 0.45,      // その荷の勝負でイカサマをする確率（しない荷もある）。するのは1回だけ
       cheatRound: [0, 0.5, 0.5],   // するなら何回目か（1回目・2回目・3回目の割合）。1回目はしない
-      // 荷になる品（weight = 荷に入る出やすさ、n = 何人前）。第5章でトウモロコシの種がまだなら、荷に必ず入る
+      // 物語に要るトウモロコシ（城からの使い・本物の皮）：第5章からクリアまで、持っている数が minStock 未満なら
+      //   荷に必ず入れて「大事な品」の印をつけ、言い値を priceMul 倍にする（買い忘れて物語が止まらないように）
+      keyCorn: { minStock: 2, priceMul: 0.5 },
+      // 荷になる品（weight = 荷に入る出やすさ、n = 何人前）
       goods: {
         kosho: { weight: 3, n: 6 }, nikkei: { weight: 2, n: 6 }, choji: { weight: 2, n: 6 },
         sato: { weight: 2, n: 6 }, pineapple: { weight: 2, n: 4 }, gyuniku: { weight: 2, n: 4 },
@@ -747,6 +788,7 @@
     // VIP料理対決・特別な来店。お題のタコスを、時間内に点数 minScore 以上で出せば勝ち
     //   chapter = その章で、chapterDay 日目以降の夜に来る（勝つまで何度でも来る）
     // ---------------------------------------------------------
+    VIP_RETRY_DAYS: 4,   // VIP対決に負けたら、この日数たってから再挑戦（そのあいだに、まだのVIPが先に来る）
     VIPS: {
       rikishi: { chapter: 3, chapterDay: 3, guest: 'ikazuchi', type: 'rikishi', recipe: 'yokozuna', time: 75, minScore: 0.7, win: 'win_rikishi', minItems: 5 },
       tojin:   { chapter: 4, chapterDay: 2, guest: 'chin', type: 'tsujin', recipe: 'tojin', time: 70, minScore: 0.72, win: 'win_tojin' },
@@ -832,6 +874,15 @@
       { id: 'smuggle_first', at: 'smuggle' },
       { id: 'summons', at: 'morning', chapter: 5, chapterDay: 5, needStock: 'corn', set: 'finale', setStock: { tortilla: 0 }, next: 'nixtamal' },
       { id: 'nixtamal', at: 'chain', set: 'nixtamal' },
+      // 他店の主人が食べに来る（fromChapter = その章から。chapterDay = その章になって何日目から。VIP や献上の夜はさける）
+      { id: 'visit_tenkichi', at: 'night', fromChapter: 2, chapterDay: 3, visitor: 'tenkichi' },
+      { id: 'visit_hyotan', at: 'night', fromChapter: 2, chapterDay: 5, visitor: 'hyotan' },
+      { id: 'visit_chojuan', at: 'night', fromChapter: 3, chapterDay: 4, visitor: 'chojuan' },
+      { id: 'visit_daikokuya', at: 'night', fromChapter: 4, chapterDay: 5, visitor: 'daikokuya' },
+      { id: 'visit_tenkichi_good', at: 'visit', give: { kisu_ten: 5 }, rep: 10 }, { id: 'visit_tenkichi_bad', at: 'visit', rep: 2 },
+      { id: 'visit_hyotan_good', at: 'visit', give: { nidaikon: 6, konnyaku: 4 }, rep: 10 }, { id: 'visit_hyotan_bad', at: 'visit', rep: 2 },
+      { id: 'visit_chojuan_good', at: 'visit', give: { soba: 10 }, rep: 12 }, { id: 'visit_chojuan_bad', at: 'visit', rep: 2 },
+      { id: 'visit_daikokuya_good', at: 'visit', give: { kabayaki: 5 }, rep: 15 }, { id: 'visit_daikokuya_bad', at: 'visit', rep: 3 },
       { id: 'tatsu_tai', at: 'morning', needFlag: 'madeReal', set: 'tributeReady', give: { tai: 6 } },
       { id: 'ending', at: 'ending', set: 'cleared' },
       { id: 'reg_yokichi', at: 'regular', regular: 'yokichi', rep: 12 },

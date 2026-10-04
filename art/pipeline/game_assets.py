@@ -291,6 +291,14 @@ def ogp_and_icons(out, root_out):
     except FileNotFoundError:
         return
     scene = bg.copy()
+    # 改装を全部すませた屋台（大提灯・朱と金ののれん・黒漆の台）で、にぎやかに
+    for deco in ("noren_3.png", "chochin_3.png"):
+        dp = os.path.join(out, "stall", deco)
+        if os.path.exists(dp):
+            scene.alpha_composite(Image.open(dp).convert("RGBA"))
+    fg3 = os.path.join(out, "stall", "fg_3.png")
+    if os.path.exists(fg3):
+        fg = Image.open(fg3).convert("RGBA")
     scene.alpha_composite(fg)
     lg = Image.open(os.path.join(out, "logo.png")).convert("RGBA")
     taco = Image.open(os.path.join(root_out, "taco", "taco_oblique.png")).convert("RGBA")

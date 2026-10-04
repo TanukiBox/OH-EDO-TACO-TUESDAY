@@ -138,6 +138,7 @@
   // ---------------------------------------------------------------
   OT.auction = {
     enter: function () {
+      OT.bgm.play('market');
       var root = OT.ui.screen('auction');
       root.innerHTML = '';
       root.classList.add('ak');
@@ -334,7 +335,7 @@
     A.t = 0;
     A.tick = 0;
     A.seri.anim = 'call';
-    say(A.seriBubble, OT.t('ak.seri.start') + kanji(A.price) + '！', 1.2);
+    say(A.seriBubble, OT.t('ak.seri.start') + kanji(A.price) + OT.t('ak.seri.bang'), 1.2);
     OT.sfx.call();
     updatePrice();
     if (OT.tut && st().day === 1) OT.tut.point('a2', '#scr-auction .ak-buy');

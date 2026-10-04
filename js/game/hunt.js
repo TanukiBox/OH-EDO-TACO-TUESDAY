@@ -31,6 +31,7 @@
 
   OT.hunt = {
     enter: function () {
+      OT.bgm.play('hunt');
       var root = OT.ui.screen('hunt');
       root.innerHTML = '';
       K = { root: root, time: 0, animals: [], caught: [], escaped: 0, trail: [], spawnT: 0, nushi: false };

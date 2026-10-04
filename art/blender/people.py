@@ -100,6 +100,11 @@ CHARACTERS = {
     "itamae":     dict(body="kimono", cloth="#f0e6d2", cloth2="#d6ccb8", obi="#5a3218", hair="mage", extra=["maekake", "tasuki"], eyes='narrow', face='long', build='thin', size=1.03),
     "daidokoro":  dict(body="samurai", cloth="#7a1414", cloth2="#d6ccb8", obi="#f0e6d2", hair="mage_gray", extra=["swords", "crest_gold", "fan"], old=True, brows="thick", scale=1.05, eyes='droopy', build='stout', wrinkles=True, nose='round'),
     "kitsune":    dict(body="happi", cloth="#4a4658", cloth2="#d6ccb8", obi="#dca24a", hair="mage", extra=["tenugui_kubi"], eyes="fox", face='long', build='thin', nose='long', size=1.02),
+    # 番付に出てくる他店の主人（屋台に食べに来る）
+    "daikokuya":  dict(body="happi", cloth="#5a3218", cloth2="#f0e6d2", obi="#2e1a12", hair="mage", extra=["hachimaki_twist", "maekake"], eyes='droopy', face='round', build='stout', hige='mustache', nose='round', size=1.03),
+    "tenkichi":   dict(body="happi", cloth="#fffaf0", cloth2="#34569a", obi="#c42618", hair="mage", extra=["hachimaki", "tasuki"], brows="thick", eyes='sharp', face='long', build='thin', size=1.02),
+    "chojuan":    dict(body="kimono", cloth="#243f7a", cloth2="#172b58", obi="#dca24a", hair="mage_gray", extra=["maekake", "glasses"], old=True, pattern="kasuri", pat="#172b58", eyes='calm', hige='goatee', wrinkles=True, face='long', build='thin'),
+    "hyotan":     dict(body="kimono", cloth="#b8323a", cloth2="#7a1414", obi="#f4cc62", hair="bun", extra=["apron"], pattern="check", pat="#7a1414", lashes=True, eyes='big', face='round', size=0.95),
     # 長崎の闇商人（唐草の頬かむり）
     "yami":       dict(body="kimono", cloth="#76726a", cloth2="#5a3218", obi="#b8323a", hair="none", extra=["hokamuri", "haori"], pattern="stripe", pat="#4a4658", eyes='narrow', hige='mustache', face='long', build='thin', nose='long'),
     "hamazo":     dict(body="happi", cloth="#34569a", cloth2="#fffaf0", obi="#dca24a", hair="mage", extra=["hachimaki_twist"], brows="thick", stubble=True, eyes='sharp', face='square', build='stout', hige='beard'),
@@ -605,7 +610,7 @@ class Person:
             for k in range(9):
                 a = -1.2 + k * 0.3
                 obj("spike", cone(0.07, 0.0, 0.18, loc=(math.sin(a) * 0.28, 0.05, cz + math.cos(a) * 0.26)), hair, H)
-        elif style == "bun_gray":
+        elif style in ("bun_gray", "bun"):
             b = sphere(0.34, 1.0, 1.0, 0.95, loc=(0, 0.02, cz + 0.02))
             bmesh.ops.delete(b, geom=[v for v in b.verts if (v.co.y < -0.17 and v.co.z < cz + 0.16) or v.co.z < cz - 0.16], context="VERTS")
             obj("hair", b, hair, H)

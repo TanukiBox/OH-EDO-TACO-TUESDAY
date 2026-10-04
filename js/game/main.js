@@ -10,7 +10,7 @@
     title: function () { OT.title.enter(); },
     newGame: function () {
       OT.state.newGame();
-      OT.story.check('newgame', null, function () { OT.flow.morning(); });
+      OT.sprites.whenAll(function () { OT.story.check('newgame', null, function () { OT.flow.morning(); }); });
     },
     morning: function () {
       OT.bgm.play('day');
@@ -19,6 +19,10 @@
       OT.story.check('morning', null, function (played) { if (played) OT.morning.enter(); });
     },
     supplier: function (sup) {
+      if (sup.kind === 'game') { OT.sprites.whenAll(function () { OT.flow._supplier(sup); }); return; }
+      OT.flow._supplier(sup);
+    },
+    _supplier: function (sup) {
       if (sup.game === 'auction') OT.auction.enter();
       else if (sup.game === 'fishing') OT.fishing.enter();
       else if (sup.game === 'forage') OT.forage.enter();
@@ -28,6 +32,7 @@
     },
     night: function (opts) {
       opts = opts || {};
+      if (!OT.flow._ready) { OT.sprites.whenAll(function () { OT.flow._ready = true; OT.flow.night(opts); }); return; }
       var s = OT.state.get();
       s.phase = 'night';
       s.tributeNight = !!opts.tribute;
@@ -52,6 +57,7 @@
       if (r.vip && r.vip !== 'tribute') steps.push(function (next) { OT.story.play(r.vipResult === 'win' ? 'vip_' + r.vip + '_win' : 'vip_lose', next); });
       if (r.tribute && r.vipResult !== 'win') steps.push(function (next) { OT.story.play('vip_lose', next); });
       (r.regulars || []).forEach(function (id) { steps.push(function (next) { OT.story.check('regular', { regular: id }, next); }); });
+      if (r.visitor) steps.push(function (next) { OT.story.play('visit_' + r.visitor.id + (r.visitor.stars >= 4 ? '_good' : '_bad'), next); });
       steps.push(function (next) { OT.story.check('result', null, next); });
       if (r.tribute && r.vipResult === 'win') steps.push(function (next) { OT.bgm.play('ending'); OT.story.play('ending', function () { OT.ending.enter(); }); });
       (function run(i) {
@@ -69,10 +75,11 @@
       if (OT.news) OT.news.newDay();             // 瓦版：ほかの店の評判が動き、今朝の記事ができる
       s.phase = 'morning';
       OT.state.save();
-      OT.morning.enter();
+      OT.flow.morning();   // 朝の場面（お城の使い・辰五郎の鯛 など）も、ここで確かめる
     },
     /** セーブの続きから */
     resume: function () {
+      if (!OT.flow._ready) { OT.sprites.whenAll(function () { OT.flow._ready = true; OT.flow.resume(); }); return; }
       var s = OT.state.get();
       if (s.phase === 'result' && s.lastResult) OT.flow.result();
       else if (s.phase === 'night') OT.flow.night({ tribute: s.tributeNight });

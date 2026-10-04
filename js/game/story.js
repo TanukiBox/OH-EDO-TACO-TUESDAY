@@ -85,7 +85,12 @@
     if (s.flags['ev_' + ev.id]) return false;
     if (ev.day && s.day !== ev.day) return false;
     if (ev.chapter && OT.state.chapter() !== ev.chapter) return false;
-    if (ev.chapterDay && daysInChapter(ev.chapter || OT.state.chapter()) < ev.chapterDay) return false;
+    if (ev.fromChapter && (OT.state.chapter() < ev.fromChapter || daysInChapter(ev.fromChapter) < (ev.chapterDay || 1))) return false;
+    if (!ev.fromChapter && ev.chapterDay && daysInChapter(ev.chapter || OT.state.chapter()) < ev.chapterDay) return false;
+    if (ev.visitor) {   // 他店の主人：VIP・献上の夜はさけて、1晩にひとりだけ
+      if (s.tributeNight || (OT.night && OT.night.pickVip && OT.night.pickVip())) return false;
+      if (Object.keys(OT.CFG.VISITORS).some(function (k) { return s.flags['ev_visit_' + k] === s.day; })) return false;
+    }
     if (ev.needStock && OT.state.stockOf(ev.needStock) <= 0) return false;
     if (ev.needFlag && !s.flags[ev.needFlag]) return false;
     if (at === 'rankup' && ctx && ctx.chapter && ev.chapter > ctx.chapter) return false;
@@ -139,6 +144,12 @@
       var s = st();
       var list = OT.CFG.EVENTS.filter(function (ev) { return ev.at === 'night' && ev.regular && s.flags['ev_' + ev.id] && s.flags['ev_' + ev.id] === s.day; });
       return list.length ? list[0].regular : null;
+    },
+    /** 今夜、食べに来る他店の主人 */
+    nightVisitor: function () {
+      var s = st();
+      var list = OT.CFG.EVENTS.filter(function (ev) { return ev.at === 'night' && ev.visitor && s.flags['ev_' + ev.id] === s.day; });
+      return list.length ? list[0].visitor : null;
     },
     seen: function (id) { return !!st().flags['ev_' + id]; }
   };

@@ -26,8 +26,9 @@
   /** 今夜の荷：重みつきで、ちがう品を cfg().crates 個。言い値は値打ち×数×markup */
   function makeManifest() {
     var c = cfg(), s = st(), keys = Object.keys(c.goods), list = [];
-    // 第5章で、まだトウモロコシの種がないなら、荷に必ず入る
-    if (!s.flags.gotCorn && OT.state.chapter() >= 5 && c.goods.corn) { list.push('corn'); keys = keys.filter(function (k) { return k !== 'corn'; }); }
+    // 物語に要るトウモロコシ：第5章からクリアまで、足りなければ荷に必ず入る（大事な品・安い）
+    var keyCorn = needCorn();
+    if (keyCorn && c.goods.corn) { list.push('corn'); keys = keys.filter(function (k) { return k !== 'corn'; }); }
     while (list.length < c.crates && keys.length) {
       var sum = 0;
       keys.forEach(function (k) { sum += c.goods[k].weight; });
@@ -37,10 +38,16 @@
       keys.splice(keys.indexOf(pick), 1);
     }
     return list.map(function (id) {
-      var g = c.goods[id], val = (OT.CFG.INGREDIENTS[id] || {}).value || 5;
-      return { id: id, n: g.n, list: Math.max(10, Math.round(val * g.n * c.markup)), status: 'open', wins: 0 };
+      var g = c.goods[id], val = (OT.CFG.INGREDIENTS[id] || {}).value || 5, key = keyCorn && id === 'corn';
+      return { id: id, n: g.n, list: Math.max(10, Math.round(val * g.n * c.markup * (key ? c.keyCorn.priceMul : 1))), status: 'open', wins: 0, key: key };
     });
   }
+  /** 物語に要るトウモロコシが足りないか（第5章からクリアまで） */
+  function needCorn() {
+    var s = st();
+    return OT.state.chapter() >= 5 && !s.flags.cleared && OT.state.stockOf('corn') < cfg().keyCorn.minStock;
+  }
+  OT.needCorn = needCorn;
   function priceOf(cr, mul) { return Math.max(5, Math.round(cr.list * mul)); }
 
   /** この荷の勝負で、銀次がイカサマをする回（0 から）。しないなら -1 */
@@ -56,6 +63,7 @@
 
   OT.smuggle = {
     enter: function () {
+      OT.bgm.play('yami');
       var root = OT.ui.screen('smuggle');
       root.innerHTML = '';
       root.classList.add('ym');
@@ -115,7 +123,7 @@
   function chip(cr) {
     var icon = OT.ui.pixelCanvas(24, 24, 'chip-icon');
     OT.art.drawIcon(icon, cr.id);
-    return [icon, OT.el('span', { class: 'ym-name', text: OT.ingName(cr.id) + ' ×' + cr.n })];
+    return [icon, OT.el('span', { class: 'ym-name', text: OT.ingName(cr.id) + ' ×' + cr.n }), cr.key ? OT.el('span', { class: 'ym-key', text: OT.t('smug.key') }) : null].filter(Boolean);
   }
 
   function showList(first) {
@@ -145,7 +153,7 @@
     Y.cur = cr;
     Y.phase = 'offer';
     act('call', 1.2);
-    say(OT.t('ym.offer', { name: OT.ingName(cr.id), n: cr.n, price: cr.list }));
+    say(OT.t(cr.key ? 'ym.offerCorn' : 'ym.offer', { name: OT.ingName(cr.id), n: cr.n, price: cr.list }));
     Y.lower.innerHTML = '';
     Y.lower.appendChild(OT.el('div', { class: 'ym-deal' }, chip(cr).concat([OT.el('span', { class: 'ym-price', text: OT.t('smug.listPrice', { price: cr.list }) })])));
     var steps = cfg().steps;
@@ -255,6 +263,7 @@
     if (Y.cheated) {
       // 見破った：袖から賽がこぼれる
       Y.popDice = { t: 0 };
+      OT.ach.add('ymCaught');
       act('shout', 1.6);
       OT.sfx.jackpot ? OT.sfx.jackpot() : OT.sfx.buy();
       flash(OT.t('smug.caughtHim'), 'won');
@@ -344,7 +353,7 @@
       if (Y.swT >= Y.swapTime) {
         var s = Y.swaps[Y.sw], ca = cupAtSlot(s[0]), cb = cupAtSlot(s[1]);
         Y.cups[ca] = s[1]; Y.cups[cb] = s[0];
-        OT.sfx.tap();
+        OT.sfx.shuffle();
         Y.sw++; Y.swT = 0;
         // イカサマ：混ぜている途中で、賽を袖に隠す（賽の入った椀が一瞬ちょっと浮く）
         if (Y.sw === Y.cheatAt && Y.ball >= 0) {

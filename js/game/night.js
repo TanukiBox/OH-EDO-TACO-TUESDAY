@@ -152,6 +152,18 @@
     return g;
   }
 
+  /** 他店の主人（番付の好敵手）：自分の店の名物に近いタコスを頼む */
+  function makeVisitor(seat, id) {
+    var V = cfg().VISITORS[id];
+    var g = baseGuest(seat, V.type);
+    g.visitor = id;
+    g.name = OT.STORY[OT.i18n.lang].who[id];
+    g.line = OT.t('visit.' + id + '.hello');
+    if (menu().indexOf(V.order) >= 0 && canMake(V.order)) { g.order = V.order; g.variant = null; }
+    else { var o = chooseOrder(g.type); g.order = o.order; g.variant = o.variant; }
+    return g;
+  }
+
   /** 旅の客：ふるさとの名物を持ってきて、それでタコスを頼む */
   function makeTraveler(seat) {
     var T = cfg().TRAVELERS.list, keys = Object.keys(T);
@@ -200,8 +212,14 @@
       if (ch < v.chapter) return false;
       if (ch === v.chapter && OT.daysInChapter(ch) < v.chapterDay) return false;
       if (v.needFlag && !s.flags[v.needFlag]) return false;
-      return s.day - (s.vipLast || 0) >= 2;
+      if (s.day - (s.vipLast || 0) < 2) return false;
+      var tried = (s.vipTried || {})[id];
+      return !tried || s.day - tried >= cfg().VIP_RETRY_DAYS;   // 負けたVIPは、少し日をおいてから再挑戦
     });
+    // まだ対決していないVIPが先。負けたVIPは、いちばん前に挑んだものから
+    var fresh = ids.filter(function (id) { return !(s.vipTried || {})[id]; });
+    if (fresh.length) return fresh[0];
+    ids.sort(function (a, b) { return s.vipTried[a] - s.vipTried[b]; });
     return ids.length ? ids[0] : null;
   }
 
@@ -264,6 +282,8 @@
       // 今夜の特別な客
       var forced = OT.story.nightRegular();
       if (forced) N.queue.push(function (seat) { return makeRegular(seat, forced); });
+      var visitor = !opts.tribute && !opts.vip && OT.story.nightVisitor();   // 他店の主人が食べに来る
+      if (visitor) N.queue.unshift(function (seat) { return makeVisitor(seat, visitor); });
       if (N.tribute) {
         N.vip = 'tribute';
         N.queue = [function (seat) { return makeVip(seat, 'tribute'); }];
@@ -273,6 +293,8 @@
         if (vip) {
           N.vip = vip;
           st().vipLast = st().day;
+          st().vipTried = st().vipTried || {};
+          st().vipTried[vip] = st().day;
           N.queue.unshift(function (seat) { return makeVip(seat, vip); });
         }
         // 常連の漁師がふらりと来る
@@ -394,6 +416,7 @@
     else if (g.vip) g.line = OT.t('vip.' + (N.vipResult === 'win' ? 'win' : 'lose'));
     else if (g.traveler) g.line = OT.say('trav.' + say);
     else if (g.fisher) g.line = OT.t('fisher.' + say);
+    else if (g.visitor) { g.line = OT.t('visit.' + g.visitor + (res.stars >= 4 ? '.good' : '.bad')); N.visitor = { id: g.visitor, stars: res.stars }; }
     else if (g.regular) g.line = OT.say('reg.' + g.regular + '.' + say);
     else g.line = OT.say('cust.' + g.typeId + '.' + say);
     g.lineT = 2.4;
@@ -415,6 +438,13 @@
       setTimeout(function () { if (N) OT.ui.toast(OT.t('night.levelUp', { name: OT.tacoName(res.recipe), lv: OT.masteryLevel(res.recipe) }), 'lv'); }, 500);
     }
     if (res.stars === 5) mateoDo('pose', 1.4);
+    if (res.stars === 5) OT.ach.add('star5');
+    // 高級な一品が売れた（星3以上）
+    if (res.recipe && cfg().TACOS[res.recipe] && cfg().TACOS[res.recipe].premium && res.stars >= 3) {
+      OT.ach.add('premium');
+      var nm = OT.tacoName(res.recipe), py = res.pay;
+      setTimeout(function () { if (N) OT.fx.premium(nm, py); }, 900);
+    }
     refreshHud();
     return res;
   }
@@ -614,7 +644,7 @@
       bestVariant: N.soldVariant[best] || null,
       rankUp: chapterAfter > chapterBefore ? chapterAfter : 0,
       vip: N.vip, vipResult: N.vip ? (N.vipResult || 'lose') : null,
-      regulars: N.regularsServed, tribute: N.tribute, festival: N.festival
+      regulars: N.regularsServed, tribute: N.tribute, festival: N.festival, visitor: N.visitor || null
     };
     if (N.vip && N.vipResult === 'win') s.flags[cfg().VIPS[N.vip].win] = 1;
     s.flags.tutNight = 1;

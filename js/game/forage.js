@@ -50,6 +50,7 @@
 
   OT.forage = {
     enter: function () {
+      OT.bgm.play('satoyama');
       var root = OT.ui.screen('forage');
       root.innerHTML = '';
       G = { root: root, time: 0, items: [], got: {}, count: {}, spawnT: 0, sparks: [] };

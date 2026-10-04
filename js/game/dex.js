@@ -38,14 +38,15 @@
   var tab = 'tacos', backTo = null;
 
   OT.dex = {
-    enter: function (from) {
+    enter: function (from, tabKey) {
       backTo = from || backTo || 'morning';
+      if (tabKey) tab = tabKey;
       var root = OT.ui.screen('dex');
       root.innerHTML = '';
       root.appendChild(OT.ui.hud());
       root.appendChild(OT.el('h2', { class: 'scr-title', text: '📖 ' + OT.t('dex.title') }));
       var tabs = OT.el('div', { class: 'dex-tabs' });
-      ['tacos', 'su', 'ings'].forEach(function (k) {
+      ['tacos', 'su', 'ings', 'ach'].forEach(function (k) {
         tabs.appendChild(OT.el('button', { class: 'tab' + (tab === k ? ' on' : ''), text: OT.t('dex.tab.' + k),
           onclick: function () { OT.sfx.tap(); tab = k; OT.dex.enter(); } }));
       });
@@ -53,7 +54,11 @@
       var grid = OT.el('div', { class: 'dex-grid' });
       var s = st(), count = 0, total = 0;
 
-      if (tab === 'tacos') {
+      if (tab === 'ach') {
+        var ac = OT.ach.count();
+        count = ac.n; total = ac.of;
+        OT.ach.cards().forEach(function (c) { grid.appendChild(c); });
+      } else if (tab === 'tacos') {
         Object.keys(cfg().TACOS).sort(function (a, b) { return cfg().TACOS[a].chapter - cfg().TACOS[b].chapter; }).forEach(function (id) {
           var r = cfg().TACOS[id];
           var made = s.made[id] || 0, found = made > 0;

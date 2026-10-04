@@ -59,6 +59,7 @@
 
   OT.fishing = {
     enter: function () {
+      OT.bgm.play('sea');
       var root = OT.ui.screen('fishing');
       root.innerHTML = '';
       F = { root: root, time: 0, state: 'intro', caught: [], hold: false, snaps: 0 };
@@ -122,7 +123,7 @@
     var fish = F.fish;
     Object.keys(fish.info.gives).forEach(function (id) { OT.state.addStock(id, fish.info.gives[id]); });
     F.caught.push(fish.kind);
-    if (fish.kind === 'nushi') OT.fx.nushi(OT.t('sea.nushi'));
+    if (fish.kind === 'nushi') { OT.fx.nushi(OT.t('sea.nushi')); st().flags.gotSeaNushi = 1; }
     F.state = 'after'; F.afterT = 1.1;
     OT.sfx.buy();
     flash(OT.t('fish.caught', { name: OT.t('sea.' + fish.kind) }), 'won');

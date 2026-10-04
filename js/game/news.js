@@ -79,6 +79,7 @@
     // ゆうべの多幸寿
     var r = s.lastResult;
     if (s.day > 1 && r) items.push({ k: 'yesterday', served: r.served, best: r.best, variant: r.bestVariant, omakase: r.bestIsOmakase });
+    if (s.day > 1 && r && r.visitor) items.push({ k: 'visit', id: r.visitor.id, good: r.visitor.stars >= 4 });
     // 今日のこと：年中行事・鯨組・今夜の VIP・はやりのタコス
     var fest = OT.todayFestival && OT.todayFestival();
     if (fest) items.push({ k: 'fest', fest: fest });
@@ -130,6 +131,11 @@
       body = OT.t('news.r.' + it.id + (it.up ? '.up' : '.down'));
       pic = iconOf(it.id);
       cls = it.up ? 'rival up' : 'rival down';
+    } else if (it.k === 'visit') {
+      head = OT.t('news.visitH', { shop: shopName(it.id) });
+      body = OT.t(it.good ? 'news.visit.good' : 'news.visit.bad', { owner: OT.STORY[OT.i18n.lang].who[it.id] });
+      pic = iconOf(it.id);
+      cls = it.good ? 'rival up' : 'rival';
     } else if (it.k === 'fest') { head = OT.t('fest.' + it.fest); body = OT.t('fest.' + it.fest + '.desc'); cls = 'event'; }
     else if (it.k === 'whale') { head = OT.t('news.whaleH'); body = OT.t('news.whale'); cls = 'event'; }
     else if (it.k === 'vip') { var V = OT.CFG.VIPS[it.vip]; head = OT.t('news.vipH'); body = OT.t('news.vip', { name: OT.STORY[OT.i18n.lang].who[V.guest] }); cls = 'event'; }
@@ -158,7 +164,13 @@
     box.appendChild(paper);
     box.appendChild(closeBtn(function () { close(box); if (done) done(); }));
     document.getElementById('app').appendChild(box);
-    OT.sfx.wrap();
+    OT.sfx.paper();
+    // 番付が上がった・はじめて載った朝は、名前がせり上がる
+    var up = s.news.items.filter(function (it) { return it.k === 'rankup' || it.k === 'debut'; })[0];
+    if (up && s.bzCelebrated !== s.day) {
+      s.bzCelebrated = s.day; OT.state.save();
+      setTimeout(function () { OT.fx.banzuke(OT.t(up.k === 'debut' ? 'fx.bzDebut' : 'fx.bzUp'), titleOf(up.pos)); }, 500);
+    }
   }
 
   // ---------------------------------------------------------------
@@ -193,6 +205,7 @@
       ]) : null,
       OT.el('div', { class: 'bz-note', text: me < 0 ? OT.t('bz.noteOut', { n: toEntry() }) : OT.t('bz.note', { title: titleOf(me), n: me + 1, m: list.length }) })
     ].filter(Boolean));
+    OT.sfx.paper();
     var box = OT.el('div', { class: 'kw-wrap bz' });
     box.appendChild(paper);
     box.appendChild(closeBtn(function () { close(box); }));

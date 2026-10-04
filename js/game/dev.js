@@ -38,7 +38,10 @@
     });
     S.phase = 'morning';
     S.gamesToday = 0;
-    if (OT.news) { OT.news.newDay(); S.newsSeen = S.day; }
+    if (OT.news) { OT.news.newDay(); S.newsSeen = S.day; S.bzCelebrated = S.day; }
+    // 章にとんだときに、お祝い・案内・実績のお知らせがまとめて出ないように（その章までのものは済んだことに）
+    S.flags.sawKaiso = 1;
+    if (OT.ach) { S.ach = {}; C.ACHIEVEMENTS.forEach(function (a) { var p = OT.ach.progress(a); if (p.n >= p.of) S.ach[a.id] = S.day; }); }
     OT.state.save();
     return S;
   }
@@ -58,7 +61,7 @@
       stopAll();
       setup(OT.DEV.chapter);
       OT.DEV.back = true;
-      fn();
+      OT.sprites.whenAll(fn);
     };
   }
 
@@ -104,6 +107,7 @@
       return OT.button(OT.t('dev.artBtn', { name: OT.t('dev.art.' + k), style: OT.t('dev.style.' + AS[k]) }), function () {
         OT.sfx.tap();
         AS[k] = AS[k] === 'toon' ? 'classic' : 'toon';
+        OT.sprites.wantStyle();
         try { OT.store.set('devArt_' + k, AS[k]); } catch (e) { /* 保存できなくても、この場では切りかわる */ }
         enter();
       }, 'small');
@@ -126,6 +130,7 @@
         ['stall', 'kitchen', 'map', 'minigames'].forEach(function (k) {
           try { var v = OT.store.get('devArt_' + k, null); if (v) OT.CFG.ART_STYLE[k] = v; } catch (e) { /* なし */ }
         });
+        OT.sprites.wantStyle();
         enter();
       } else title();
     };

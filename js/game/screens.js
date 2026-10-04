@@ -87,11 +87,11 @@
       root.innerHTML = '';
       root.appendChild(OT.ui.hud());
       root.appendChild(OT.el('h2', { class: 'scr-title', text: '☀ ' + OT.t('morning.title') }));
-      var tipKey = s.day === 1 ? 'pon.morning1' : s.whaleDay ? 'pon.whale' : s.stock.tortilla <= 10 && s.stock.tortilla > 0 ? 'pon.morningLow' :
+      var tipKey = s.day === 1 ? 'pon.morning1' : (OT.needCorn && OT.needCorn() && OT.state.stockOf('corn') === 0) ? 'pon.needCorn' : s.whaleDay ? 'pon.whale' : s.stock.tortilla <= 10 && s.stock.tortilla > 0 ? 'pon.morningLow' :
         s.stock.tortilla <= 0 && OT.state.chapter() >= 2 && !s.flags.nixtamal ? 'pon.noTortilla' : 'pon.morning' + (1 + (s.day % 4));
       root.appendChild(OT.ui.pon(tipKey));
       root.appendChild(OT.el('div', { class: 'row-btns' }, [
-        OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('morning'); }, 'small'),
+        OT.button('📖 ' + OT.t('dex.title'), function () { OT.sprites.whenAll(function () { OT.dex.enter('morning'); }); }, 'small'),
         OT.button('📰 ' + OT.t('news.title'), function () { OT.news.open(); }, 'small'),
         OT.button('🏯 ' + OT.t('bz.open'), function () { OT.news.banzuke(); }, 'small'),
         OT.state.chapter() >= OT.CFG.UPGRADES.chapter ? OT.button('🔨 ' + OT.t('kaiso.title'), function () { OT.kaiso.enter(); }, 'small') : null,
@@ -134,6 +134,14 @@
       // 最終章：灰汁で煮たトウモロコシで、本物の皮を焼く／献上の料理勝負
       if (s.flags.nixtamal) root.appendChild(realPanel());
       if (s.flags.tributeReady && !s.flags.cleared) root.appendChild(tributePanel());
+      if (s.flags.cleared && OT.ach) {
+        var nx = OT.ach.next(3);
+        if (nx.length) root.appendChild(OT.el('div', { class: 'notice goals' }, [
+          OT.el('b', { text: '🏆 ' + OT.t('ach.goals') }),
+          OT.el('ul', {}, nx.map(function (a) { var p = OT.ach.progress(a); return OT.el('li', { text: OT.t('ach.' + a.id) + '：' + OT.t('ach.' + a.id + '.desc') + (p.of > 1 ? '（' + p.n + '/' + p.of + '）' : '') }); })),
+          OT.button(OT.t('ach.open'), function () { OT.sprites.whenAll(function () { OT.dex.enter('morning', 'ach'); }); }, 'small')
+        ]));
+      }
 
       // 作り置き：かご蒸しタコスを蒸しておく
       if (OT.state.chapter() >= OT.CFG.KAGO.chapter) root.appendChild(kagoPanel());
@@ -184,7 +192,8 @@
       var pin = OT.el('button', { class: 'pin ' + sup.kind + (soon ? ' soon' : '') + (blocked && !soon ? ' blocked' : ''),
         style: 'left:' + (p[0] * 100) + '%;top:' + (p[1] * 100) + '%',
         onclick: function () { if (soon || blocked) { OT.sfx.denied(); return; } OT.sfx.tap(); OT.flow.supplier(sup); } }, [
-        OT.el('span', { text: soon ? '？' : OT.t('sup.' + sup.id) })
+        // 地図の上では短い名前（'pin.○○' があればそちら。英語で札が重ならないように）
+        OT.el('span', { text: soon ? '？' : OT.t(OT.TEXT.en['pin.' + sup.id] ? 'pin.' + sup.id : 'sup.' + sup.id) })
       ]);
       wrap.appendChild(pin);
     });
@@ -301,7 +310,7 @@
       var shareText = OT.t('share.text', { day: r.day, sales: r.sales, taco: bestName });
       root.appendChild(OT.el('div', { class: 'res-btns' }, [
         OT.button(OT.t('res.share'), function () { OT.shareOnX(shareText); }, 'x'),
-        OT.button('📖 ' + OT.t('dex.title'), function () { OT.dex.enter('result'); }, 'ghost'),
+        OT.button('📖 ' + OT.t('dex.title'), function () { OT.sprites.whenAll(function () { OT.dex.enter('result'); }); }, 'ghost'),
         OT.button(OT.t('res.next'), function () { if (OT.tut) OT.tut.finish(); OT.flow.nextDay(); }, 'primary big')
       ]));
       if (OT.tut) setTimeout(function () { OT.tut.point('r1', '#scr-result .res-table'); }, 300);

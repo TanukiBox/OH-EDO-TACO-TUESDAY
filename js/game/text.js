@@ -894,7 +894,80 @@
       'dev.art.stall': '夜の屋台',
       'dev.art.kitchen': '厨房の焼き場',
       'dev.art.map': '町の地図',
-      'dev.art.minigames': 'ミニゲームの背景'
+      'dev.art.minigames': 'ミニゲームの背景',
+      'smug.key': '大事な品',
+      'ym.offerCorn': '{name}×{n}。……旦那には、こいつが要るんでしょう？ 大事な品だ、{price}文にまけときやすぜ',
+      'pon.needCorn': '長崎の抜け荷で、異国のトウモロコシが手に入るんだって！ 本物のトルティーヤが作れるかも…手に入れておこう！',
+      'fx.bzUp': '番付が上がった！',
+      'fx.bzDebut': '番付入り！',
+      'fx.kaiso': '改装ができあがった！',
+      'fx.premium': '高級な一品が売れた！ {pay}文',
+      'dex.tab.ach': '実績',
+      'ach.got': '実績「{name}」を達成！',
+      'ach.day': '{n}日目に達成',
+      'ach.prog': '{n} / {of}',
+      'ach.goals': 'これからの目標',
+      'ach.open': '実績を見る',
+      'ach.listed': '番付入り',
+      'ach.listed.desc': '多幸寿が食べ物屋の番付に載る',
+      'ach.tacos20': 'タコス二十番勝負',
+      'ach.tacos20.desc': '20種類のタコスを出す',
+      'ach.kaiso1': '自慢の普請',
+      'ach.kaiso1.desc': '屋台の改装を、どれか1つ3段にする',
+      'ach.mtNushi': '山の主',
+      'ach.mtNushi.desc': '山の追い込みで、山の主（大猪）をつかまえる',
+      'ach.seaNushi': '海のヌシ',
+      'ach.seaNushi.desc': '一本釣りで、ヌシの大鮪を釣りあげる',
+      'ach.kujira': '鯨組の大物',
+      'ach.kujira.desc': '魚河岸の競りで、鯨を手に入れる',
+      'ach.cheat3': 'イカサマ見破り',
+      'ach.cheat3.desc': '銀次のイカサマを3回見破る',
+      'ach.premium10': '高級の味',
+      'ach.premium10.desc': '高級なタコスを10皿売る',
+      'ach.gearMax': '名人の釣り道具',
+      'ach.gearMax.desc': '糸と竿を、どちらも最高にする',
+      'ach.clear': '献上の誉れ',
+      'ach.clear.desc': '上様にタコスを献上する',
+      'ach.ozeki': '江戸の大関',
+      'ach.ozeki.desc': '食べ物屋の番付で大関になる',
+      'ach.vipAll': '料理対決 全勝',
+      'ach.vipAll.desc': '雷山・陳師傅・雷蔵・蘭斎との料理対決に、すべて勝つ',
+      'ach.regsAll': 'なじみの客',
+      'ach.regsAll.desc': '常連の話を、すべて見る',
+      'ach.star5x100': '星五つ百皿',
+      'ach.star5x100.desc': '星5を100回出す',
+      'ach.money10k': '大店の蓄え',
+      'ach.money10k.desc': '所持金を1万文にする',
+      'ach.kaisoAll': '江戸一番の屋台',
+      'ach.kaisoAll.desc': '屋台の改装を、すべて3段にする',
+      'ach.tacosAll': 'タコス図鑑 完成',
+      'ach.tacosAll.desc': 'すべてのタコスを出す（素タコスはのぞく）',
+      'visit.tenkichi.hello': '天ぷらの名人に、異国の天ぷらを見せてもらおう',
+      'visit.tenkichi.good': 'こいつは、いい揚げっぷりだ',
+      'visit.tenkichi.bad': '衣がべちゃっとしてるな',
+      'visit.hyotan.hello': 'おでんのたこす、楽しみにしてきましたよ',
+      'visit.hyotan.good': 'まあ、おいしい',
+      'visit.hyotan.bad': 'だしが、ちょっと…',
+      'visit.chojuan.hello': 'そばのたこすとは、面白い',
+      'visit.chojuan.good': 'うむ、よい香りだ',
+      'visit.chojuan.bad': 'そばが、ちと荒いな',
+      'visit.daikokuya.hello': '鰻のたこすとやら、食わせてもらおうか',
+      'visit.daikokuya.good': 'うまい！ はっはっは',
+      'visit.daikokuya.bad': '焼きが甘いな',
+      'news.visitH': '{shop}の主人、多幸寿へ',
+      'news.visit.good': '{owner}が両国の屋台「多幸寿」でタコスを食べ、「こいつはうまい」とうなったという。番付の上の店も、多幸寿から目が離せない。',
+      'news.visit.bad': '{owner}が多幸寿をのぞいたが、「まだまだだな」と言い残して帰ったとか。',
+      'ach.rivalsAll': '好敵手',
+      'ach.rivalsAll.desc': '天吉・お鶴・長兵衛・福蔵が、屋台に食べに来る',
+      'ach.many': '実績を{n}つ達成！ 図鑑の「実績」で見られるよ',
+      'ak.seri.bang': '！',
+      'pin.yagenbori': '薬研堀',
+      'pin.nagasaki': '長崎の抜け荷',
+      'pin.kokyu': '日本橋の大店・伊勢屋',
+      'pin.aomono': '青物市場',
+      'pin.tofuya': '豆腐屋',
+      'pin.toriya': '鳥屋',
+      'pin.komeya': '米屋'
     },
 
     en: {
@@ -920,7 +993,7 @@
 
       'morning.title': 'Morning: Shopping',
       'morning.lead': 'Where will you shop today?',
-      'morning.left': '{n} more trips today (mini-games)',
+      'morning.left': 'Trips left today: {n} (mini-games)',
       'morning.soon': 'Coming soon',
       'morning.done': 'No more trips today',
       'morning.toNight': 'Finish prep and open for the night',
@@ -1066,7 +1139,7 @@
       'shop.lead.komeya': 'Rice, flour, nori and seasonings. Shell ingredients are here.',
       'shop.lead.tofuya': 'Fresh tofu and fried tofu.',
       'shop.lead.toriya': 'Gamecock, duck and eggs.',
-      'shop.lead.yagenbori': 'The shichimi blender. Heat is decided here.',
+      'shop.lead.yagenbori': 'The shichimi blenders. This is where your heat comes from.',
       'shop.lead.momonjiya': '"Some medicine, please…" Boar and deer are sold as "medicine".',
       'season.spring': 'Spring',
       'season.summer': 'Summer',
@@ -1121,7 +1194,7 @@
       'part.shita': 'tongue',
       'part.mimi': 'ear',
       'cust.bozu': 'Monk',
-      'cust.rikishi': 'Sumo',
+      'cust.rikishi': 'Sumo wrestler',
       'cust.tsujin': 'Gourmet',
       'cust.bozu.hello': 'Something without meat, please.|Nothing that took a life, please.|Namu… I am hungry.',
       'cust.rikishi.hello': 'A big one, please!|I am starving!|Pile it high!',
@@ -1144,7 +1217,7 @@
       'cmt.less.0': 'Too hot!|My mouth is on fire!',
       'cmt.less.1': 'A bit too sour.|So sour!',
       'cmt.less.2': 'Too rich.|A bit heavy.',
-      'cmt.less.3': 'Too much aroma.|A lot of garnish.',
+      'cmt.less.3': 'Too much aroma.|A bit heavy on the garnish.',
       'cmt.less.4': "I can't chew this.|A bit tough.",
       'cmt.great': "I'll be back!|I won't forget this taste!|See you tomorrow!",
 
@@ -1206,7 +1279,7 @@
       'taco.katsuo_tataki': 'Seared Bonito Taco',
       'taco.dorado': 'Aburaage Dorado',
       'taco.shojin': 'Shojin Imo Taco',
-      'taco.kago': 'Seiro Basket Taco',
+      'taco.kago': 'Steamed Basket Taco',
       'taco.nigiri': 'Nigiri Taco',
       'taco.kamo_nanban': 'Kamo Nanban Taco',
       'taco.nanbanzuke': 'Nanbanzuke Taco',
@@ -1275,13 +1348,13 @@
       'reg.sessai.hello': 'Sessai. What will you show me today?',
       'reg.yokichi.3': "Fast and tasty! That's Mateo!",
       'reg.yokichi.2': 'Good as always.',
-      'reg.yokichi.1': "Huh, what's up today?",
+      'reg.yokichi.1': 'Huh, off day today?',
       'reg.genpachi.3': "Whoa! That's the stuff!",
       'reg.genpachi.2': 'Tasty, but it could be hotter.',
       'reg.genpachi.1': 'Not enough kick today.',
       'reg.hotta.3': 'Magnificent! I am impressed.',
       'reg.hotta.2': 'A fine flavor.',
-      'reg.hotta.1': 'Hmm… not today.',
+      'reg.hotta.1': 'Hmm… not quite up to par today.',
       'reg.jonen.3': 'What a blessing…',
       'reg.jonen.2': 'A fine flavor.',
       'reg.jonen.1': 'Hmm…',
@@ -1456,7 +1529,7 @@
       'k.tag.hold': 'Hold to sear',
       'k.searHold': '🔥 Hold to sear',
       'k.searTake': 'Take off',
-      'k.held.drop': '{name}: tap the shell to place',
+      'k.held.drop': '{name}: tap the shell to place it',
       'k.held.sprinkle': '{name}: move your finger left and right over the shell',
       'k.held.drizzle': '{name}: trace over the shell to drizzle',
       'k.pickFirst': 'Tap a filling, sauce or garnish below to pick it up',
@@ -1475,12 +1548,12 @@
       'ak.today': 'This morning\'s rivals',
       'ak.r.tatsu': 'Sushi master. Can\'t resist sea bream, bonito or tuna. Quick to bid.',
       'ak.r.itamae': 'Restaurant chef. A sharp eye; leans in when a box is good.',
-      'ak.r.daidokoro': 'A lord\'s kitchen steward. Spares no expense for bream or whale, but a poor judge.',
+      'ak.r.daidokoro': 'A lord\'s kitchen steward. Spares no expense for bream or whale, but has a poor eye.',
       'ak.r.kitsune': 'A sly middleman. Fakes interest to make you overpay.',
       'ak.seri.hello': 'Roll up! One box, one price! The dawn auction begins!',
       'ak.seri.w0': 'Hup! Light as a feather!',
       'ak.seri.w1': 'Heave-ho!',
-      'ak.seri.w2': 'Ngh... nnngh... heavy!',
+      'ak.seri.w2': 'Ngh… nnngh… heavy!',
       'ak.seri.start': 'Starting at ',
       'ak.seri.me': 'Sold! Thank you kindly!',
       'ak.seri.tease': 'Generous, aren\'t we! Ha ha ha!',
@@ -1504,7 +1577,7 @@
       'ak.mash': 'Mash!',
       'ak.katta': 'Mine!',
       'ak.clash': 'Shouting match! Mash to push back!',
-      'ak.poor': 'Not enough money...',
+      'ak.poor': 'Not enough money…',
       'ak.got': 'Won it for {n} mon!',
       'ak.f.tai': 'Sea bream',
       'ak.f.kisu': 'Whiting',
@@ -1516,17 +1589,17 @@
       'ak.f.uni': 'Sea urchin',
       'ak.f.nushi': 'The Lord of the Bay (giant tuna)',
       'ak.f.kujira': 'Whale cut',
-      'ak.rl.tatsu': 'Hoh... now that\'s something',
-      'ak.rl.itamae': '...Interesting',
+      'ak.rl.tatsu': 'Hoh… now that\'s something',
+      'ak.rl.itamae': '…Interesting',
       'ak.rl.daidokoro': 'Magnificent!',
-      'ak.rl.kitsune': 'Well now, a real find...',
+      'ak.rl.kitsune': 'Well now, a real find…',
       'ak.rc.tatsu': 'Heh. Mine.',
       'ak.rc.itamae': 'No hard feelings.',
       'ak.rc.daidokoro': 'My lord will be delighted.',
       'ak.rc.kitsune': 'Heh heh, much obliged.',
-      'ak.rs.tatsu': 'Tch... I\'ll remember this.',
-      'ak.rs.itamae': '...A pity.',
-      'ak.rs.daidokoro': 'Grr...',
+      'ak.rs.tatsu': 'Tch… I\'ll remember this.',
+      'ak.rs.itamae': '…A pity.',
+      'ak.rs.daidokoro': 'Grr…',
       'ak.rs.kitsune': 'Aw, snatched from me.',
       'ak.whisper': 'Hey, Mateo. Box number {n} this morning, the {g} one. That\'s a winner.',
       'ak.open': 'Open the box you won',
@@ -1538,13 +1611,13 @@
       'ak.answer': 'The reveal',
       'ak.me': 'You',
       'ak.value': 'Worth {n} mon',
-      'ak.regret': 'That one was the better deal...',
+      'ak.regret': 'That one was the better deal…',
       'ak.relief': 'They overpaid. Good call passing!',
       'ak.regretBig': 'Argh! I passed on a great deal!',
       'ak.reliefBig': 'Good call passing!',
       'ak.toSell': 'Sell to the peddler',
       'ak.toResult': 'This morning\'s haul',
-      'ak.sell': 'Sell fish you don\'t need to Yokichi the peddler, cheaply',
+      'ak.sell': 'Yokichi the peddler will buy fish you don\'t need (cheaply)',
       'ak.boteHello': 'Got leftovers? I\'ll take \'em off your hands. Cheap, mind you!',
       'ak.sell1': 'Sell 1 for {n} mon',
       'ak.result': 'This morning\'s haul',
@@ -1554,7 +1627,7 @@
       'ak.none': 'You didn\'t buy anything this morning',
       'tut.a4': 'When it\'s all open, check what the other boxes held',
       'fisher.hello': 'Hamazo the fisherman. A fresh fish taco, if you please!',
-      'fisher.1': '...Not quite enough for a man of the sea.',
+      'fisher.1': '…Not quite enough for a man of the sea.',
       'fisher.2': 'Not bad.',
       'fisher.3': 'Delicious! Right, I\'ll tip you off on a good box.',
       'fisher.trust': 'Hamazo trusts you more! (He may whisper a tip at the morning auction.)',
@@ -1563,15 +1636,15 @@
       'ak.v.great': 'A winner!',
       'ak.v.good': 'A fair buy',
       'ak.v.fair': 'A bit pricey',
-      'ak.v.bad': 'A dud...',
+      'ak.v.bad': 'A dud…',
       'ak.profit': '+{n} mon gained!',
-      'ak.loss': '{n} mon overpaid...',
+      'ak.loss': '{n} mon overpaid…',
       'ak.paid': 'Paid {n} mon',
-      'ak.rank': '#{n} best deal of {m} boxes',
+      'ak.rank': 'Ranked #{n} of {m} boxes by value',
       'ak.rankTop': 'The best deal of the morning!',
       'ak.verdictNone': 'You bought nothing this morning (passed)',
       'ak.others': 'What was in the other boxes',
-      'ak.jpmiss': 'The big catch was in there...!',
+      'ak.jpmiss': 'The big catch was in there…!',
       'morning.trend': '📰 Kawaraban: "{taco}" is all the rage in Edo. Expect lots of orders tonight',
       'news.title': 'Kawaraban',
       'news.close': 'Done reading',
@@ -1582,20 +1655,20 @@
       'news.rankdownH': 'Takosu Slips to {title}',
       'news.rankdown': 'Takosu has slipped to {title} (No. {n}). Did some guests leave angry? Can it bounce back?',
       'news.yesterdayH': 'Last Night at Takosu',
-      'news.yesterday': '{n} guests ate tacos. The best seller was "{best}".',
+      'news.yesterday': 'Guests last night: {n}. The best seller was "{best}".',
       'news.yesterdayNone': 'Hardly anyone came by last night, they say.',
       'news.whaleH': 'The Whalers Land a Big One',
-      'news.whale': 'Rumor has it whale meat will hit the fish market this morning. It may be hidden in one of the lots.',
+      'news.whale': 'Rumor has it whale meat will hit the fish market this morning. It may be hidden in one of the boxes.',
       'news.vipH': 'Tonight\'s Rumor',
       'news.vip': 'They say {name} will be touring the Ryogoku food stalls tonight.',
       'news.trendH': 'All the Rage in Edo',
       'news.trend': 'Everyone in Edo is talking about "{taco}". Expect lots of orders tonight, so stock up on ingredients.',
       'news.myRank': 'Takosu\'s rank: {title}',
-      'news.r.daikokuya.up': 'A daimyo household has called on Daikokuya\'s grilled eel. The line never ends.',
+      'news.r.daikokuya.up': 'A daimyo household has become a patron of Daikokuya\'s grilled eel. The line never ends.',
       'news.r.daikokuya.down': 'Guests grumble that Daikokuya\'s eels have gotten small lately.',
       'news.r.tatsu.up': 'A fish-market expert calls Tatsugoro\'s nigiri "the best in Edo".',
       'news.r.tatsu.down': 'Tatsugoro argued with a guest and shut his shop for half a day.',
-      'news.r.tenkichi.up': 'Tenkichi\'s tempura is said to be lighter since he switched sesame oil.',
+      'news.r.tenkichi.up': 'Tenkichi\'s tempura is said to be lighter since he switched to a new sesame oil.',
       'news.r.tenkichi.down': 'Spattering oil nearly set Tenkichi\'s stall on fire.',
       'news.r.chojuan.up': 'A great buckwheat harvest has lines forming at Chojuan\'s soba.',
       'news.r.chojuan.down': 'Chojuan\'s reputation suffers: the soba is soggy, they say.',
@@ -1649,7 +1722,7 @@
       'gear.rod.desc': 'Rod: better rods reel in faster',
       'gear.buy': 'Get {name} ({price} mon)',
       'gear.max': 'Best there is',
-      'gear.hint': 'Big fish snap weak lines. Upgrade your fishing gear on the screen before you set out.',
+      'gear.hint': 'Big fish snap weak lines. Upgrade your gear on the fishing screen before you set out.',
       'smug.manifest': 'Tonight\'s goods (tap to deal)',
       'smug.pick': 'Which cup hides the die? Tap it',
       'news.debutH': 'Takosu Makes the Rankings',
@@ -1760,7 +1833,80 @@
       'dev.art.stall': 'Night stall',
       'dev.art.kitchen': 'Kitchen grill',
       'dev.art.map': 'Town map',
-      'dev.art.minigames': 'Mini-game backgrounds'
+      'dev.art.minigames': 'Mini-game backgrounds',
+      'smug.key': 'Important',
+      'ym.offerCorn': '{name} ×{n}. …You need this one, don\'t you? It\'s important, so I\'ll let it go for {price} mon.',
+      'pon.needCorn': 'They say you can get foreign corn from the Nagasaki smugglers! We might be able to make real tortillas… let\'s get some!',
+      'fx.bzUp': 'Up the rankings!',
+      'fx.bzDebut': 'Now on the rankings!',
+      'fx.kaiso': 'Renovation complete!',
+      'fx.premium': 'A luxury dish sold! {pay} mon',
+      'dex.tab.ach': 'Feats',
+      'ach.got': 'Feat unlocked: "{name}"!',
+      'ach.day': 'Unlocked on day {n}',
+      'ach.prog': '{n} / {of}',
+      'ach.goals': 'Goals ahead',
+      'ach.open': 'See feats',
+      'ach.listed': 'On the Rankings',
+      'ach.listed.desc': 'Get Takosu onto the food rankings',
+      'ach.tacos20': 'Twenty Tacos',
+      'ach.tacos20.desc': 'Serve 20 kinds of tacos',
+      'ach.kaiso1': 'Pride of the Stall',
+      'ach.kaiso1.desc': 'Bring any one renovation to level 3',
+      'ach.mtNushi': 'Lord of the Mountain',
+      'ach.mtNushi.desc': 'Catch the Lord of the Mountain (giant boar) in the Mountain Drive',
+      'ach.seaNushi': 'Lord of the Bay',
+      'ach.seaNushi.desc': 'Land the giant tuna while fishing',
+      'ach.kujira': 'Whalers\' Prize',
+      'ach.kujira.desc': 'Get whale at the fish market auction',
+      'ach.cheat3': 'Cheat Spotter',
+      'ach.cheat3.desc': 'Catch Ginji cheating 3 times',
+      'ach.premium10': 'Taste of Luxury',
+      'ach.premium10.desc': 'Sell 10 luxury tacos',
+      'ach.gearMax': 'Master\'s Tackle',
+      'ach.gearMax.desc': 'Get the best line and the best rod',
+      'ach.clear': 'Honored Offering',
+      'ach.clear.desc': 'Present your taco to His Highness',
+      'ach.ozeki': 'Ozeki of Edo',
+      'ach.ozeki.desc': 'Reach Ozeki on the food rankings',
+      'ach.vipAll': 'Undefeated',
+      'ach.vipAll.desc': 'Win every cooking showdown (Ikazuchiyama, Master Chin, Raizo, Ransai)',
+      'ach.regsAll': 'Old Friends',
+      'ach.regsAll.desc': 'See every regular\'s story',
+      'ach.star5x100': 'A Hundred Five-Stars',
+      'ach.star5x100.desc': 'Earn 5 stars 100 times',
+      'ach.money10k': 'Merchant\'s Fortune',
+      'ach.money10k.desc': 'Have 10,000 mon',
+      'ach.kaisoAll': 'Finest Stall in Edo',
+      'ach.kaisoAll.desc': 'Bring every renovation to level 3',
+      'ach.tacosAll': 'Taco Book Complete',
+      'ach.tacosAll.desc': 'Serve every taco (simple tacos excluded)',
+      'visit.tenkichi.hello': 'Let\'s see this foreign tempura, then',
+      'visit.tenkichi.good': 'Now that is good frying',
+      'visit.tenkichi.bad': 'The batter is soggy',
+      'visit.hyotan.hello': 'I\'ve been looking forward to an oden taco',
+      'visit.hyotan.good': 'My, how delicious',
+      'visit.hyotan.bad': 'The broth is a little…',
+      'visit.chojuan.hello': 'A soba taco. How interesting',
+      'visit.chojuan.good': 'Mm, a fine aroma',
+      'visit.chojuan.bad': 'The soba is a bit rough',
+      'visit.daikokuya.hello': 'Let\'s try this eel taco of yours',
+      'visit.daikokuya.good': 'Delicious! Ha ha ha',
+      'visit.daikokuya.bad': 'The eel\'s a bit underdone',
+      'news.visitH': 'The Owner of {shop} Visits Takosu',
+      'news.visit.good': '{owner} ate at the Ryogoku stall Takosu and declared, "Now this is good." Even the top shops on the rankings are keeping an eye on Takosu.',
+      'news.visit.bad': '{owner} stopped by Takosu, but left saying, "Not there yet."',
+      'ach.rivalsAll': 'Worthy Rivals',
+      'ach.rivalsAll.desc': 'Have Tenkichi, Tsuru, Chobei and Fukuzo come eat at your stall',
+      'ach.many': '{n} feats unlocked! See them under Feats in the Taco Book',
+      'ak.seri.bang': '!',
+      'pin.yagenbori': 'Spices',
+      'pin.nagasaki': 'Nagasaki',
+      'pin.kokyu': 'Iseya Fine Foods',
+      'pin.aomono': 'Greens',
+      'pin.tofuya': 'Tofu',
+      'pin.toriya': 'Poultry',
+      'pin.komeya': 'Rice'
     }
   };
 
@@ -1775,7 +1921,7 @@
       who: {
         mateo: 'マテオ', pon: 'ポン吉', tatsu: '辰五郎', yokichi: '与吉', genpachi: '源八', hotta: '堀田新之丞',
         jonen: '浄念和尚', ikazuchi: '雷山', sessai: '雪斎', chin: '陳師傅', ransai: '葛西蘭斎', raizo: '花川戸雷蔵',
-        okane: 'おかね婆さん', kumazo: '熊蔵', gonta: '権太', yami: '闇商人の銀次', genba: '膳部玄蕃', uesama: '上様', messenger: 'お城の使い',
+        okane: 'おかね婆さん', kumazo: '熊蔵', gonta: '権太', yami: '闇商人の銀次', daikokuya: '大黒屋の福蔵', tenkichi: '天ぷらの天吉', chojuan: '長寿庵の長兵衛', hyotan: 'ひょうたんのお鶴', genba: '膳部玄蕃', uesama: '上様', messenger: 'お城の使い',
         seri: '競り人の勘太', itamae: '料亭の板前・清次', daidokoro: '台所役・御厨', kitsune: '狐目の宗助', hamazo: '漁師の浜蔵',
         narrator: '', traveler: '旅の客', crowd: '町の人々'
       },
@@ -1879,6 +2025,58 @@
         ['mateo', '本場の味に近づけるかもしれない……'],
         ['pon', '夜の長崎なら、おいらの化け術でこっそり行けるよ！ 「長崎の抜け荷」が解禁！'],
         ['pon', 'でも役人に見つかったら評判が下がるから、気をつけてね']
+      ],
+      visit_tenkichi: [
+        ['pon', "マテオ、あの人…天ぷら屋台の天吉さんだよ！ 番付で、ずっと上のほうにいる人！"],
+        ['tenkichi', "異国の皮で天ぷらを包む屋台ってのは、ここかい。いっちょ、食わせてもらおうじゃねえか"],
+        ['mateo', "天ぷらの名人に出すのか…。鱚の天ぷらタコス、心をこめて作ります！"]
+      ],
+      visit_tenkichi_good: [
+        ['tenkichi', "……衣はさっくり、鱚はふっくら。皮ってやつとも、ちゃんと合ってるじゃねえか"],
+        ['tenkichi', "負けちゃいらんねえな。うちの鱚、少し持っていきな。また来るぜ"]
+      ],
+      visit_tenkichi_bad: [
+        ['tenkichi', "ふん、衣がまだまだだ。油の音を聞きな、油の音を"],
+        ['mateo', "……次は、もっといい天ぷらを揚げてみせます！"]
+      ],
+      visit_hyotan: [
+        ['hyotan', "こんばんは。おでん屋台「ひょうたん」の鶴でございます。評判のたこす、ひとついただけますか"],
+        ['pon', "おでんのおかみさんだ！ 煮物には、きっとうるさいよ…"],
+        ['mateo', "おでんタコスで勝負だ。だしの染みた大根を、ていねいに！"]
+      ],
+      visit_hyotan_good: [
+        ['hyotan', "まあ、大根にだしがよく染みて…。包んで食べるおでんなんて、はじめて"],
+        ['hyotan', "うちの大根とこんにゃく、使ってくださいな。今度はうちにも食べにいらしてね"]
+      ],
+      visit_hyotan_bad: [
+        ['hyotan', "あら……だしが少しさみしいかしら。煮物は、待つのも料理のうちですよ"],
+        ['mateo', "待つのも料理……。覚えておきます！"]
+      ],
+      visit_chojuan: [
+        ['chojuan', "ほう、これが噂の屋台か。二八そばの長寿庵、長兵衛と申す"],
+        ['chojuan', "そばで包んだたこすがあると聞いてな。鴨南蛮を、ひとつ"],
+        ['pon', "長寿庵さんは、そば打ち五十年の名人だよ！ 責任重大…！"]
+      ],
+      visit_chojuan_good: [
+        ['chojuan', "……うむ。そばの香りを殺さず、鴨の脂がよく合う。若いのに、たいしたもんだ"],
+        ['chojuan', "うちのそば粉で打った皮を持っていきなさい。精進なされよ"]
+      ],
+      visit_chojuan_bad: [
+        ['chojuan', "ふうむ。そばの扱いが、まだ荒いな"],
+        ['chojuan', "五十年打っても、まだ道の途中じゃ。焦らずにな"]
+      ],
+      visit_daikokuya: [
+        ['pon', "た、大変だよマテオ！ 番付の大関、鰻の大黒屋の福蔵さんが来た！"],
+        ['daikokuya', "はっはっは、そう固くなるな。鰻をたこすにする若いのがいると聞いてな"],
+        ['daikokuya', "蒲焼のたこすを頼もう。鰻には、ちとうるさいぞ"]
+      ],
+      visit_daikokuya_good: [
+        ['daikokuya', "うまい！ 山椒の香りに、甘酢の茗荷……。鰻に、こんな食べ方があったとはな"],
+        ['daikokuya', "こいつは番付が楽しみだ。うちの蒲焼、持っていきな。大関の座は、まだ譲らんがな！ はっはっは"]
+      ],
+      visit_daikokuya_bad: [
+        ['daikokuya', "ふむ……鰻の焼きが、ちと甘いな"],
+        ['daikokuya', "だが、筋は悪くない。大関の座が欲しけりゃ、もっと腕を磨くんだな"]
       ],
       smuggle_first: [
         ['gonta', 'しっ……声がでけえ。抜け荷船の船頭、権太だ'],
@@ -2010,7 +2208,7 @@
       who: {
         mateo: 'Mateo', pon: 'Ponkichi', tatsu: 'Tatsugoro', yokichi: 'Yokichi', genpachi: 'Genpachi', hotta: 'Hotta Shinnojo',
         jonen: 'Priest Jonen', ikazuchi: 'Ikazuchiyama', sessai: 'Sessai', chin: 'Master Chin', ransai: 'Kasai Ransai', raizo: 'Hanakawado Raizo',
-        okane: 'Granny Okane', kumazo: 'Kumazo', gonta: 'Gonta', yami: 'Ginji the Black-Marketeer', genba: 'Zenbu Genba', uesama: 'His Highness', messenger: 'Castle envoy',
+        okane: 'Granny Okane', kumazo: 'Kumazo', gonta: 'Gonta', yami: 'Ginji the black-marketeer', daikokuya: 'Fukuzo of Daikokuya', tenkichi: 'Tenkichi the tempura man', chojuan: 'Chobei of Chojuan', hyotan: 'Tsuru of Hyotan', genba: 'Zenbu Genba', uesama: 'His Highness', messenger: 'Castle envoy',
         seri: 'Kanta the auctioneer', itamae: 'Seiji the chef', daidokoro: 'Steward Mikuriya', kitsune: 'Sosuke the Fox', hamazo: 'Hamazo the fisherman',
         narrator: '', traveler: 'Traveler', crowd: 'Townsfolk'
       },
@@ -2031,7 +2229,7 @@
         ['pon', "Morning, Mateo! Tacos need fillings. Let's hit the fish market auction!"],
         ['pon', "The fish market sells by the box: five sealed boxes, and you can only buy one."],
         ['pon', "Read the clues: the fishing-ground tag, how the auctioneer lifts it, any rattling, and the cat! As the price drops, shout \"Mine!\""],
-        ['mateo', 'Reading what is inside a box… I hope there is sea bream, whiting or octopus.']
+        ['mateo', "So I have to guess what's inside… I hope there's sea bream, whiting or octopus."]
       ],
       first_night: [
         ['pon', "We're open! Will anyone come?"],
@@ -2050,7 +2248,7 @@
         ['pon', "Amazing! We're the talk of the town!"],
         ['mateo', "Great… but we're low on tortillas. Could we make shells from Edo ingredients?"],
         ['pon', "Fu-no-yaki crepes, fried tofu, nori, buckwheat… let's try the rice shop and the tofu shop!"],
-        ['tatsu', "Don't get cocky over a little gossip. A real cook catches his own fish. Go line-fish in Edo Bay."]
+        ['tatsu', "Don't get cocky over a little gossip. A real cook catches his own fish. Go try line fishing in Edo Bay."]
       ],
       bozu_intro: [
         ['jonen', 'Excuse me. I am Jonen, from the temple nearby.'],
@@ -2059,7 +2257,7 @@
         ['pon', "Let's use potatoes, tofu, eggplant! No meat, fish or egg for monks."]
       ],
       rikishi_intro: [
-        ['crowd', "Look, it's Ikazuchiyama, the ozeki!"],
+        ['crowd', "Look, it's Ikazuchiyama, the Ozeki!"],
         ['ikazuchi', 'Thank you kindly. I came to eat my fill of these famous tacos.'],
         ['ikazuchi', 'I like them big. Pile on as much as you can!'],
         ['pon', 'Sumo wrestlers love big tacos — and they pay a lot for them!']
@@ -2085,7 +2283,7 @@
         ['pon', '"Lord of the Mountain Cabeza" is on the menu!']
       ],
       ch4: [
-        ['crowd', 'Broadsheet! Get your broadsheet! The pride of Ryogoku: the foreign stall "Takosu"!'],
+        ['crowd', "Kawaraban! Get your kawaraban! The pride of Ryogoku: the foreign stall \"Takosu\"!"],
         ['pon', "Mateo, we're the pride of Edo now!"],
         ['mateo', 'Cherry blossoms, first bonito, the river festival, eel day, moon viewing… invited to all of Edo\'s festivals!'],
         ['pon', 'Travelers from far away will come too. They bring their hometown specialties!']
@@ -2102,7 +2300,7 @@
         ['mateo', 'Tatsugoro, hold the roof! Get the customers inside!'],
         ['tatsu', 'R-right!'],
         ['narrator', '…Side by side, the two held up the stalls and kept every customer dry.'],
-        ['tatsu', "…Your shells aren't half bad. I'll teach you to pick sea urchin and tuna at the market. …It's not a thank-you."],
+        ['tatsu', "…Your shells aren't half bad. I'll teach you how to pick out good sea urchin and tuna at the market. …It's not a thank-you."],
         ['mateo', 'Thank you, Tatsugoro.'],
         ['pon', '(He\'s blushing…)']
       ],
@@ -2114,6 +2312,58 @@
         ['mateo', 'Maybe we can get closer to the real thing…'],
         ['pon', 'With my magic we can sneak into Nagasaki at night! "Nagasaki Smugglers" is open!'],
         ['pon', "But if the officials catch us, our reputation drops. Be careful!"]
+      ],
+      visit_tenkichi: [
+        ['pon', "Mateo, that's Tenkichi from the tempura stall! He's way up on the rankings!"],
+        ['tenkichi', "So this is the stall that wraps tempura in foreign shells. Let's see what you've got."],
+        ['mateo', "Serving a tempura master… I'll put my heart into this whiting tempura taco!"]
+      ],
+      visit_tenkichi_good: [
+        ['tenkichi', "…Crisp batter, plump whiting. It goes well with this shell of yours."],
+        ['tenkichi', "Can't let you get ahead of me. Take some of my whiting. I'll be back."]
+      ],
+      visit_tenkichi_bad: [
+        ['tenkichi', "Hmph, the batter needs work. Listen to the oil, the sound of the oil."],
+        ['mateo', "…Next time I'll fry better tempura!"]
+      ],
+      visit_hyotan: [
+        ['hyotan', "Good evening. I'm Tsuru, from the oden stall Hyotan. May I have one of your famous tacos?"],
+        ['pon', "It's the oden lady! She must be picky about simmered food…"],
+        ['mateo', "An oden taco it is. Daikon soaked in broth, made with care!"]
+      ],
+      visit_hyotan_good: [
+        ['hyotan', "My, the daikon has soaked up the broth so well… I've never had oden wrapped like this."],
+        ['hyotan', "Please, use some of our daikon and konnyaku. Come eat at our stall sometime too."]
+      ],
+      visit_hyotan_bad: [
+        ['hyotan', "Oh… the broth is a little thin, isn't it? With simmered food, waiting is part of the cooking."],
+        ['mateo', "Waiting is part of the cooking… I'll remember that!"]
+      ],
+      visit_chojuan: [
+        ['chojuan', "So this is the stall everyone talks about. I am Chobei, of Chojuan soba."],
+        ['chojuan', "I hear you wrap tacos in soba. One duck nanban, please."],
+        ['pon', "Chobei has been making soba for fifty years! No pressure…!"]
+      ],
+      visit_chojuan_good: [
+        ['chojuan', "…Mm. The duck fat suits the soba without drowning its aroma. Impressive for one so young."],
+        ['chojuan', "Take some shells made from our buckwheat. Keep at it."]
+      ],
+      visit_chojuan_bad: [
+        ['chojuan', "Hmm. Your handling of the soba is still rough."],
+        ['chojuan', "Even after fifty years, I'm still learning. Don't rush."]
+      ],
+      visit_daikokuya: [
+        ['pon', "M-Mateo! It's Fukuzo of Daikokuya eel, the Ozeki of the rankings!"],
+        ['daikokuya', "Ha ha ha, don't be so stiff. I heard a young fellow is turning eel into tacos."],
+        ['daikokuya', "I'll have the grilled eel taco. I'm a bit particular about eel, mind you."]
+      ],
+      visit_daikokuya_good: [
+        ['daikokuya', "Delicious! Sansho aroma, pickled myoga… I never knew eel could be eaten like this."],
+        ['daikokuya', "Can't wait to see the rankings. Take some of my grilled eel. But I'm not giving up the Ozeki spot yet! Ha ha ha!"]
+      ],
+      visit_daikokuya_bad: [
+        ['daikokuya', "Hm… the eel is a touch underdone."],
+        ['daikokuya', "But you've got the knack. If you want the Ozeki spot, keep polishing your skills."]
       ],
       smuggle_first: [
         ['gonta', "Shh… keep it down. I'm Gonta, captain of the smuggling boat."],
@@ -2150,9 +2400,9 @@
         ['pon', 'When you\'re ready, press "To the Offering" on the morning screen.']
       ],
       vip_rikishi_intro: [
-        ['ikazuchi', 'Mateo, I have a favor to ask. Tomorrow is the bout that decides yokozuna.'],
+        ['ikazuchi', "Mateo, I have a favor to ask. Tomorrow is the bout that decides if I become yokozuna."],
         ['ikazuchi', 'Feed me a giant taco on a triple-layer shell! Boar, deer, gamecock — five toppings or more!'],
-        ['pon', 'An eating challenge! "Triple shell" is in the Shell tab. Serve it before time runs out!']
+        ['pon', "An eating challenge! \"Triple shell\" is now in the Shell row. Serve it before time runs out!"]
       ],
       vip_rikishi_win: [
         ['ikazuchi', 'Thank you kindly!! Now the yokozuna rank is mine!'],
@@ -2160,7 +2410,7 @@
       ],
       vip_tojin_intro: [
         ['chin', 'I am Chin, a cook from the Chinese quarter in Nagasaki. No one beats me at sweet and sour.'],
-        ['chin', 'The theme: "fried boar with sweet-and-sour sauce". Your shell against my skill.'],
+        ['chin', "The challenge: \"fried boar with sweet-and-sour sauce\". Your shell against my skill."],
         ['pon', 'A sweet-and-sour showdown! Fried boar at the Momonjiya, sweet-and-sour sauce at the Rice Shop.']
       ],
       vip_tojin_win: [
@@ -2178,7 +2428,7 @@
       ],
       vip_oranda_intro: [
         ['ransai', "Mateo, let me try something. The bread the Dutch eat every meal… a shell of that dough,"],
-        ['ransai', 'topped with white fish cooked in butter. The theme is "the Dutch taco".'],
+        ['ransai', "topped with white fish cooked in butter. The challenge: the \"Oranda taco\"."],
         ['pon', 'Bread-dough shells are at the Rice Shop; butter comes from the Nagasaki smugglers!']
       ],
       vip_oranda_win: [
@@ -2186,7 +2436,7 @@
         ['pon', '"Oranda Taco" is on the menu!']
       ],
       vip_tribute_intro: [
-        ['narrator', 'Edo Castle, the shogun\'s kitchen.'],
+        ['narrator', "Edo Castle, the Shogun's kitchen."],
         ['genba', 'I am Zenbu Genba, head cook. I judge all that passes His Highness\'s lips.'],
         ['uesama', '…So you are the taco artisan. Raise your head. Now, show me.'],
         ['pon', 'Tenka Takosu! Real shell, sea bream, cacao mole, scallion, shiso, myoga and yuzu!']
@@ -2210,8 +2460,8 @@
         ['sessai', 'How stylish.'],
         ['tatsu', "…On the house. (quietly sets down a piece of sushi)"],
         ['pon', 'Mateo… you can go home now. This time I can undo the magic properly. …Will you go?'],
-        ['mateo', '(looks up at the noren and smiles) …On Tuesdays, we\'re still open.'],
-        ['narrator', '— The End —　…and the stall stays open.']
+        ['mateo', "(looks up at the noren and smiles) …Taco Tuesday's still open."],
+        ['narrator', "— The End — …and the stall stays open."]
       ],
       reg_yokichi: [
         ['yokichi', "Mateo, I brought everyone from my tenement! It'll be a lively night!"],

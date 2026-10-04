@@ -112,6 +112,29 @@
         S().synth({ f: f, dur: 1.2, vol: 0.06, osc: [{ type: 'triangle' }, { type: 'sine', mul: 2, gain: 0.3 }], env: { a: 0.02, d: 0.4, s: 0.6, r: 0.6 }, delay: 0.85, reverb: 0.35 });
       });
     },
-    tick: function () { S().tone({ type: 'square', f0: 1200, dur: 0.03, vol: 0.05 }); }
+    tick: function () { S().tone({ type: 'square', f0: 1200, dur: 0.03, vol: 0.05 }); },
+    // 椀を混ぜる（木の椀が盆の上をすべって、コトッ）
+    shuffle: function () {
+      S().noise({ dur: 0.07, vol: 0.1, f0: 1100, f1: 500, q: 1.4 });
+      S().tone({ type: 'sine', f0: 330 + Math.random() * 60, f1: 250, dur: 0.05, vol: 0.06, delay: 0.05 });
+    },
+    // 瓦版をめくる（紙がかさっ、ぱらっ）
+    paper: function () {
+      S().noise({ dur: 0.18, vol: 0.09, f0: 2600, f1: 6200, q: 0.5 });
+      S().noise({ dur: 0.12, vol: 0.07, f0: 5200, f1: 3000, q: 0.6, delay: 0.16 });
+    },
+    // 改装の大工仕事（トン・テン・カン）
+    hammer: function () {
+      [620, 820, 1040].forEach(function (f, i) {
+        S().synth({ f: f, dur: 0.04, vol: 0.16, osc: [{ type: 'square' }, { type: 'triangle', mul: 1.9 }],
+          env: { a: 0.001, d: 0.08, s: 0, r: 0.08 }, filter: { type: 'bandpass', f: f * 2, q: 2.5 }, reverb: 0.3, delay: i * 0.17 });
+      });
+    },
+    // 高級な一品が売れた（きらり）
+    sparkle: function () {
+      [1319, 1760, 2349, 3136].forEach(function (f, i) {
+        S().synth({ f: f, dur: 0.05, vol: 0.06, osc: [{ type: 'sine' }], env: { a: 0.002, d: 0.25, s: 0, r: 0.25 }, reverb: 0.35, delay: i * 0.06 });
+      });
+    }
   };
 })(window);

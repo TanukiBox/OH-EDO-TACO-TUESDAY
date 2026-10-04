@@ -39,6 +39,7 @@ body {
 .screen.scroll { overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: calc(96px + var(--safe-b)); }
 #loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 48px; animation: spin 1.2s linear infinite; }
 body.ready #loading { display: none; }
+body.ready.busy #loading { display: grid; z-index: 200; background: rgba(7,11,24,.6); }   /* 夜やミニゲームの前に、絵がそろうのを待つあいだ */
 @keyframes spin { to { transform: rotate(360deg); } }
 
 canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: block; }
@@ -204,8 +205,8 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 }
 
 /* ---------- 第2段階 ---------- */
-.row-btns { display: flex; align-items: center; gap: 10px; margin: 4px 16px; }
-.chapter-name { margin-left: auto; font-size: 13px; color: var(--lantern2); border: 1px solid #4a4658; border-radius: 999px; padding: 2px 10px; }
+.row-btns { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 4px 16px; }
+.chapter-name { white-space: nowrap; margin-left: auto; font-size: 13px; color: var(--lantern2); border: 1px solid #4a4658; border-radius: 999px; padding: 2px 10px; }
 .kago-panel { display: flex; gap: 10px; align-items: center; margin: 10px 16px; padding: 10px; background: #2e1a12; border: 2px solid #8c5228; border-radius: 12px; }
 .kago-panel > div { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .kago-panel span { font-size: 12px; color: var(--ink2); }
@@ -313,7 +314,9 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .pin.shop { background: #d2ec9a; }
 .pin.soon { background: #aaa292; opacity: .8; }
 .pin.blocked { opacity: .55; }
-.pin.home { background: #f24a2a; color: #fffaf0; cursor: default; }
+.pin.home { background: #f24a2a; color: #fffaf0; cursor: default; transform: translate(-14px, -100%); }   /* 屋台の札は目印の右へ（魚河岸の札と重ならないように） */
+.pin.home::after { left: 14px; }
+html:lang(en) .pin { font-size: 9px; padding: 1px 4px; }   /* 英語の札は少し小さく */
 .auc-panel { background-size: cover; background-position: center; image-rendering: pixelated; }
 .dlg-face-img { width: 56px; height: 56px; }
 .dlg-face { overflow: hidden; }
@@ -337,6 +340,12 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .fx-banner.nushi { background: linear-gradient(90deg, transparent, rgba(23,43,88,.95) 15%, rgba(23,43,88,.95) 85%, transparent); animation: pop .3s ease-out, shake .4s; }
 .fx-banner.win { background: linear-gradient(90deg, transparent, rgba(31,106,44,.92) 15%, rgba(31,106,44,.92) 85%, transparent); }
 .fx-banner.out { opacity: 0; }
+.fx-banner.bz { background: linear-gradient(90deg, transparent, rgba(122,20,20,.95) 15%, rgba(122,20,20,.95) 85%, transparent); animation: pop .3s ease-out, bzRise .6s ease-out; }
+.fx-banner.bz .fx-sub { font-family: "Yuji Syuku", serif; font-size: 30px; letter-spacing: 4px; }
+@keyframes bzRise { from { transform: translateY(40px); } to { transform: translateY(0); } }
+.fx-banner.kaiso { background: linear-gradient(90deg, transparent, rgba(140,82,40,.95) 15%, rgba(140,82,40,.95) 85%, transparent); }
+.fx-banner.premium { top: 20%; padding: 10px 0; background: linear-gradient(90deg, transparent, rgba(220,162,74,.95) 15%, rgba(220,162,74,.95) 85%, transparent); }
+.fx-banner.premium .fx-title { color: #1c1220; text-shadow: none; }
 .fx-title { font-family: "Mochiy Pop One", sans-serif; font-size: 36px; color: #ffe6b0; text-shadow: 0 3px 0 #1c1220; }
 .fx-sub { font-family: "Yuji Syuku", serif; font-size: 26px; color: #fffaf0; }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
@@ -825,3 +834,17 @@ canvas.pix { image-rendering: pixelated; image-rendering: crisp-edges; display: 
 .kaiso-row .btn { flex: none; white-space: nowrap; }
 .kaiso-row .btn.off { opacity: .45; }
 .kaiso-max { flex: none; font-size: 11px; color: var(--muted); }
+.ym-key { font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 6px; background: #f24a2a; color: #fffaf0; }
+.ym-crate:has(.ym-key) { border-color: #f24a2a; }
+
+/* ---------- 実績 ---------- */
+.ach-card { display: flex; gap: 10px; align-items: center; background: var(--panel2); border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; opacity: .75; }
+.ach-card.got { opacity: 1; border-color: var(--lantern); background: #3a3020; }
+.ach-icon { font-size: 24px; flex: none; }
+.ach-info { display: flex; flex-direction: column; min-width: 0; }
+.ach-info b { font-size: 14px; }
+.ach-info span { font-size: 12px; color: var(--ink2); }
+.ach-day { color: var(--lantern2) !important; }
+.ach-prog { color: var(--lantern) !important; font-weight: 800; }
+.notice.goals { background: #3a3020; border: 2px solid var(--lantern); color: var(--ink); }
+.notice.goals ul { margin: 6px 0 8px; padding-left: 1.2em; font-size: 13px; font-weight: 600; line-height: 1.6; }

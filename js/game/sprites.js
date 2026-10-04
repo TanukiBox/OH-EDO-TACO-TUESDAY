@@ -40,27 +40,78 @@
   ((A.yami || {}).images || []).forEach(function (k) { file('ym_' + k, 'yami/' + k + '.png'); });
 
   var loaded = {};
+  // ---------------------------------------------------------------
+  // 読み込みの順番（スマホではじめの画面を早く出す）
+  //   ・タイトルと朝に要る絵（BOOT）だけを待って、ゲームを始める
+  //   ・ほかの絵は、すぐ後ろで読み込みつづける（夜やミニゲームの前に whenAll で待つ）
+  //   ・使っていない塗り方の版（*_toon / stallt_* / *_classic）は、使うときに読む
+  // ---------------------------------------------------------------
+  var BOOT = { logo: 1, faces: 1, icons: 1, map: 1, map_classic: 1 };
+  var allReady = false, waiters = [];
+  function isVariant(k) { return /_toon$/.test(k) || /^stallt_/.test(k) || /_classic$/.test(k); }
+  function variantWanted(k) {
+    var AS = OT.CFG.ART_STYLE || {};
+    if (/^k_.*_toon$/.test(k)) return AS.kitchen === 'toon';
+    if (/^stallt_/.test(k)) return AS.stall === 'toon';
+    if (k === 'map_classic') return AS.map === 'classic';
+    if (/_classic$/.test(k)) return AS.minigames === 'classic';
+    return true;
+  }
+  /** まだ読んでいない絵を読みはじめる（塗り方を切りかえたとき） */
+  function want(k) {
+    if (!img[k] || loaded[k]) return;
+    var im = new Image();
+    im.src = BASE + img[k] + '?v=' + OT.VERSION;
+    loaded[k] = im;
+  }
   // 絵の塗り方（config.js の ART_STYLE）：'classic' なら前の塗り方の版（*_classic）を使う
   var STYLE_GROUP = { map: 'map', bg_fishing: 'minigames', bg_forage: 'minigames', bg_hunt: 'minigames', ym_bg_yami: 'minigames', ym_fg_yami: 'minigames' };
   function ok(k) { var im = loaded[k]; return !!(im && im.complete && im.naturalWidth); }
   function styled(k) {
     var g = STYLE_GROUP[k], AS = OT.CFG.ART_STYLE || {};
-    if (g && AS[g] === 'classic') { var ck = k.replace(/^ym_/, '') + '_classic'; if (ok(ck)) return ck; }
+    if (g && AS[g] === 'classic') { var ck = k.replace(/^ym_/, '') + '_classic'; if (ok(ck)) return ck; want(ck); }
+    if (/^k_(shichirin|fryer|wara)_toon$/.test(k)) want(k);
     return k;
   }
+  // 読めなかった絵を描こうとしても止まらないように（その絵だけ描かずに進む）
+  var drawImage0 = CanvasRenderingContext2D.prototype.drawImage;
+  CanvasRenderingContext2D.prototype.drawImage = function (im) {
+    if (im instanceof HTMLImageElement && im.complete && !im.naturalWidth) return;
+    return drawImage0.apply(this, arguments);
+  };
   OT.sprites = {
     has: function (k) { return ok(styled(k)); },
     get: function (k) { return loaded[styled(k)]; },
     load: function (done) {
-      var keys = Object.keys(img), left = keys.length;
-      if (!left) { done(); return; }
+      var keys = Object.keys(img).filter(function (k) { return !isVariant(k) || variantWanted(k); });
+      var boot = keys.filter(function (k) { return BOOT[k]; }), bootLeft = boot.length, left = keys.length, started = false;
+      function start() { if (!started) { started = true; done(); } }
+      if (!left) { allReady = true; start(); return; }
       keys.forEach(function (k) {
         var im = new Image();
-        im.onload = im.onerror = function () { if (--left === 0) { ready = true; done(); } };
+        im.onload = function () {
+          if (BOOT[k] && --bootLeft === 0) start();
+          if (--left === 0) { ready = true; allReady = true; start(); var w = waiters; waiters = []; w.forEach(function (f) { f(); }); }
+        };
+        // 読めなかった絵（電波が悪い など）は、少しおいてもう一度だけ読みなおす
+        im.onerror = function () {
+          if (im._retry) { im.onload(); return; }
+          im._retry = 1;
+          setTimeout(function () { im.src = BASE + img[k] + '?v=' + OT.VERSION + '&retry=1'; }, 800);
+        };
         im.src = BASE + img[k] + '?v=' + OT.VERSION;
         loaded[k] = im;
       });
+      if (!bootLeft) start();
     },
+    /** 絵がぜんぶ読めたら fn（まだなら、くるくるを出して待つ） */
+    whenAll: function (fn) {
+      if (allReady) { fn(); return; }
+      document.body.classList.add('busy');
+      waiters.push(function () { document.body.classList.remove('busy'); fn(); });
+    },
+    /** 塗り方を切りかえたとき：その塗り方の絵を読みはじめる */
+    wantStyle: function () { Object.keys(img).forEach(function (k) { if (isVariant(k) && variantWanted(k)) want(k); }); },
     /** 星3の大写し（読み込みは使うときに） */
     closeup: function (key) {
       var k = 'close_' + key;
@@ -79,7 +130,7 @@
   OT.sprites.personKey = function (g) {
     if (!g) return null;
     if (typeof g === 'string') return A.people && A.people[g] ? g : null;
-    var cand = g.vipGuest || g.regular || (g.traveler ? 'tabibito' : null) || (g.fisher ? 'hamazo' : null);
+    var cand = g.vipGuest || g.visitor || g.regular || (g.traveler ? 'tabibito' : null) || (g.fisher ? 'hamazo' : null);
     if (cand && A.people[cand]) return cand;
     var v = (g.variantSeed || 0) % 2 ? '_b' : '_a';
     return A.people[g.typeId + v] ? g.typeId + v : null;
@@ -296,7 +347,12 @@
   // 屋台
   // ---------------------------------------------------------------
   /** 屋台の絵の頭の名前：ART_STYLE.stall が 'toon' ならセル調版 */
-  function stallPre() { return (OT.CFG.ART_STYLE || {}).stall === 'toon' && S.has('stallt_normal') ? 'stallt_' : 'stall_'; }
+  function stallPre() {
+    if ((OT.CFG.ART_STYLE || {}).stall !== 'toon') return 'stall_';
+    if (S.has('stallt_normal')) return 'stallt_';
+    S.wantStyle();
+    return 'stall_';
+  }
   OT.sprites.stallBg = function (festival) {
     var p = stallPre(), k = p + (festival || 'normal');
     return S.has(k) ? loaded[k] : (S.has(p + 'normal') ? loaded[p + 'normal'] : null);

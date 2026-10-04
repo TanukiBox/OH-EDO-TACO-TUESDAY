@@ -80,8 +80,7 @@
             OT.state.save();
             OT.sfx.buy();
             OT.kaiso.enter();
-            OT.ui.toast(OT.t('kaiso.done', { name: OT.t('kaiso.' + k + '.' + (lv + 1)) }), 'tip');
-            if (OT.fx && OT.fx.confetti) OT.fx.confetti();
+            OT.fx.kaiso(OT.t('kaiso.done', { name: OT.t('kaiso.' + k + '.' + (lv + 1)) }));
           }, 'small' + (poor ? ' off' : '')));
         }
         list.appendChild(row);

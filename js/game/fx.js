@@ -79,6 +79,12 @@
     rankUp: function (name) { flashBanner('rank', OT.t('rank.up'), name, 2200); OT.sfx.happy(3); },
     nushi: function (name) { flashBanner('nushi', OT.t('fx.nushi'), name, 1600); OT.sfx.clack(3); },
     win: function () { flashBanner('win', OT.t('fx.win'), null, 1600); OT.sfx.happy(3); },
+    /** 番付が上がった（はじめて載った）：名前がせり上がる */
+    banzuke: function (head, title) { flashBanner('bz', head, title, 2400); OT.sfx.happy(3); setTimeout(function () { OT.fx.celebrate(); }, 300); },
+    /** 屋台の改装ができあがった */
+    kaiso: function (name) { flashBanner('kaiso', OT.t('fx.kaiso'), name, 1800); OT.sfx.hammer(); setTimeout(function () { OT.sfx.happy(2); }, 520); },
+    /** 高級な一品が売れた */
+    premium: function (name, pay) { flashBanner('premium', OT.t('fx.premium', { pay: pay }), name, 1400); OT.sfx.sparkle(); },
     celebrate: function () { var box = OT.el('div', { class: 'fx-confetti' }); confetti(box, 80); layer().appendChild(box); setTimeout(function () { if (box.parentNode) box.parentNode.removeChild(box); }, 4000); }
   };
 })(window);
